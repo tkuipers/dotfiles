@@ -2,6 +2,8 @@
 *
 .vim/unodir/*
 
+
+
 #don't ignore these files
 !.pentadactyl/
 !vim/
