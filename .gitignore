@@ -1,5 +1,6 @@
 #ignore everything
 *
+.vim/unodir/*
 
 #don't ignore these files
 !.pentadactyl/
