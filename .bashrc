@@ -3,6 +3,9 @@
 # Path to the bash it configuration
 export BASH_IT="$HOME/.bash_it"
 
+#Change the default editor to vim
+export EDITOR='vim'
+
 # Lock and Load a custom theme file
 # location /.bash_it/themes/
 export BASH_IT_THEME='luan'
