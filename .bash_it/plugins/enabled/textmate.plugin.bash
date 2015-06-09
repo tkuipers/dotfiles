@@ -1,0 +1,1 @@
+../available/textmate.plugin.bash

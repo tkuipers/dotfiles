@@ -1,0 +1,1 @@
+../available/salt.completion.bash
