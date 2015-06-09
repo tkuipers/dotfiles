@@ -3,21 +3,22 @@
 # Path to the bash it configuration
 export BASH_IT="$HOME/.bash_it"
 
-#Change the default editor to vim
-export EDITOR='vim'
-
 # Lock and Load a custom theme file
 # location /.bash_it/themes/
 export BASH_IT_THEME='luan'
 
 # Your place for hosting Git repos. I use this for private repos.
 export GIT_HOSTING='git@git.domain.com'
+#export GIT_EDITOR='vi'
 
 # Don't check mail when opening terminal.
 unset MAILCHECK
 
 #Add keybindings for scrolling using <ctrl>jkl;
 bind '"\e^j":"\e[A"'
+
+#change the default pager to man
+export MANPAGER="/bin/sh -c \"col -b | vim -c 'set ft=man ts=8 nomod nolist nonu noma' -\""
 
 
 # Change this to your console based IRC client of choice.
@@ -36,7 +37,7 @@ alias l='ls -CF'
 
 #add dotifiles git alias
 alias add='git add -A'
-alias co='git commit'
+#alias co='git commit'
 alias push='git push'
 alias st='git status'
 
@@ -55,3 +56,7 @@ shopt -s histappend
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=1000
 HISTFILESIZE=2000
+
+#unset git editor
+export GIT_EDITOR=vim
+# unset GIT_EDITOR

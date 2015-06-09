@@ -21,8 +21,12 @@ set undofile
 set undolevels=1000
 set undoreload=10000
 
+" clear the PAGER environment
+let $PAGER=''
 
-" " Undo dir settings
+
+
+" " Undo dir settinglsGER=''
 " " Put plugins and dictionaries in this dir (also on Windows)
 " let vimDir = '$HOME/.vim'
 " let &runtimepath.=','.vimDir
