@@ -81,6 +81,7 @@ nnoremap k j
 nnoremap l k
 nnoremap ; l
 
+
 colorscheme monokai " Requires monokai.vim to be present in ~/.vim/colors
 " let g:solarized_termcolors=256
 " set background=dark

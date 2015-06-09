@@ -1,0 +1,10 @@
+#ignore everything
+*
+
+#don't ignore these files
+!.pentadactyl/
+!vim/
+!.bashrc
+!.pentadactylrc
+!.vimrc
+!.gitignore
