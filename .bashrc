@@ -33,7 +33,7 @@ alias l='ls -CF'
 
 #add dotifiles git alias
 alias add='git add -A'
-alias co='git commit -m '
+alias co='git commit'
 alias push='git push'
 alias st='git status'
 
