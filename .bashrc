@@ -31,6 +31,12 @@ alias ll='ls -al'
 alias la='ls -A'
 alias l='ls -CF'
 
+#add dotifiles git alias
+alias add='git add -A'
+alias co='git commit -m '
+alias push='git push'
+alias st='git status'
+
 #add install aliases
 alias ins='sudo apt-get install'
 
