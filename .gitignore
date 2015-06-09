@@ -1,15 +1,15 @@
 #ignore everything
 *
-.vim/unodir/*
+
 
 
 
 #don't ignore these files
-.pentadactyl/
-vim/
+
+
 !.bashrc
 !.pentadactylrc
 !.vimrc
 !.gitignore
-.bash_it/
+
 !install.sh
