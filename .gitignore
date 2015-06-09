@@ -5,11 +5,11 @@
 
 
 #don't ignore these files
-!.pentadactyl/
-!vim/
+.pentadactyl/
+vim/
 !.bashrc
 !.pentadactylrc
 !.vimrc
 !.gitignore
-!.bash_it/
+.bash_it/
 !install.sh
