@@ -8,4 +8,5 @@
 !.pentadactylrc
 !.vimrc
 !.gitignore
-!.bash_it
+!.bash_it/
+!install.sh
