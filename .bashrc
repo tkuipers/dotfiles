@@ -59,6 +59,8 @@ alias co='git commit'
 alias push='git push'
 alias st='git status'
 
+#fix for mistyping vi
+alias ci='vi'
 #add install aliases
 alias ins='sudo apt-get install'
 
