@@ -61,6 +61,7 @@ alias st='git status'
 
 #fix for mistyping vi
 alias ci='vi'
-#add install aliases
+
+#add install aliase
 alias ins='sudo apt-get install'
 
