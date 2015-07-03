@@ -53,6 +53,10 @@ alias ll='ls -al'
 alias la='ls -A'
 alias l='ls -CF'
 
+#bind ctrl-m to reset terminal
+bind '"\C-o":"reset\C-m"'
+
+
 #add dotifiles git alias
 alias add='git add -A'
 alias co='git commit'
