@@ -38,6 +38,10 @@ source $BASH_IT/bash_it.sh
 #Append the history file, don't delete it
 shopt -s histappend
 
+#don't put duplicates or lines starting with space in the history file
+
+HISTCONTROL=ignoreboth
+
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=1000
 HISTFILESIZE=2000
