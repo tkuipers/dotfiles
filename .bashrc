@@ -58,7 +58,9 @@ alias la='ls -A'
 alias l='ls -CF'
 
 #bind ctrl-m to reset terminal
-bind '"\C-o":"reset\C-m"'
+if [[ $- == *i* ]]; then
+	bind '"\C-o":"reset\C-m"'
+fi
 
 
 #add dotifiles git alias
