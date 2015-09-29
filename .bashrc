@@ -1,40 +1,5 @@
 #!/usr/bin/env bash
 
-# Path to the bash it configuration
-export BASH_IT="$HOME/.bash_it"
-
-# Lock and Load a custom theme file
-# location /.bash_it/themes/
-export BASH_IT_THEME='luan'
-
-# Your place for hosting Git repos. I use this for private repos.
-export GIT_HOSTING='git@git.domain.com'
-#export GIT_EDITOR='vi'
-
-# Don't check mail when opening terminal.
-unset MAILCHECK
-
-# Change this to your console based IRC client of choice.
-export IRC_CLIENT='irssi'
-
-# Set this to the command you use for todo.txt-cli
-export TODO="t"
-
-# Set this to false to turn off version control status checking within the prompt for all themes
-export SCM_CHECK=true
-
-# https://github.com/xvzf/vcprompt
-#export VCPROMPT_EXECUTABLE=~/.vcprompt/bin/vcprompt
-
-# Load Bash It
-source $BASH_IT/bash_it.sh
-
-###############################################################################
-#												                              #
-#                        ONLY COMMENT AFTER THIS LINE                         #
-#												                              #
-###############################################################################
-
 #Append the history file, don't delete it
 shopt -s histappend
 
@@ -53,15 +18,17 @@ export GIT_EDITOR=vim
 export MANPAGER="/bin/sh -c \"col -b | vim -c 'set ft=man ts=8 nomod nolist nonu noma' -\""
 
 #add directory listing aliases
+alias ls='ls -CF --color=auto'
 alias ll='ls -al'
 alias la='ls -A'
 alias l='ls -CF'
+alias write='/usr/bin/bsd-write'
+alias nc='nc.traditional'
 
 #bind ctrl-m to reset terminal
 if [[ $- == *i* ]]; then
 	bind '"\C-o":"reset\C-m"'
 fi
-
 
 #add dotifiles git alias
 alias add='git add -A'
@@ -75,3 +42,20 @@ alias ci='vi'
 #add install aliase
 alias ins='sudo apt-get install'
 
+
+# add node modules to path
+export PATH="$PATH:$HOME/node_modules/.bin"
+
+#add pip to path
+export PATH="$PATH:$HOME/.local/bin"
+export PATH="$PATH:$HOME/.pip"
+export PATH="$PATH:$HOME/.gem/ruby/1.9.1/bin"
+export PATH="$PATH:$HOME/.bin"
+export PATH="$HOME/.bin/vagrant_1.7.4_x86/opt/vagrant/bin:$PATH"
+
+#colorize
+if [[ $- = *i* ]] ; then
+    # Shell is non-interactive.  Be done now!
+	export PS1="\[\033[38;5;39m\]\u\[$(tput sgr0)\]\[\033[38;5;158m\]@\[$(tput sgr0)\]\[\033[38;5;39m\]\h\[$(tput sgr0)\]\[\033[38;5;226m\]:\[$(tput bold)\]\[$(tput sgr0)\]\[\033[38;5;49m\]\w\[$(tput sgr0)\]\[$(tput sgr0)\]\[\033[38;5;6m\]:\[$(tput sgr0)\]\[\033[38;5;15m\]\n\[$(tput sgr0)\]\[\033[38;5;110m\]\\$\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput sgr0)\]"
+	return
+fi
