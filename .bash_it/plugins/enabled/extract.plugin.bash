@@ -1,1 +1,0 @@
-../available/extract.plugin.bash

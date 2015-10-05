@@ -1,1 +1,0 @@
-../available/dirs.completion.bash

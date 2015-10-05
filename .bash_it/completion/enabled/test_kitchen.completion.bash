@@ -1,1 +1,0 @@
-../available/test_kitchen.completion.bash

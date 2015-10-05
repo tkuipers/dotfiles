@@ -1,1 +1,0 @@
-../available/rbenv.plugin.bash

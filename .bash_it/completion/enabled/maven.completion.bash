@@ -1,1 +1,0 @@
-../available/maven.completion.bash

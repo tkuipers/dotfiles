@@ -1,1 +1,0 @@
-../available/ssh.plugin.bash

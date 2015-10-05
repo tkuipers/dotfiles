@@ -1,1 +1,0 @@
-../available/java.plugin.bash

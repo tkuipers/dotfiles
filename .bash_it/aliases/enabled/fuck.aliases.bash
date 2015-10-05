@@ -1,1 +1,0 @@
-../available/fuck.aliases.bash

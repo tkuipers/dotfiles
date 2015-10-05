@@ -1,1 +1,0 @@
-../available/gulp.completion.bash

@@ -1,1 +1,0 @@
-../available/drush.completion.bash

@@ -1,1 +1,0 @@
-../available/laravel.aliases.bash

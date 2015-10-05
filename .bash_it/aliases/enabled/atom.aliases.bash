@@ -1,1 +1,0 @@
-../available/atom.aliases.bash

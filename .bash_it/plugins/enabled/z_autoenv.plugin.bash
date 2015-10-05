@@ -1,1 +1,0 @@
-../available/z_autoenv.plugin.bash
