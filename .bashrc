@@ -52,6 +52,7 @@ export PATH="$PATH:$HOME/.pip"
 export PATH="$PATH:$HOME/.gem/ruby/1.9.1/bin"
 export PATH="$PATH:$HOME/.bin"
 export PATH="$HOME/.bin/vagrant_1.7.4_x86/opt/vagrant/bin:$PATH"
+export CLASSPATH="/usr/share/java/servlet-api-3.0.jar:$CLASSPATH"
 
 #colorize
 if [[ $- = *i* ]] ; then
