@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+if [[ -f  ~/.sonarFunction  ]]
+then
+	. ~/.sonarFunction
+fi
 #Append the history file, don't delete it
 shopt -s histappend
 
@@ -19,11 +23,23 @@ export MANPAGER="/bin/sh -c \"col -b | vim -c 'set ft=man ts=8 nomod nolist nonu
 
 #add directory listing aliases
 alias ls='ls -CF --color=auto'
+alias ks='ls -CF --color=auto'
 alias ll='ls -al'
 alias la='ls -A'
 alias l='ls -CF'
 alias write='/usr/bin/bsd-write'
 alias nc='nc.traditional'
+alias rc='. ~/.bashrc'
+alias c='cd /cygdrive/c'
+alias postgres='psql -hlocalhost --user postgres --password'
+alias gituntrack='git update-index --skip-worktree'
+alias gittrack='git update-index --no-skip-worktree'
+alias listuntracked='git ls-files -v . | grep ^S'
+alias search='find . | grep -i --color=always'
+alias fix='kill -WINCH $$'
+alias grep='grep --color=always'
+alias nmap="/cygdrive/c/Program\ Files\ \(x86\)/Nmap/nmap.exe"
+alias sqlite='sqlite3'
 
 #bind ctrl-m to reset terminal
 if [[ $- == *i* ]]; then
