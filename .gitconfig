@@ -1,0 +1,14 @@
+[merge]
+	tool = vimdiff
+	conflictstyle = diff3
+[user]
+	email = tyler.kuipers@ama.ab.ca
+	name = Tyler Kuipers
+[mergetool]
+	keepBackup = false
+[alias]
+	cleanup = ! find . -name \\*.orig -delete
+[diff]
+    tool = vimdiff
+[difftool]
+    prompt = false
