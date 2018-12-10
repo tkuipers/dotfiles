@@ -8,9 +8,11 @@
 	keepBackup = false
 [alias]
 	cleanup = ! find . -name \\*.orig -delete
+	graph = log --oneline --pretty --decorate --graph
+	branchprune = remote prune origin
 [diff]
     tool = vimdiff
 [difftool]
     prompt = false
 [credential]
-	helper = cache --timeout 600
+	helper = cache

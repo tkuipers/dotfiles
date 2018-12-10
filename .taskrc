@@ -29,3 +29,6 @@ include /usr/share/taskwarrior/solarized-dark-256.theme
 #include /usr/share/taskwarrior/solarized-light-256.theme
 #include /usr/share/taskwarrior/no-color.theme
 
+urgency.due.coefficient=8.0
+uda.priority.values=H,M,,L,XL
+urgency.uda.priority.XL.coefficient=1.0

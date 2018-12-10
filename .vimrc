@@ -1,7 +1,14 @@
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
 let mapleader = "\<Space>"
 
 nnoremap <F3> :set hlsearch!<CR>
 set number
+set hlsearch
 
 
 set tabstop=4
@@ -38,3 +45,9 @@ nnoremap rr :edit<CR>
 
 let base16colorspace=256
 colorscheme base16-default-dark
+
+call plug#begin('~/.vim/plugged')
+Plug 'dart-lang/dart-vim-plugin'
+Plug 'itchyny/lightline.vim'
+call plug#end()
+set laststatus=2
