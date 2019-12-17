@@ -13,13 +13,53 @@ export PATH="$PATH:$HOME/.gem/ruby/1.9.1/bin"
 export PATH="$PATH:$HOME/.bin"
 export PATH="$HOME/.bin/vagrant_1.7.4_x86/opt/vagrant/bin:$PATH"
 export PATH="$PATH:~/apache-ant-1.7.1/bin"
+export JAVA_HOME="/usr/bin/jdk1.6.0_45/"
+export PATH="$PATH:$JAVA_HOME/bin"
+export ANT_HOME="/usr/bin/apache-ant-1.7.1/"
+export PATH="$PATH:$ANT_HOME/bin"
+export NODE_HOME="/usr/bin/node-v7.2.1-linux-x64/"
+export PATH="$PATH:$NODE_HOME/bin"
+export KITTY_HOME="/usr/bin/kitty.app"
+export PATH="$PATH:$KITTY_HOME/bin"
+export SCRIPTS_HOME="$HOME/.scripts"
+export PATH="$PATH:$SCRIPTS_HOME"
+export PC_HOME="$HOME/PolicyCenter"
+export PATH="$PATH:$PC_HOME/bin"
+export POSTMAN_HOME="$HOME/Downloads/Postman"
+export PATH="$PATH:$POSTMAN_HOME"
+export INTELLIJ_HOME="$HOME/Downloads/idea-IC-193.5233.102"
+export PATH="$PATH:$INTELLIJ_HOME/bin"
+export GRADLE_HOME="$HOME/Downloads/gradle-2.14.1-bin"
+export PATH="$PATH:$GRADLE_HOME/bin"
+export FLUTTER_HOME="$HOME/flutter"
+export PATH="$PATH:$FLUTTER_HOME/bin"
+export GO_HOME="$HOME/go"
+export PATH="$PATH:$GO_HOME/bin"
+
+
+export AGL_TOP=$HOME/workspace_agl
 export CLASSPATH="/usr/share/java/servlet-api-3.0.jar:$CLASSPATH"
 export GIT_EDITOR=vim
 export MANPAGER="/bin/sh -c \"col -b | vim -c 'set ft=man ts=8 nomod nolist nonu noma' -\""
 
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 if [[ -f  ~/.alias  ]]
 then
 	. ~/.alias
+fi
+
+if [[ -f  ~/.tizonia  ]]
+then
+	. ~/.tizonia
+fi
+
+source /usr/share/bash-completion/completions/git
+
+if [[ -f  /usr/share/bash-completion/completions/git  ]]
+then
+	. /usr/share/bash-completion/completions/git
 fi
 
 shopt -s histappend
@@ -91,3 +131,4 @@ if [[ $- = *i* ]] ; then
 	return
 fi
 export DOCKER_HOST=tcp://localhost:2375
+
