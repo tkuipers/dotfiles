@@ -15,6 +15,7 @@ export PATH="$HOME/.bin/vagrant_1.7.4_x86/opt/vagrant/bin:$PATH"
 export PATH="$PATH:~/apache-ant-1.7.1/bin"
 export JAVA_HOME="/usr/bin/jdk1.6.0_45/"
 export PATH="$PATH:$JAVA_HOME/bin"
+export UAA_JAVA_CMD="/home/administrator/Downloads/jdk1.8.0_241/bin/java"
 export ANT_HOME="/usr/bin/apache-ant-1.7.1/"
 export PATH="$PATH:$ANT_HOME/bin"
 export NODE_HOME="/usr/bin/node-v7.2.1-linux-x64/"
@@ -29,6 +30,8 @@ export POSTMAN_HOME="$HOME/Downloads/Postman"
 export PATH="$PATH:$POSTMAN_HOME"
 export INTELLIJ_HOME="$HOME/Downloads/idea-IC-193.5233.102"
 export PATH="$PATH:$INTELLIJ_HOME/bin"
+export PYCHARM_HOME="$HOME/Downloads/pycharm-community-2020.1/"
+export PATH="$PATH:$PYCHARM_HOME/bin"
 export GRADLE_HOME="$HOME/Downloads/gradle-2.14.1-bin"
 export PATH="$PATH:$GRADLE_HOME/bin"
 export FLUTTER_HOME="$HOME/flutter"
@@ -106,7 +109,7 @@ function gitforcetrim(){
 }
 
 function rnbwdirs(){
-	dirs | lolcat -f --freq=0.5
+	dirs #  | lolcat -f --freq=0.5
 }
 
 function cpyuppers(){

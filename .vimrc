@@ -3,51 +3,26 @@ if empty(glob('~/.vim/autoload/plug.vim'))
     \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
-
-let mapleader = "\<Space>"
-
-nnoremap <F3> :set hlsearch!<CR>
 set number
-set hlsearch
 
-
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
-set noexpandtab
-
-set smartindent
-syntax on
-
-set ignorecase
-set smartcase
-set termguicolors
-
-set foldmethod=indent " fold based on indentation
-set foldnestmax=10 " deepest fold is 10 levels
-set nofoldenable " disable fold by default
-set foldlevel=1
-
-nnoremap <leader>j <C-W><C-H>
-nnoremap <leader>; <C-W><C-L>
-nnoremap <leader>k <C-W><C-J>
-nnoremap <leader>l <C-W><C-K>
-
-nnoremap j h
-nnoremap k j
-nnoremap l k
-nnoremap ; l
-
-nnoremap ba :diffget BA<CR>
-nnoremap re :diffget RE<CR>
-nnoremap lo :diffget LO<CR>
-nnoremap rr :edit<CR>
-
-let base16colorspace=256
-colorscheme base16-default-dark
+	
 
 call plug#begin('~/.vim/plugged')
-Plug 'dart-lang/dart-vim-plugin'
-Plug 'itchyny/lightline.vim'
+Plug 'elzr/vim-json'
+Plug 'danilo-augusto/vim-afterglow'
+Plug 'scrooloose/nerdtree'
+Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'ctrlpvim/ctrlp.vim'
+Plug 'preservim/nerdcommenter'
 call plug#end()
-set laststatus=2
+colorscheme afterglow
+let mapleader=" "
+set sts=2
+set ts=2
+set sw=2
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+nmap <C-O> :NERDTreeToggle<CR>
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif

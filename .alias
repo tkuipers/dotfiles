@@ -39,3 +39,5 @@ alias moon='curl wttr.in/Moon'
 alias config='vi ~/.config/i3/config'
 alias postman='Postman'
 #alias gradle='JAVA_HOME="/home/administrator/Downloads/jdk-8u231-linux-x64" gradle'
+alias off='sudo shutdown -h now'
+alias python=python3
