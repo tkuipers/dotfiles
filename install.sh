@@ -29,6 +29,7 @@ cd dotfiles
 cp ./bashrc ~/.bashrc
 cp ./alias ~/.alias
 cp ./function ~/.function
+cp ./vimrc ~/.vimrc
 source ~/.bashrc
 
 echo "Installing Kitty"
@@ -36,7 +37,7 @@ curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
 cp ./kitty.conf $USER_HOME/.config/kitty/kitty.conf
 
 echo "Installing kitty themes"
-git clone --depth 1 git@github.com:dexpota/kitty-themes.git $USER_HOME/.config/kitty/kitty-themes
+git clone --depth 1 https://github.com/dexpota/kitty-themes.git $USER_HOME/.config/kitty/kitty-themes
 cd ~/.config/kitty
 ln -s ./kitty-themes/themes/Zenburn.conf ~/.config/kitty/theme.conf
 cd $TEMP_DIR
@@ -50,3 +51,8 @@ alternatives --auto x-terminal-emulator
 echo "Settin up Vim"
 git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 vim +PluginInstall +qall
+
+
+echo "Installing i3 themer"
+cd $TEMP_DIR
+git clone https://github.com/cizordj/i3-themer.git
