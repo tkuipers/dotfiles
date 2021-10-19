@@ -1,10 +1,14 @@
 #!/bin/bash
 
+export DEBIAN_FRONTEND=noninteractive
 START_DIR=$(pwd)
 TEMP_DIR="/tmp"
 USER_HOME="$HOME"
 USER="$USER"
-DEBIAN_FRONTEND=noninteractive
+
+ln -fs /usr/share/zoneinfo/America/Edmonton /etc/localtime
+apt-get install -y tzdata
+dpkg-reconfigure --frontend noninteractive tzdata
 
 echo "Getting Root"
 [ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
