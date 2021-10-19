@@ -4,6 +4,7 @@ START_DIR=$(pwd)
 TEMP_DIR="/tmp"
 USER_HOME="$HOME"
 USER="$USER"
+DEBIAN_FRONTEND=noninteractive
 
 echo "Getting Root"
 [ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
