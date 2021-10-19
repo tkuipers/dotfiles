@@ -33,6 +33,7 @@ source ~/.bashrc
 
 echo "Installing Kitty"
 curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+cp ./kitty.conf $HOME/.config/kitty/kitty.conf
 
 echo "Installing kitty themes"
 git clone --depth 1 git@github.com:dexpota/kitty-themes.git $HOME/.config/kitty/kitty-themes
