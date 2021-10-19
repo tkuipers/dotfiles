@@ -1,0 +1,6 @@
+gen_ctags () {
+    cd $ARTERYS_MIDDLE_ROOT
+    ctags --options=./ctags -R --verbose --exclude=node_modules* --exclude=dist-middle-tier --exclude=dist --languages=javascript,typescript
+    cd -
+    
+}

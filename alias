@@ -41,3 +41,16 @@ alias postman='Postman'
 #alias gradle='JAVA_HOME="/home/administrator/Downloads/jdk-8u231-linux-x64" gradle'
 alias off='sudo shutdown -h now'
 alias python=python3
+alias webstorm='webstorm.sh'
+alias airpods='echo -e "connect 40:E6:4B:3D:07:B9" | bluetoothctl'
+alias airpods_trust='echo -e "trust 40:E6:4B:3D:07:B9" | bluetoothctl'
+alias airpods_dis='echo -e "disconnect 40:E6:4B:3D:07:B9" | bluetoothctl'
+alias mid="cd $ARTERYS_MIDDLE_ROOT"
+alias dic="cd $ARTERYS_DICOMM_ROOT"
+alias startlock="xautolock -time 5 -locker 'i3lock-fancy -p' &"
+alias start_video='recordmydesktop --windowid $(xwininfo | grep --color=never "id: 0x" | grep -Po --color=never "0x[\d]+") --stop-shortcut=Control+s'
+alias killav="systemctl stop  eea eea_upgrade eraagent"
+alias startav="systemctl start  eea eea_upgrade eraagent"
+alias screenseconds="xset dpms "
+alias untrack="git update-index --assume-unchanged" 
+alias track="git update-index --no-assume-unchanged" 

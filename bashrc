@@ -1,17 +1,26 @@
 #!/usr/bin/env bash
-
+export TERMINAL=alacritty
 export EDITOR=vim
 export DISPLAY=:0
 export PATH="$PATH:/cygdrive/c/cygwin64/bin/"
 export PATH="$PATH:/cygdrive/c/Program Files/Sublime Text 3/"
 export SVN="https://ins-p-build-v01.corp.ads:18080/svn/AMA_SVN"
+export AWS_ACCESS_KEY_ID=AKIAZACJNDT3SARIL3O3
+export AWS_SECRET_ACCESS_KEY=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
+export AWS_MFA_DEVICE_ARN=arn:aws:iam::618629242103:mfa/tyler.kuipers
+export LD_LIBRARY_PATH=. # required for running test programs in build/release/bin
+export SCONSFLAGS=-j12
+export ARTERYS_MIDDLE_ROOT="$HOME/Arterys/middle"
+export ARTERYS_DICOMM_ROOT="$HOME/Arterys/arterys-dicomweb-server"
 
+export BAT_THEME=zenburn
 export PATH="$PATH:$HOME/node_modules/.bin"
 export PATH="$PATH:$HOME/.local/bin"
 export PATH="$PATH:$HOME/.pip"
 export PATH="$PATH:$HOME/.gem/ruby/1.9.1/bin"
 export PATH="$PATH:$HOME/.bin"
 export PATH="$HOME/.bin/vagrant_1.7.4_x86/opt/vagrant/bin:$PATH"
+export PATH="$HOME/WebStorm/bin:$PATH"
 export PATH="$PATH:~/apache-ant-1.7.1/bin"
 export JAVA_HOME="/usr/bin/jdk1.6.0_45/"
 export PATH="$PATH:$JAVA_HOME/bin"
@@ -19,6 +28,8 @@ export UAA_JAVA_CMD="/home/administrator/Downloads/jdk1.8.0_241/bin/java"
 export ANT_HOME="/usr/bin/apache-ant-1.7.1/"
 export PATH="$PATH:$ANT_HOME/bin"
 export NODE_HOME="/usr/bin/node-v7.2.1-linux-x64/"
+export WEBSTORM_HOME="$HOME/WebStorm"
+export PATH="$PATH:$WEBSTORM_HOME/bin"
 export PATH="$PATH:$NODE_HOME/bin"
 export KITTY_HOME="/usr/bin/kitty.app"
 export PATH="$PATH:$KITTY_HOME/bin"
@@ -51,6 +62,11 @@ export NVM_DIR="$HOME/.nvm"
 if [[ -f  ~/.alias  ]]
 then
 	. ~/.alias
+fi
+
+if [[ -f  ~/.function  ]]
+then
+	. ~/.function
 fi
 
 if [[ -f  ~/.tizonia  ]]
@@ -135,3 +151,5 @@ if [[ $- = *i* ]] ; then
 fi
 export DOCKER_HOST=tcp://localhost:2375
 
+# compton --config $HOME/.config/compton/compton.conf &
+source /home/administrator/Arterys/phi-home/phi-service-run/arterys-phi/cli/lib/bashrc.sh
