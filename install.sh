@@ -3,9 +3,14 @@
 START_DIR=$(pwd)
 TEMP_DIR="/tmp"
 USER_HOME="$HOME"
+USER="$USER"
 
 echo "Getting Root"
 [ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
+
+echo "Installing Pre-Req Software"
+apt-get update
+apt-get install -y build-essential clang g++ python3.9-dev vim git
 
 echo "Cloning dotfiles"
 cd $TEMP_DIR
@@ -20,6 +25,9 @@ cd dotfiles
 # cp ./function ~/.function
 # source ~/.bashrc
 echo "Done"
+
+echo "Installing Kitty"
+curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
 
 echo "Installing kitty themes"
 # Install themes for kitty
