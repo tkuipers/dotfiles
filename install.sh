@@ -42,7 +42,9 @@ ln -s ./kitty-themes/themes/Zenburn.conf ~/.config/kitty/theme.conf
 cd $TEMP_DIR
 
 echo "Setting Kitty as default terminal"
-chmod 755 $HOME/.local/bin/kitty
-ln -snf $HOME/.local/bin/kitty /usr/local/bin/kitty
+chmod 755 $HOME/.local/kitty.app/bin/kitty
+ln -snf $HOME/.local/kitty.app/bin/kitty /usr/local/bin/kitty
 update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/local/bin/kitty 50
 alternatives --auto x-terminal-emulator
+
+vim +PluginInstall +qall
