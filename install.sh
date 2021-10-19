@@ -16,7 +16,7 @@ echo "Getting Root"
 [ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
 
 echo "Installing Pre-Req Software"
-apt-get install -y build-essential clang g++ python3.9-dev vim git libfontconfig1
+apt-get install -y build-essential clang g++ python3.9-dev vim git libfontconfig1 openssh-server
 
 echo "Cloning dotfiles"
 cd $TEMP_DIR
