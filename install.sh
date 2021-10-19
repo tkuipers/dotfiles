@@ -26,18 +26,21 @@ echo "Done"
 
 echo "Setting Bash Environment"
 cd dotfiles
-# cp ./bashrc ~/.bashrc
-# cp ./alias ~/.alias
-# cp ./function ~/.function
-# source ~/.bashrc
-echo "Done"
+cp ./bashrc ~/.bashrc
+cp ./alias ~/.alias
+cp ./function ~/.function
+source ~/.bashrc
 
 echo "Installing Kitty"
 curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
 
 echo "Installing kitty themes"
-# Install themes for kitty
-# git clone --depth 1 git@github.com:dexpota/kitty-themes.git ~/.config/kitty/kitty-themes
-# cd ~/.config/kitty
-# ln -s ./kitty-themes/themes/Zenburn.conf ~/.config/kitty/theme.conf
-echo "Done"
+git clone --depth 1 git@github.com:dexpota/kitty-themes.git $HOME/.config/kitty/kitty-themes
+cd ~/.config/kitty
+ln -s ./kitty-themes/themes/Zenburn.conf ~/.config/kitty/theme.conf
+cd $TEMP_DIR
+
+echo "Setting Kitty as default terminal"
+ln -snf $HOME/.local/bin/kitty /usr/local/bin/kitty
+update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/local/bin/kitty 50
+alternatives --auto x-terminal-emulator
