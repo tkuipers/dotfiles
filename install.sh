@@ -47,4 +47,6 @@ ln -snf $HOME/.local/kitty.app/bin/kitty /usr/local/bin/kitty
 update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/local/bin/kitty 50
 alternatives --auto x-terminal-emulator
 
+echo "Settin up Vim"
+git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 vim +PluginInstall +qall
