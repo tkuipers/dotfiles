@@ -30,6 +30,7 @@ cp ./bashrc ~/.bashrc
 cp ./alias ~/.alias
 cp ./function ~/.function
 cp ./vimrc ~/.vimrc
+cp ./secrets ~/.secrets
 source ~/.bashrc
 
 echo "Installing Kitty"
