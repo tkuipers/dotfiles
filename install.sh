@@ -6,17 +6,21 @@ TEMP_DIR="/tmp"
 USER_HOME="$HOME"
 USER="$USER"
 
-echo "Installing tzdata, otherwise it needs to be reconfigured"
-apt-get update
-ln -fs /usr/share/zoneinfo/America/Edmonton /etc/localtime
-apt-get install -y tzdata
-dpkg-reconfigure --frontend noninteractive tzdata
-
 echo "Getting Root"
-[ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
+sudo echo "Got Root"
+
+sudo add-apt-repository ppa:jonathonf/vim -y
+sudo apt update
+
+echo "Installing tzdata, otherwise it needs to be reconfigured"
+sudo apt-get update
+sudo ln -fs /usr/share/zoneinfo/America/Edmonton /etc/localtime
+sudo apt-get install -y tzdata
+sudo dpkg-reconfigure --frontend noninteractive tzdata
+
 
 echo "Installing Pre-Req Software"
-apt-get install -y build-essential clang g++ python3.9-dev vim git libfontconfig1
+sudo apt-get install -y build-essential clang g++ python3.9-dev vim git libfontconfig1 nodejs
 
 echo "Cloning dotfiles"
 cd $TEMP_DIR
