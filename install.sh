@@ -56,7 +56,7 @@ cd $TEMP_DIR
 
 echo "Setting Kitty as default terminal"
 chmod 755 $HOME/.local/kitty.app/bin/kitty
-ln -snf $HOME/.local/kitty.app/bin/kitty /usr/local/bin/kitty
+sudo ln -snf $HOME/.local/kitty.app/bin/kitty /usr/local/bin/kitty
 update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/local/bin/kitty 50
 alternatives --auto x-terminal-emulator
 
