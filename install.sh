@@ -63,6 +63,9 @@ alternatives --auto x-terminal-emulator
 echo "Settin up Vim"
 git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 vim +PluginInstall +qall
+mkdir -p $USER_HOME/.vim/colors
+cp $USER_HOME/.vim/bundle/Zenburn/colors/zenburn.vim $USER_HOME/.vim/colors/zenburn.vim
+
 
 
 echo "Installing i3 themer"

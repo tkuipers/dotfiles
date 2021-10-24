@@ -16,7 +16,7 @@ Plugin 'junegunn/fzf.vim'
 Plugin 'airblade/vim-gitgutter' 
 Plugin 'joshdick/onedark.vim'
 Plugin 'Zenburn'
-Plugin 'neoclide/coc.nvim'
+Plugin 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
 Plugin 'voldikss/vim-floaterm'
 Plugin 'prettier/vim-prettier', {'do': 'yarn install'}
 Plugin 'apzelos/blamer.nvim'
