@@ -20,7 +20,14 @@ sudo dpkg-reconfigure --frontend noninteractive tzdata
 
 
 echo "Installing Pre-Req Software"
-sudo apt-get install -y build-essential clang g++ python3.9-dev vim git libfontconfig1 nodejs
+sudo apt-get install -y build-essential clang g++ python3.9-dev git libfontconfig1 nodejs libncurses5-dev libncursesw5-dev make 
+
+echo "Installing Vim"
+cd $TEMP_DIR
+git clone https://github.com/vim/vim.git
+cd vim/src
+make
+sudo make install
 
 echo "Cloning dotfiles"
 cd $TEMP_DIR
