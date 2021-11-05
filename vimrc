@@ -20,6 +20,7 @@ Plugin 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
 Plugin 'voldikss/vim-floaterm'
 Plugin 'prettier/vim-prettier', {'do': 'yarn install'}
 Plugin 'apzelos/blamer.nvim'
+Plugin 'tpope/vim-commentary'
 call vundle#end()            " required
 filetype plugin indent on    " required
 
@@ -31,11 +32,10 @@ set signcolumn=auto
 set expandtab
 set shiftwidth=4
 set tabstop=4
+set is hls
 
 let g:fzf_preview_window = 'right:50%'
 let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6  }  }
-let g:blamer_enabled = 1
-let g:blamer_delay = 1000
 let $FZF_DEFAULT_OPTS="--ansi --preview-window 'right:60%' --layout reverse --margin=1,4 --preview 'bat --theme=Zenburn --color=always --style=header,grid --line-range :300 {}'"
 let $FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -g ""'
 
@@ -43,13 +43,15 @@ nnoremap <C-J> <C-W><C-J>
 nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
+" nnoremap <C-W>] :exec "vert norm <C-V><C-W>f"<CR>
+nnoremap <c-w>[ <c-w>v<c-]>
 nmap <silent> <C-N> :GFiles<CR>
 nmap <silent> <C-F> :Ag<CR>
-nmap <C-I> :NERDTreeToggle<CR>
 map <leader>r :NERDTreeFind<cr>
 nmap <C-G> :GitGutterBufferToggle<CR>
-nmap <C-Q> :FloatermToggle<CR>
+" nmap <C-Q> :FloatermToggle<CR>
 nmap <Leader>p :PrettierPartial<CR>
+nmap <Leader>o :NERDTreeToggle<CR>
 xmap <Leader>p :PrettierPartial<CR>
 inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>"
 
