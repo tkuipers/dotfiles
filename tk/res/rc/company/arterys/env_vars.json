@@ -1,0 +1,4 @@
+[
+    {"name": "ARTERYS_MIDDLE_ROOT", "value": "{{ARTERYS_MIDDLE_ROOT}}"},
+    {"name": "ARTERYS_DICOMM_ROOT", "value": "{{ARTERYS_DICOMM_ROOT}}"}
+]

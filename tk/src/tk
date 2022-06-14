@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 import argparse
-import res.strings
+import fire
+from install.install import Install
 
-parser = argparse.ArgumentParser(description='Program for handling developer environments')
-parser.add_argument('operation', type=ascii)
-# print(res.strings.logo)
+class tk(object):
+    def install(self, company, dev_env):
+        Install().install(company_name=company, dev_env=dev_env)
 
-args = parser.parse_args
 
-print(args)
+if __name__ == '__main__':
+  fire.Fire(tk)

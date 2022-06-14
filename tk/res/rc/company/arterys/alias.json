@@ -1,0 +1,8 @@
+[
+    {"alias": "mid", "command": "cd {{ARTERYS_MIDDLE_ROOT}}"},
+    {"alias": "dic", "command": "cd {{ARTERYS_DICOMM_ROOT}}"},
+    {"alias": "startlock", "command": "xautolock -time 5 -locker 'i3lock-fancy -p' &"},
+    {"alias": "start_video", "command": "recordmydesktop --windowid $(xwininfo | grep --color=never \"id: 0x\" | grep -Po --color=never \"0x[\\d]+\") --stop-shortcut=Control+s"},
+    {"alias": "killav", "command": "systemctl stop  eea eea_upgrade eraagent"},
+    {"alias": "startav", "command": "systemctl start  eea eea_upgrade eraagent"}
+]
