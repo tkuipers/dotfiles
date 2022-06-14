@@ -1,0 +1,6 @@
+alias mid="cd $ARTERYS_MIDDLE_ROOT"
+alias dic="cd $ARTERYS_DICOMM_ROOT"
+alias startlock="xautolock -time 5 -locker 'i3lock-fancy -p' &"
+alias start_video='recordmydesktop --windowid $(xwininfo | grep --color=never "id: 0x" | grep -Po --color=never "0x[\d]+") --stop-shortcut=Control+s'
+alias killav="systemctl stop  eea eea_upgrade eraagent"
+alias startav="systemctl start  eea eea_upgrade eraagent"

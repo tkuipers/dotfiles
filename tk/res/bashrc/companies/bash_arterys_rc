@@ -1,0 +1,4 @@
+export ARTERYS_MIDDLE_ROOT="$HOME/Arterys/middle"
+export ARTERYS_DICOMM_ROOT="$HOME/Arterys/arterys-dicomweb-server"
+
+source /home/administrator/Arterys/phi-home/phi-service-run/arterys-phi/cli/lib/bashrc.sh

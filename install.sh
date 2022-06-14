@@ -20,7 +20,9 @@ sudo dpkg-reconfigure --frontend noninteractive tzdata
 
 
 echo "Installing Pre-Req Software"
-sudo apt-get install -y build-essential clang g++ python3.9-dev git libfontconfig1 nodejs libncurses5-dev libncursesw5-dev make 
+sudo apt-get install -y build-essential clang g++ git libfontconfig1 nodejs libncurses5-dev libncursesw5-dev make python3 python3-dev python-is-python3
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+source $HOME/.poetry/env
 
 echo "Installing Vim"
 cd $TEMP_DIR
@@ -35,39 +37,21 @@ rm -r ./dotfiles 2> /dev/null
 git clone  https://github.com/tkuipers/dotfiles.git
 echo "Done"
 
-echo "Setting Bash Environment"
-cd dotfiles
-cp ./bashrc ~/.bashrc
-cp ./alias ~/.alias
-cp ./function ~/.function
-cp ./vimrc ~/.vimrc
-cp ./secrets ~/.secrets
-source ~/.bashrc
-
-echo "Installing Kitty"
+echo "Installing kitty"
 curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
-cp ./kitty.conf $USER_HOME/.config/kitty/kitty.conf
+ln -s ~/.local/kitty.app/bin/kitty ~/.local/bin/
+cp ~/.local/kitty.app/share/applications/kitty.desktop ~/.local/share/applications/
+cp ~/.local/kitty.app/share/applications/kitty-open.desktop ~/.local/share/applications/
+sed -i "s|Icon=kitty|Icon=/home/$USER/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" ~/.local/share/applications/kitty*.desktop
+sed -i "s|Exec=kitty|Exec=/home/$USER/.local/kitty.app/bin/kitty|g" ~/.local/share/applications/kitty*.desktop
+echo "Done"
 
-echo "Installing kitty themes"
-git clone --depth 1 https://github.com/dexpota/kitty-themes.git $USER_HOME/.config/kitty/kitty-themes
-cd ~/.config/kitty
-ln -s ./kitty-themes/themes/Zenburn.conf ~/.config/kitty/theme.conf
-cd $TEMP_DIR
+echo "Installing NVM"
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+echo "Done"
 
-echo "Setting Kitty as default terminal"
-chmod 755 $HOME/.local/kitty.app/bin/kitty
-sudo ln -snf $HOME/.local/kitty.app/bin/kitty /usr/local/bin/kitty
-update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/local/bin/kitty 50
-alternatives --auto x-terminal-emulator
-
-echo "Settin up Vim"
-git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-vim +PluginInstall +qall
-mkdir -p $USER_HOME/.vim/colors
-cp $USER_HOME/.vim/bundle/Zenburn/colors/zenburn.vim $USER_HOME/.vim/colors/zenburn.vim
+echo "Installing tk"
 
 
 
-echo "Installing i3 themer"
-cd $TEMP_DIR
-git clone https://github.com/cizordj/i3-themer.git
+cd $START_DIR

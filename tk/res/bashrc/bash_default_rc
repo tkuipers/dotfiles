@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+shopt -s histappend
+HISTCONTROL=ignoreboth
+
+HISTSIZE=1000
+HISTFILESIZE=2000
+
+export EDITOR=vim
+export DISPLAY=:0
+export BAT_THEME=zenburn
+export PATH="$PATH:$HOME/node_modules/.bin"
+export PATH="$PATH:$HOME/.local/bin"
+export PATH="$PATH:$HOME/.pip"
+export PATH="$PATH:$HOME/.gem/ruby/1.9.1/bin"
+export PATH="$PATH:$HOME/.bin"
+export KITTY_HOME="/usr/bin/kitty.app"
+export PATH="$PATH:$KITTY_HOME/bin"
+export SCRIPTS_HOME="$HOME/.scripts"
+export PATH="$PATH:$SCRIPTS_HOME"
+export GIT_EDITOR=vim
+export MANPAGER="/bin/sh -c \"col -b | vim -c 'set ft=man ts=8 nomod nolist nonu noma' -\""
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+if [[ -f  ~/.alias  ]]
+then
+	. ~/.alias
+fi
+
+if [[ -f  ~/.function  ]]
+then
+	. ~/.function
+fi
+
+source /usr/share/bash-completion/completions/git
+if [[ -f  /usr/share/bash-completion/completions/git  ]]
+then
+	. /usr/share/bash-completion/completions/git
+fi
+
+if [[ $- == *i* ]]; then
+	bind '"\C-o":"reset\C-m"'
+fi
+
+function rnbwdirs(){
+	dirs 
+}
+
+if [[ $- = *i* ]] ; then
+	export PS1="\[\033[38;5;39m\]\u\[$(tput sgr0)\]\[\033[38;5;158m\]@\[$(tput sgr0)\]\[\033[38;5;39m\]\h\[$(tput sgr0)\]\[\033[38;5;226m\]:\[$(tput bold)\]\[$(tput sgr0)\]\[\033[38;5;36m\]\$(rnbwdirs)\[$(tput sgr0)\]\[\033[38;5;6m\]:\[$(tput sgr0)\]\[\033[38;5;81m\]\$(parse_git_branch)\[$(tput sgr0)\]\[\033[38;5;15m\]\n\[$(tput sgr0)\]\[\033[38;5;110m\]\\$\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput sgr0)\]"
+	return
+fi
+
+

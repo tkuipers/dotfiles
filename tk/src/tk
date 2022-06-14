@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+import argparse
+import res.strings
+
+parser = argparse.ArgumentParser(description='Program for handling developer environments')
+parser.add_argument('operation', type=ascii)
+# print(res.strings.logo)
+
+args = parser.parse_args
+
+print(args)
