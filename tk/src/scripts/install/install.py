@@ -4,6 +4,7 @@ from sys import platform
 from utils.utils import get_app_state_dir, get_profiles_dict, load_module
 from .rc_builder import RCBuilder
 import json
+import os
 
 class Install(object):
     def __init__(self):
@@ -13,7 +14,12 @@ class Install(object):
     def install(self, profile):
         self.__run_installer(profile)
         self.__change_profile(profile, True)
-        self.__rc_builder.build_rc()
+        os.remove("~/.bashrc")
+        with open('~/.bashrc', 'w') as outfile:
+            outfile.write(self.__rc_builder.build_rc())
+        return None
+        # print(self.__rc_builder.build_rc())
+        
 
     def uninstall(self, profile):
         self.__change_profile(profile, False)

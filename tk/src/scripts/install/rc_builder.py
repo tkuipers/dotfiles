@@ -22,7 +22,7 @@ class RCBuilder(object):
 
         output = self.__render_head() + self.__render_envs(env_vars) + self.__render_source(source) + self.__render_alias(alias) + self.__render_shortcuts(shortcuts)
 
-        print(output)
+        return output
 
     def __load_profiles(self):
         all_profiles = get_profiles_dict()
@@ -41,7 +41,7 @@ class RCBuilder(object):
             return []
     
     def __render_head(self):
-        return "#!/usr/bin/env bash\nshopt -s histappend\n. ~/.tk/env"
+        return "#!/usr/bin/env bash\nshopt -s histappend\n. ~/.tk/env\n"
 
     def __render_envs(self, envs):
         output_string = "# Env Vars\n"
