@@ -1,0 +1,23 @@
+[
+    {"alias": "ls", "command": "ls -CF --color=auto"},
+    {"alias": "ks", "command": "ls -CF --color=auto"},
+    {"alias": "ll", "command": "ls -al"},
+    {"alias": "la", "command": "ls -A"},
+    {"alias": "l", "command": "ls -CF"},
+    {"alias": "rc", "command": ". ~/.bashrc"},
+    {"alias": "gituntrack", "command": "git update-index --skip-worktree"},
+    {"alias": "gittrack", "command": "git update-index --no-skip-worktree"},
+    {"alias": "listuntracked", "command": "git ls-files -v . | grep ^S"},
+    {"alias": "vi", "command": "vim"},
+    {"alias": "ci", "command": "vi"},
+    {"alias": "weather", "command": "curl wttr.in/Edmonton"},
+    {"alias": "off", "command": "sudo shutdown -h now"},
+    {"alias": "python", "command": "python3"},
+    {"alias": "airpods", "command": "echo -e \"connect 40:E6:4B:3D:07:B9\" | bluetoothctl"},
+    {"alias": "airpods_trust", "command": "echo -e \"trust 40:E6:4B:3D:07:B9\" | bluetoothctl"},
+    {"alias": "airpods_dis", "command": "echo -e \"disconnect 40:E6:4B:3D:07:B9\" | bluetoothctl"},
+    {"alias": "screenseconds", "command": "xset dpms "},
+    {"alias": "untrack", "command": "git update-index --assume-unchanged" },
+    {"alias": "track", "command": "git update-index --no-assume-unchanged" },
+    {"alias": "gen_tags", "command": "ctags --options=./ctags -R --verbose --exclude=node_modules* --exclude=dist-middle-tier --exclude=dist --languages=javascript,typescript"}
+]

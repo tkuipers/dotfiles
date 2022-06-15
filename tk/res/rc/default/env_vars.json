@@ -1,0 +1,21 @@
+[
+    {"name": "HISTCONTROL", "value": "ignoreboth"},
+    {"name": "HISTSIZE", "value": "1000"},
+    {"name": "HISTFILESIZE", "value": "2000"},
+    {"name": "EDITOR", "value": "vim"},
+    {"name": "DISPLAY", "value": ":0"},
+    {"name": "BAT_THEME", "value": "zenburn"},
+    {"name": "PATH", "value": "$PATH:$HOME/node_modules/.bin"},
+    {"name": "PATH", "value": "$PATH:$HOME/.local/bin"},
+    {"name": "PATH", "value": "$PATH:$HOME/.pip"},
+    {"name": "PATH", "value": "$PATH:$HOME/.gem/ruby/1.9.1/bin"},
+    {"name": "PATH", "value": "$PATH:$HOME/.bin"},
+    {"name": "KITTY_HOME", "value": "/usr/bin/kitty.app"},
+    {"name": "PATH", "value": "$PATH:$KITTY_HOME/bin"},
+    {"name": "SCRIPTS_HOME", "value": "$HOME/.scripts"},
+    {"name": "PATH", "value": "$PATH:$SCRIPTS_HOME"},
+    {"name": "GIT_EDITOR", "value": "vim"},
+    {"name": "MANPAGER", "value": "/bin/sh -c \"col -b | vim -c 'set ft=man ts=8 nomod nolist nonu noma' -\""},
+    {"name": "NVM_DIR", "value": "$HOME/.nvm"},
+    {"name": "PS1", "value": "\\[\\033[38;5;39m\\]\\u\\[$(tput sgr0)\\]\\[\\033[38;5;158m\\]@\\[$(tput sgr0)\\]\\[\\033[38;5;39m\\]\\h\\[$(tput sgr0)\\]\\[\\033[38;5;226m\\]:\\[$(tput bold)\\]\\[$(tput sgr0)\\]\\[\\033[38;5;36m\\]\\$(rnbwdirs)\\[$(tput sgr0)\\]\\[\\033[38;5;6m\\]:\\[$(tput sgr0)\\]\\[\\033[38;5;81m\\]\\$(parse_git_branch)\\[$(tput sgr0)\\]\\[\\033[38;5;15m\\]\\n\\[$(tput sgr0)\\]\\[\\033[38;5;110m\\]\\\\$\\[$(tput sgr0)\\]\\[\\033[38;5;15m\\] \\[$(tput sgr0)\\]"}
+]
