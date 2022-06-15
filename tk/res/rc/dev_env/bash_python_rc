@@ -1,4 +1,0 @@
-if [[ -f $HOME/.poetry/env ]]
-then
-	. $HOME/.poetry/env
-fi
