@@ -2,8 +2,11 @@
 import argparse
 import fire
 from install.install import Install
+from secrets.secrets import Secrets
 
 class tk(object):
+    def __init__(self):
+        self.secret = Secrets()
     def install(self, company, dev_env):
         Install().install(company_name=company, dev_env=dev_env)
 
