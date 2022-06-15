@@ -8,14 +8,14 @@ class Secrets(object):
         pass
     
     def add(self, secret, value):
-        secrets_path = '../res/rc/secrets.json'
+        secrets_path = '../app_state/rc/secrets.json'
         current_secrets = self.__load_json(secrets_path)
         self.__pop_existing(secret, current_secrets)
         current_secrets.append({'name': secret, 'value': value})
         self.__dump_json(secrets_path, current_secrets)
     
     def remove(self, secret):
-        secrets_path = '../res/rc/secrets.json'
+        secrets_path = '../app_state/rc/secrets.json'
         current_secrets = self.__load_json(secrets_path)
         self.__pop_existing(secret, current_secrets)
         self.__dump_json(secrets_path, current_secrets)

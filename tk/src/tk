@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 import fire
-from dotfiles.install import Install
-from dotfiles.secrets import Secrets
+from scripts.install.install import Install
+from scripts.install.rc_builder import RCBuilder
+from scripts.secrets.secrets import Secrets
+from scripts.status.status import Status
 
 class tk(object):
     def __init__(self):
         self.secret = Secrets()
-        pass
-    def install(self, company, dev_env):
-        Install().install(company_name=company, dev_env=dev_env)
+    def install(self, profile):
+        Install().install(profile)
+    def uninstall(self, profile):
+        Install().uninstall(profile)
+    def status(self):
+        Status().display_status()
 
 
 if __name__ == '__main__':

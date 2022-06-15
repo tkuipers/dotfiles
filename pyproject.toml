@@ -4,10 +4,14 @@ version = "0.0.1"
 description = "my own set of utilities"
 authors = ["Tyler Kuipers <tkuipers123@gmail.com>"]
 
+[tool.poetry.scripts]
+tk = "tk:main"
+
 [tool.poetry.dependencies]
 python = "^3.8"
 fire = "0.4.0"
 jinja2 = "3.1.2"
+python-configuration = "0.8.2"
 
 [tool.poetry.dev-dependencies]
 

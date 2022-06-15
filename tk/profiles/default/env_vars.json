@@ -16,6 +16,5 @@
     {"name": "PATH", "value": "$PATH:$SCRIPTS_HOME"},
     {"name": "GIT_EDITOR", "value": "vim"},
     {"name": "MANPAGER", "value": "/bin/sh -c \"col -b | vim -c 'set ft=man ts=8 nomod nolist nonu noma' -\""},
-    {"name": "NVM_DIR", "value": "$HOME/.nvm"},
     {"name": "PS1", "value": "\\[\\033[38;5;39m\\]\\u\\[$(tput sgr0)\\]\\[\\033[38;5;158m\\]@\\[$(tput sgr0)\\]\\[\\033[38;5;39m\\]\\h\\[$(tput sgr0)\\]\\[\\033[38;5;226m\\]:\\[$(tput bold)\\]\\[$(tput sgr0)\\]\\[\\033[38;5;36m\\]\\$(rnbwdirs)\\[$(tput sgr0)\\]\\[\\033[38;5;6m\\]:\\[$(tput sgr0)\\]\\[\\033[38;5;81m\\]\\$(parse_git_branch)\\[$(tput sgr0)\\]\\[\\033[38;5;15m\\]\\n\\[$(tput sgr0)\\]\\[\\033[38;5;110m\\]\\\\$\\[$(tput sgr0)\\]\\[\\033[38;5;15m\\] \\[$(tput sgr0)\\]"}
 ]

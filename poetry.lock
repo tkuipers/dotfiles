@@ -33,6 +33,21 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
+name = "python-configuration"
+version = "0.8.2"
+description = "A library to load configuration parameters from multiple sources and formats"
+category = "main"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[package.extras]
+azure = ["azure-identity (>=1.5.0,<2.0.0)", "azure-keyvault (>=4.0.0,<5.0.0)"]
+aws = ["boto3 (>=1.10.48,<2.0.0)"]
+gcp = ["google-cloud-secret-manager (>=2.0.0,<3.0.0)"]
+yaml = ["pyyaml (>=5.1,<6.0)"]
+toml = ["toml (>=0.10.0,<0.11.0)"]
+
+[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -51,7 +66,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "c25bd7e62d590acac2171824d8df8ee9eb032c44ca3c510841c75f1372faf4fd"
+content-hash = "a92addbbe723744da20ba1a10db006510c72c86c12779df9d33ee45533ddf30b"
 
 [metadata.files]
 fire = [
@@ -102,6 +117,10 @@ markupsafe = [
     {file = "MarkupSafe-2.1.1-cp39-cp39-win32.whl", hash = "sha256:d4306c36ca495956b6d568d276ac11fdd9c30a36f1b6eb928070dc5360b22e1c"},
     {file = "MarkupSafe-2.1.1-cp39-cp39-win_amd64.whl", hash = "sha256:46d00d6cfecdde84d40e572d63735ef81423ad31184100411e6e3388d405e247"},
     {file = "MarkupSafe-2.1.1.tar.gz", hash = "sha256:7f91197cc9e48f989d12e4e6fbc46495c446636dfc81b9ccf50bb0ec74b91d4b"},
+]
+python-configuration = [
+    {file = "python-configuration-0.8.2.tar.gz", hash = "sha256:d733f788aabed4fb0e35020a0c428731f56a3dcebc787f82e9665e4cacc00861"},
+    {file = "python_configuration-0.8.2-py3-none-any.whl", hash = "sha256:71d933a1dc7cc5c4c5196d9818456592dd6fdc684bf45db2f4c7dc37de58dd73"},
 ]
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},

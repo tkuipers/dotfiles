@@ -1,60 +1,44 @@
-from sys import platform
 import json
+from pathlib import Path
 import jinja2
 import os
+import sys
+from utils.utils import get_profiles_dict, get_profiles_dir, get_app_state_dir, load_json
 
-class Install(object):
-    def __init__(self):
-        self.is_linux = platform == "linux" or platform == "linux2"
-
-    def install(self, company_name = None, dev_env = None):
-        if self.is_linux:
-            self.__linux_install(company_name, dev_env)
-        else:
-            self.__mac_install(company_name, dev_env)
-
-    def __linux_install(self, company_name, dev_env):
-        print("Installing on linux")
-        print(company_name)
-        print(dev_env)
-
-    def __mac_install(self, company_name, dev_env):
-        to_load = ['../res/rc/default']
-        if company_name:
-            to_load += [f'../res/rc/company/{company_name}']
-        if dev_env:
-            to_load += [f'../res/rc/dev_env/{dev_env}']
+class RCBuilder(object):
+    def build_rc(self):
+        active_profiles = self.__load_profiles()
         env_vars = []
         source = []
         alias = []
         shortcuts = []
 
-        for folder in to_load:
+        for profile in active_profiles:
+            folder = Path.joinpath(get_profiles_dir(), profile["profile_name"])
             env_vars += self.__load_template("env_vars", folder)
             source += self.__load_template("sources", folder)
             alias += self.__load_template("alias", folder)
             shortcuts += self.__load_template("shortcuts", folder)
 
         output = self.__render_head() + self.__render_envs(env_vars) + self.__render_source(source) + self.__render_alias(alias) + self.__render_shortcuts(shortcuts)
+
         print(output)
 
+    def __load_profiles(self):
+        all_profiles = get_profiles_dict()
+        active_profiles = [profile for profile in all_profiles if profile['active'] == True]
+        return active_profiles
+    
     def __load_template(self, file, folder):
         if os.path.exists(os.path.join(folder, f'{file}.json')) and os.path.getsize(os.path.join(folder, f'{file}.json')) > 0:
             loader = jinja2.FileSystemLoader(folder)
             env = jinja2.Environment(loader=loader)
             env.filters['json'] = json.dumps
             template = env.get_template(f'{file}.json')
-            render_vars = self.__load_json(os.path.join(folder, "tk_vars.json"))
+            render_vars = load_json(os.path.join(folder, "tk_vars.json"))
             return json.loads(template.render(render_vars))
         else:
             return []
-    
-    def __load_json(self, json_path):
-        if os.path.exists(json_path) and os.path.getsize(json_path) > 0:
-            with open(json_path, 'r') as f:
-                return json.load(f)
-        else:
-            return {}
     
     def __render_head(self):
         return "#!/usr/bin/env bash\nshopt -s histappend\n"

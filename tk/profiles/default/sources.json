@@ -1,6 +1,4 @@
 [
-    "$NVM_DIR/nvm.sh",
-    "$NVM_DIR/bash_completion",
     "~/.alias",
     "~/.function",
     "/usr/share/bash-completion/completions/git"
