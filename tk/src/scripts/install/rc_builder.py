@@ -41,7 +41,7 @@ class RCBuilder(object):
             return []
     
     def __render_head(self):
-        return "#!/usr/bin/env bash\nshopt -s histappend\n"
+        return "#!/usr/bin/env bash\nshopt -s histappend\n. ~/.tk/env"
 
     def __render_envs(self, envs):
         output_string = "# Env Vars\n"

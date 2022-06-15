@@ -12,6 +12,7 @@ python = "^3.8"
 fire = "0.4.0"
 jinja2 = "3.1.2"
 python-configuration = "0.8.2"
+keyring = "23.6.0"
 
 [tool.poetry.dev-dependencies]
 

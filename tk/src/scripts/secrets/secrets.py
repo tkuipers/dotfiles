@@ -1,42 +1,59 @@
 import enum
 import json
+from pathlib import Path
+from utils.utils import get_app_state_dir, load_json
 import jinja2
 import os
+import keyring
 
 class Secrets(object):
     def __init__(self):
-        pass
+        self.secrets_path = Path.joinpath(get_app_state_dir(),'secrets.json')
+
+    def add(self, profile, secret, value):
+        current_secrets = load_json(self.secrets_path)
+        if current_secrets == {}:
+            current_secrets = []
+        self.__pop_existing(profile, secret, current_secrets)
+        current_secrets.append({'profile': profile, 'name': secret})
+        print(current_secrets)
+        self.__dump_json(self.secrets_path, current_secrets)
+        keyring.set_password("tk", secret, value)
     
-    def add(self, secret, value):
-        secrets_path = '../app_state/rc/secrets.json'
-        current_secrets = self.__load_json(secrets_path)
-        self.__pop_existing(secret, current_secrets)
-        current_secrets.append({'name': secret, 'value': value})
-        self.__dump_json(secrets_path, current_secrets)
+    def remove(self, profile, secret):
+        current_secrets = load_json(self.secrets_path)
+        self.__pop_existing(profile, secret, current_secrets)
+        self.__dump_json(self.secrets_path, current_secrets)
+        try:
+            keyring.delete_password("tk", secret)
+        except Exception:
+            return
+
+    def check(self, profile, secret_name):
+        current_secrets = load_json(self.secrets_path)
+        current_secrets = [secret for secret in current_secrets if secret['profile'] == profile and secret['name'] == secret_name]
+        print(keyring.get_password("tk", current_secrets[0]['name']))
+
+    def dump(self, profile):
+        current_secrets = load_json(self.secrets_path)
+        current_secrets = [secret for secret in current_secrets if secret['profile'] == profile]
+        out = []
+        for secret in current_secrets:
+            out.append((secret['name'], keyring.get_password("tk", secret['name'])))
+        return out
     
-    def remove(self, secret):
-        secrets_path = '../app_state/rc/secrets.json'
-        current_secrets = self.__load_json(secrets_path)
-        self.__pop_existing(secret, current_secrets)
-        self.__dump_json(secrets_path, current_secrets)
-    
-    def __pop_existing(self, secret, current_secrets):
+    def __pop_existing(self, profile, secret, current_secrets):
         i_to_pop = None
         for i, val in enumerate(current_secrets):
-            if val['name'] == secret:
+            if val['name'] == secret and val['profile'] == profile:
                 i_to_pop = i
                 break
         if i_to_pop != None:
             current_secrets.pop(i_to_pop)
-
-    def __load_json(self, json_path):
-        if os.path.exists(json_path) and os.path.getsize(json_path) > 0:
-            with open(json_path, 'r') as f:
-                return json.load(f)
-        else:
-            return []
     
     def __dump_json(self, json_path, dict):
         if os.path.exists(json_path):
             with open(json_path, 'w') as outfile:
                 json.dump(dict, outfile)
+
+    
