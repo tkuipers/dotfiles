@@ -1,3 +1,4 @@
 [
-    {"name": "rnbwdirs", "behaviour": "dirs"}
+    {"name": "rnbwdirs", "behaviour": "dirs"},
+    {"name": "parse_git_branch", "behaviour": "git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \\(.*\\)/ (\\1)/'"}
 ]
