@@ -23,7 +23,6 @@ class RCBuilder(object):
             functions += self.__load_template("function", folder)
         output = self.__render_head() + self.__render_envs(env_vars) + self.__render_source(source) + self.__render_alias(alias) + self.__render_shortcuts(shortcuts) + self.__render_function(functions)
 
-
         return output
 
     def __load_profiles(self):
