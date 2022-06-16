@@ -72,5 +72,5 @@ class RCBuilder(object):
     def __render_function(self, functions):
         output_string = "# Functions\n"
         for function in functions:
-            output_string += f'function {function["name"]}(){{\n\t{function["behaviour"]}\n}}'
+            output_string += f'function {function["name"]}(){{\n\t{function["behaviour"]}\n}}\n'
         return output_string
