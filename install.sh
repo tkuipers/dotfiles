@@ -3,14 +3,13 @@
 export DEBIAN_FRONTEND=noninteractive
 START_DIR=$(pwd)
 TEMP_DIR="/tmp"
-INSTALL_DIR="~/.tk/"
+INSTALL_DIR="$HOME/.tk/"
 USER_HOME="$HOME"
 USER="$USER"
 
 echo "Getting Root"
 echo "Got Root"
 
-add-apt-repository ppa:jonathonf/vim -y
 apt update
 
 echo "Installing tzdata, otherwise it needs to be reconfigured"
@@ -21,7 +20,7 @@ dpkg-reconfigure --frontend noninteractive tzdata
 
 
 echo "Installing Pre-Req Software"
-apt-get install -y build-essential clang g++ git libfontconfig1 nodejs libncurses5-dev libncursesw5-dev make python3 python3-pip python3-dev python-is-python3 curl
+apt-get install -y build-essential clang g++ git libfontconfig1 nodejs libncurses5-dev libncursesw5-dev make python3 python3-pip python3-dev python-is-python3 curl tree
 curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
 source $HOME/.poetry/env
 
@@ -58,11 +57,11 @@ source ~/.poetry/env
 ls
 poetry install
 poetry run tk/src/tk install default
-cat ~/.bashrc
-. ~/.bashrc
-tk install arterys
-echo "-----------------------------------------------------------------------------"
-cat ~/.bashrc
+# cat ~/.bashrc
+. $HOME/.bashrc
+# tk install arterys
+# echo "-----------------------------------------------------------------------------"
+# cat ~/.bashrc
 
 
 

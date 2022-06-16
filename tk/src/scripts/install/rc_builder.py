@@ -12,6 +12,7 @@ class RCBuilder(object):
         source = []
         alias = []
         shortcuts = []
+        functions = []
 
         for profile in active_profiles:
             folder = Path.joinpath(get_profiles_dir(), profile["profile_name"])
@@ -19,8 +20,9 @@ class RCBuilder(object):
             source += self.__load_template("sources", folder)
             alias += self.__load_template("alias", folder)
             shortcuts += self.__load_template("shortcuts", folder)
+            functions += self.__load_template("function", folder)
+        output = self.__render_head() + self.__render_envs(env_vars) + self.__render_source(source) + self.__render_alias(alias) + self.__render_shortcuts(shortcuts) + self.__render_function(functions)
 
-        output = self.__render_head() + self.__render_envs(env_vars) + self.__render_source(source) + self.__render_alias(alias) + self.__render_shortcuts(shortcuts)
 
         return output
 
@@ -41,7 +43,7 @@ class RCBuilder(object):
             return []
     
     def __render_head(self):
-        return "#!/usr/bin/env bash\nshopt -s histappend\n. ~/.tk/tk/static/env\n"
+        return "#!/usr/bin/env bash\nshopt -s histappend\n. $HOME/.tk/tk/static/env\n"
 
     def __render_envs(self, envs):
         output_string = "# Env Vars\n"
@@ -66,4 +68,10 @@ class RCBuilder(object):
         for shortcut in shortcuts:
             output_string += f'\tbind "{shortcut["shortcut"]}":"{shortcut["command"]}"\n'
         output_string += "fi\n"
+        return output_string
+    
+    def __render_function(self, functions):
+        output_string = "# Functions"
+        for function in functions:
+            output_string += f'\function {function["name"]}(){{\n\t{function["behaviour"]}\n}}'
         return output_string
