@@ -58,7 +58,11 @@ source ~/.poetry/env
 ls
 poetry install
 poetry run tk/src/tk install default
-# cat ~/.bashrc
+cat ~/.bashrc
+. ~/.bashrc
+tk install arterys
+echo "-----------------------------------------------------------------------------"
+cat ~/.bashrc
 
 
 
