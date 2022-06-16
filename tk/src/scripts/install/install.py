@@ -14,8 +14,9 @@ class Install(object):
     def install(self, profile):
         self.__run_installer(profile)
         self.__change_profile(profile, True)
-        os.remove("~/.bashrc")
-        with open('~/.bashrc', 'w') as outfile:
+        bash_path = os.path.expanduser('~/.bashrc')
+        os.remove(bash_path)
+        with open(bash_path, 'w') as outfile:
             outfile.write(self.__rc_builder.build_rc())
         return None
         # print(self.__rc_builder.build_rc())
