@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+export TERMINAL=alacritty
+export EDITOR=vim
+export DISPLAY=:0
+export GIT_EDITOR=vim
+export MANPAGER="/bin/sh -c \"col -b | vim -c 'set ft=man ts=8 nomod nolist nonu noma' -\""
+
+alias ls='ls -CF --color=auto'
+alias ks='ls -CF --color=auto'
+alias ll='ls -al'
+alias la='ls -A'
+alias l='ls -CF'
+alias rc='source ~/.zshrc'
+alias gituntrack='git update-index --skip-worktree'
+alias gittrack='git update-index --no-skip-worktree'
+alias listuntracked='git ls-files -v . | grep ^S'
+alias grep='grep --color=always'
+alias vi='vim'
+alias ci='vi'
+alias off='sudo shutdown -h now'
+alias python=python3
+alias start_video='recordmydesktop --windowid $(xwininfo | grep --color=never "id: 0x" | grep -Po --color=never "0x[\d]+") --stop-shortcut=Control+s'
+alias screenseconds="xset dpms "
+alias untrack="git update-index --assume-unchanged" 
+alias track="git update-index --no-assume-unchanged" 
+alias screenshot="import ~/Pictures/$(date '+%d%m%Y::%H%M%S').png"
+
+HISTCONTROL=ignoreboth
+
+HISTSIZE=3000
+HISTFILESIZE=4000
+HISTTIMEFORMAT="%F %T "
+
+eval "$(oh-my-posh init zsh --config ~/.poshthemes/bubbles.omp.json)"
+[[ -s $HOME/.nvm/nvm.sh ]] && . $HOME/.nvm/nvm.sh  # This loads NVM

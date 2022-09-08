@@ -1,0 +1,21 @@
+{{ if eq .chezmoi.os "linux" -}}
+    #!/bin/bash
+    cd /tmp/
+    #install meson
+    sudo pip3 install -Iv meson==0.62.0
+
+    git clone https://gitlab.freedesktop.org/wlroots/wlroots
+    cd wlroots
+    # git checkout 0.15.1
+    meson build/
+    ninja -C build/
+    sudo ninja -C build/ install
+    
+
+    git clone https://gitlab.freedesktop.org/wayland/wayland
+    cd wayland
+    export WLD=/usr
+    meson build/ --prefix=$WLD --libdir=/usr/lib --sysconfdir=/etc
+    ninja -C build/
+    sudo ninja -C build/ install
+{{ end -}}

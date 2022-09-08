@@ -1,0 +1,7 @@
+#!/bin/sh
+if nvm > /dev/null 2>&1 ; then
+    echo "NVM installed, not installing"
+else
+    echo "Installing NVM"
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+fi

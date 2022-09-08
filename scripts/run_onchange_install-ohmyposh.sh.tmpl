@@ -1,0 +1,19 @@
+{{ if eq .chezmoi.os "linux" -}}
+    #!/bin/bash
+    if oh-my-posh > /dev/null 2>&1 ; then
+        echo "Oh My Posh installed, not installing"
+    else
+        echo "Installing Oh My Posh"
+        sudo wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O /usr/local/bin/oh-my-posh
+        sudo chmod +x /usr/local/bin/oh-my-posh
+    fi
+{{ else if eq .chezmoi.os "darwin" -}}
+    #!/bin/sh
+    if oh-my-posh > /dev/null 2>&1 ; then
+        echo "Oh My Posh installed, not installing"
+    else
+        echo "Installing Oh My Posh"
+        brew install jandedobbeleer/oh-my-posh/oh-my-posh
+    fi
+{{ end -}}
+
