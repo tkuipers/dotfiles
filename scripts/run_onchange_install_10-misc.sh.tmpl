@@ -8,6 +8,7 @@ set -euo pipefail
 wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
 
 packages=(
+    7zip
     apt-transport-https
     aspell
     ca-certificates
@@ -29,6 +30,7 @@ packages=(
     net-tools
     nmap
     ninja-build
+    p7zip-full
     ranger
     shellcheck
     software-properties-common
@@ -99,6 +101,7 @@ echo "set ZSH to default"
 if [ "$SHELL" != "/usr/bin/zsh" ]; then
     sudo chsh -s $(which zsh) $USER
 fi
+sudo snap install aria2c
 {{ else if eq .chezmoi.os "darwin" -}}
-echo "MacOS packages not working yet"
+    echo "MacOS packages not working yet"
 {{ end -}}

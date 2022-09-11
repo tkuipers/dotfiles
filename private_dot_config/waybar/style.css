@@ -98,3 +98,6 @@ tooltip label {
 	animation-name: none;
 }
 
+#workspaces button.current_output.focused {
+  background: @peach;
+}

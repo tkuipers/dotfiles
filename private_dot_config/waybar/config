@@ -1,22 +1,31 @@
 {
 	"layer": "top",
 	"modules-left": [
-		"memory",
-		"cpu",
-		"cpu#load",
-		"temperature"
+        "sway/workspaces"
 	],
 	"modules-center": [
 		"clock"
 	],
 	"modules-right": [
 		"idle_inhibitor",
-		"network",
+		"memory",
+		"cpu",
+		"temperature",
 		"pulseaudio",
 		"backlight",
-		"battery"
+		"battery",
+        "custom/power"
 	],
 	// "margin": 15,
+    "sway/workspaces": {
+        "all-outputs": true,
+        "format": "{name}: {icon}",
+        "format-icons": {
+            "urgent": "",
+            "focused": "",
+            "default": ""
+      }
+    },
 	"memory": {
 		"interval": 1,
 		"format": "<span foreground='#94e2d5' font_weight='normal'>\uf1da</span> {percentage}%",
@@ -44,7 +53,7 @@
 		"tooltip": false
 	},
 	"clock": {
-		"format": "<span foreground='#74c7ec' font_weight='normal'>\uf17f</span> {:%I:%M %p  %A %d %b}",
+		"format": "<span foreground='#74c7ec' font_weight='normal'></span> {:%I:%M %p  %A %d %b}",
 		"tooltip": false
 	},
 	"idle_inhibitor": {
@@ -98,6 +107,15 @@
 		"format-icons": ["\uf152", "\uf155", "\uf156", "\uf154"],
 		"format-charging": "<span foreground='#cba6f7' font='lucide 14' rise='-1pt'>\uf153</span> {capacity}%",
 		"tooltip": false
-	}
+	},
+    "custom/power": {
+        "format": "<span foreground='#94e2d5' font_weight='normal'></span>",
+        "format-icons": ["\uf3d5", "\uf3d6", "\uf3d4"],
+        "on-click": "swaynag -t warning -m 'Power Menu Options' -b 'Shutdown'  'shutdown -h now' -b 'Restart' 'shutdown -r now' -b 'Logout' 'swaymsg exit' -b 'Hibernate' 'systemctl hibernate' --background=#005566 --button-background=#009999 --button-border=#002b33 --border-bottom=#002b33",
+        "tooltip": false,
+    },
+    "on-click": "swaync-client -t -sw",
+    "on-click-right": "swaync-client -d -sw",
+    "escape": true
 }
 

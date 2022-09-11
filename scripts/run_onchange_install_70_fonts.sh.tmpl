@@ -11,4 +11,16 @@
     cp -v source-code-pro/*/OTF/*.otf $fontpath
     fc-cache -f
     rm -rf source-code-pro{,.zip}
+
+# Safer script
+set -o errexit
+set -o nounset
+trap "exit" INT
+
+# Temp directory to unpack into
+directory=$(pwd)
+mkdir -p "${directory}"/fonts_tmpdir
+unpackdir="${directory}"/fonts_tmpdir
+cd "${unpackdir}"
+
 {{ end -}}
