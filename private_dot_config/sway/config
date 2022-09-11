@@ -71,14 +71,20 @@ default_border pixel 2
 default_floating_border pixel 2 
 titlebar_border_thickness 2
 title_align center
-gaps inner 2
+gaps inner 1
 font pango:Iosevka Nerd Font Medium 12
 
 bindswitch lid:on exec sway_lock.sh
-output HDMI-A-1 pos 0 0
-output DP-2 pos 1920 0
 
-output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
+output HDMI-A-1 {
+    pos 0 0
+    bg $(find $wallpapers_path -type f | shuf -n 1) fill
+}
+
+output DP-2 {
+    pos 1920 0
+    bg $(find $wallpapers_path -type f | shuf -n 1) fill
+}
 
 for_window {
     [window_role="pop-up"] floating enable
