@@ -118,6 +118,20 @@
         "on-click": "swaynag -t warning -m 'Power Menu Options' -b 'Shutdown'  'shutdown -h now' -b 'Restart' 'shutdown -r now' -b 'Logout' 'swaymsg exit' -b 'Hibernate' 'systemctl hibernate' --background=#005566 --button-background=#009999 --button-border=#002b33 --border-bottom=#002b33",
         "tooltip": false,
     },
+    "custom/spotify": {
+        "format": "{icon} {}",
+        "escape": true,
+        "return-type": "json",
+        "max-length": 40,
+        "interval": 30, // Remove this if your script is endless and write in loop
+        "on-click": "playerctl -p spotify play-pause",
+        "on-click-right": "killall spotify",
+        "smooth-scrolling-threshold": 10, // This value was tested using a trackpad, it should be lowered if using a mouse.
+        "on-scroll-up" : "playerctl -p spotify next",
+        "on-scroll-down" : "playerctl -p spotify previous",
+        "exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null", // Script in resources/custom_modules folder
+        "exec-if": "pgrep spotify"
+    },
     "on-click": "swaync-client -t -sw",
     "on-click-right": "swaync-client -d -sw",
     "escape": true
