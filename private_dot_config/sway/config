@@ -71,7 +71,13 @@ default_border pixel 2
 default_floating_border pixel 2 
 titlebar_border_thickness 2
 title_align center
-gaps inner 1
+
+gaps {
+    inner 1
+    left 4
+    right 4
+}
+
 font pango:Iosevka Nerd Font Medium 12
 
 bindswitch lid:on exec sway_lock.sh
@@ -108,6 +114,8 @@ for_window {
 }
 
 bindsym {
+    $mod+greater move workspace to output right
+    $mod+less move workspace to output left
     $mod+Return exec $term
     $mod+Shift+q kill
     $mod+d exec $launcher
