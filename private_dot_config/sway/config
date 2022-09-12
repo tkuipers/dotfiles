@@ -191,6 +191,7 @@ bindsym $mod+r mode "resize"
 
 bar {
     swaybar_command waybar
+    gaps 10 0
 }
 
 include /etc/sway/config.d/*
