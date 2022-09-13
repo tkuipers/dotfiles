@@ -127,7 +127,11 @@ font:
     # family: Mononoki Nerd Font
 
     # The `style` can be specified to pick a specific face.
+    {{ if eq .chezmoi.os "linux" -}}
     style: Regular
+    {{ else if eq .chezmoi.os "darwin" -}}
+    style: Book
+    {{ end -}}
 
   # Bold font face
   bold:
@@ -148,7 +152,11 @@ font:
     # family: Mononoki Nerd Font
 
     # The `style` can be specified to pick a specific face.
+    {{ if eq .chezmoi.os "linux" -}}
     style: Bold
+    {{ else if eq .chezmoi.os "darwin" -}}
+    style: Book
+    {{ end -}}
 
   # Italic font face
   italic:
@@ -169,7 +177,11 @@ font:
     # family: Mononoki Nerd Font
 
     # The `style` can be specified to pick a specific face.
+    {{ if eq .chezmoi.os "linux" -}}
     style: Italic
+    {{ else if eq .chezmoi.os "darwin" -}}
+    style: Book
+    {{ end -}}
 
   # Bold italic font face
   bold_italic:
@@ -190,7 +202,11 @@ font:
     # family: Mononoki Nerd Font
 
     # The `style` can be specified to pick a specific face.
+    {{ if eq .chezmoi.os "linux" -}}
     style: Bold Italic
+    {{ else if eq .chezmoi.os "darwin" -}}
+    style: Book
+    {{ end -}}
 
   # Point size
   size: 12.0

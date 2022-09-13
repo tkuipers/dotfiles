@@ -34,5 +34,6 @@ HISTSIZE=3000
 HISTFILESIZE=4000
 HISTTIMEFORMAT="%F %T "
 
+PATH="/opt/homebrew/bin:$PATH"
 eval "$(oh-my-posh init zsh --config ~/.poshthemes/bubbles.omp.json)"
 [[ -s $HOME/.nvm/nvm.sh ]] && . $HOME/.nvm/nvm.sh  # This loads NVM
