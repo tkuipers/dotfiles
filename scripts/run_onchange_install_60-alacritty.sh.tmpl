@@ -16,5 +16,5 @@ set -euo pipefail
     gzip -c extra/alacritty.man | sudo tee /usr/local/share/man/man1/alacritty.1.gz > /dev/null
     gzip -c extra/alacritty-msg.man | sudo tee /usr/local/share/man/man1/alacritty-msg.1.gz > /dev/null
 {{ else if eq .chezmoi.os "darwin" -}}
-echo "MacOS packages not working yet"
+brew install --cask alacritty
 {{ end -}}
