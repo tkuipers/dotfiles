@@ -1,4 +1,9 @@
 {{ if eq .chezmoi.os "linux" -}}
     #!/bin/bash 
-    sudo apt-get -y install waybar fonts-font-awesome sway wofi
+    sudo apt-get -y install fonts-font-awesome sway wofi
+    git clone https://github.com/Alexays/Waybar
+    cd Waybar
+    meson build
+    # If you want to install it
+    sudo ninja -C build install
 {{ end -}}
