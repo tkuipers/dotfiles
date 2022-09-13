@@ -122,6 +122,8 @@ if [ "$SHELL" != "/usr/bin/zsh" ]; then
     sudo chsh -s $(which zsh) $USER
 fi
 
+pip3 install meson
+
 {{ else if eq .chezmoi.os "darwin" -}}
     echo "MacOS packages not working yet"
 {{ end -}}
