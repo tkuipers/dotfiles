@@ -4,7 +4,11 @@
         echo "Oh My Posh installed, not installing"
     else
         echo "Installing Oh My Posh"
-        sudo wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O /usr/local/bin/oh-my-posh
+        {{ if eq .chezmoi.arch "amd64" -}}
+            sudo wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O /usr/local/bin/oh-my-posh
+        {{ else if eq .chezmoi.arch "arm64" -}}
+            sudo wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-arm64 -O /usr/local/bin/oh-my-posh
+        {{ end -}}
         sudo chmod +x /usr/local/bin/oh-my-posh
     fi
 {{ else if eq .chezmoi.os "darwin" -}}
