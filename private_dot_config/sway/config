@@ -82,6 +82,14 @@ font pango:Iosevka Nerd Font Medium 12
 
 bindswitch lid:on exec sway_lock.sh
 
+output * {
+    bg $(find $wallpapers_path -type f | shuf -n 1) fill
+}
+
+output Virtual-1 {
+    res 1920x1080
+}
+
 output HDMI-A-1 {
     pos 0 0
     bg $(find $wallpapers_path -type f | shuf -n 1) fill
