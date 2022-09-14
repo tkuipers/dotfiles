@@ -12,7 +12,7 @@
         sudo chmod +x /usr/local/bin/oh-my-posh
     fi
 {{ else if eq .chezmoi.os "darwin" -}}
-    #!/bin/sh
+    #!/usr/bin/env bash
     if oh-my-posh > /dev/null 2>&1 ; then
         echo "Oh My Posh installed, not installing"
     else
