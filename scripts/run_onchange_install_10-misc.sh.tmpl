@@ -126,7 +126,7 @@ sudo pip3 install meson
 
 {{ else if eq .chezmoi.os "darwin" -}}
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    export PATH="/opt/homebrew/bin:$PATH"
+    eval $(/opt/homebrew/bin/brew shellenv)
     if [ "$SHELL" != "/bin/zsh" ]; then
         sudo chsh -s $(which zsh) $USER
     fi
