@@ -2,6 +2,9 @@
 if nvm > /dev/null 2>&1 ; then
     echo "NVM installed, not installing"
 else
+    {{ if eq .chezmoi.os "darwin" -}}
+    source $HOME/.zshcr
+    {{end -}}
     echo "Installing NVM"
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
     export NVM_DIR="$HOME/.nvm"

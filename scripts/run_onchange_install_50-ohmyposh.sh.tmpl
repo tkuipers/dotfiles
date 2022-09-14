@@ -13,6 +13,7 @@
     fi
 {{ else if eq .chezmoi.os "darwin" -}}
     #!/usr/bin/env bash
+    source $HOME/.zshcr
     if oh-my-posh > /dev/null 2>&1 ; then
         echo "Oh My Posh installed, not installing"
     else

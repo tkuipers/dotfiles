@@ -9,6 +9,7 @@
     sudo fc-cache -f -v
 {{ else if eq .chezmoi.os "darwin" -}}
     #!/usr/bin/env bash
+    source ~/.zshrc
     cd /tmp
     wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/DroidSansMono.zip
     unzip -o DroidSansMono.zip -d droid
