@@ -36,7 +36,7 @@ HISTTIMEFORMAT="%F %T "
 
 PATH="/opt/homebrew/bin:$PATH"
 eval $(/opt/homebrew/bin/brew shellenv)
-if command -v oh-my-posh &> /dev/null
+if [ -x "$(command -v oh-my-posh)" ] && [[ $- == *i* ]];
 then
     eval "$(oh-my-posh init zsh --config ~/.poshthemes/bubbles.omp.json)"
 fi
