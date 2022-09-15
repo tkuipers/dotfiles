@@ -60,7 +60,7 @@
             {
                 "background": "#29315A",
                 "foreground": "#89b4fa",
-                "leading_diamond": "\ue0b2",
+                "leading_diamond": "\ue0b6",
                 "properties": {
                     "time_format": "_2,15:04"
                 },
