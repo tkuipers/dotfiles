@@ -14,7 +14,8 @@
     "htop@latest",
     "gh@latest",
     "gh-copilot@latest",
-    "taskwarrior@latest"
+    "taskwarrior@latest",
+    "poetry@latest"
   ],
   "shell": {
     "init_hook": [
