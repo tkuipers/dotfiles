@@ -21,3 +21,6 @@ ln -fs $SCRIPT_DIR/../home/.bashrc $HOME/.bashrc
 ln -fs $SCRIPT_DIR/../home/.config/zellij/config.kdl $HOME/.config/zellij/config.kdl
 #link layouts for zellij
 ln -fs $SCRIPT_DIR/../home/.config/zellij/layouts/terminal.kdl $HOME/.config/zellij/layouts/terminal.kdl
+#link vimrc
+ln -fs $SCRIPT_DIR/../home/.vimrc $HOME/.vimrc
+vim +'PlugInstall --sync' +qa
