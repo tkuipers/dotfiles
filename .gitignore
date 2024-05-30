@@ -1,1 +1,4 @@
 **/*.swp
+
+.devbox
+devbox.lock

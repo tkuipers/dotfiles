@@ -1,9 +1,0 @@
-{{ if eq .chezmoi.os "linux" -}}
-    #!/bin/bash
-    cd /tmp
-    git clone https://github.com/catppuccin/grub.git && cd grub
-    sudo mkdir -p /boot/grub/themes/
-    sudo cp -r src/* /boot/grub/themes/
-    sudo grep -qxF 'GRUB_THEME="/boot/grub/themes/catppuccin-latte-grub-theme/theme.txt"' /etc/default/grub || sudo echo 'GRUB_THEME="/boot/grub/themes/catppuccin-latte-grub-theme/theme.txt"' | sudo tee -a /etc/default/grub
-    sudo update-grub
-{{ end -}}
