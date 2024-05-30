@@ -2,6 +2,8 @@ eval "$(devbox global shellenv --recompute)"
 eval "$(zellij setup --generate-auto-start bash)"
 eval "$(starship init bash)"
 
+[ -f ~/.localrc ] && source ~/.localrc
+
 alias ls='ls -CF --color=auto'
 alias ks='ls -CF --color=auto'
 alias ll='ls -al'
@@ -19,6 +21,7 @@ alias python=python3
 alias screenseconds="xset dpms "
 alias untrack="git update-index --assume-unchanged" 
 alias track="git update-index --no-assume-unchanged" 
+alias ai="gh-copilot suggest"
 
 HISTSIZE=3000
 HISTFILESIZE=4000

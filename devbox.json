@@ -11,7 +11,9 @@
     "texlivePackages.xetex@latest",
     "postgresql@latest",
     "starship@latest",
-    "htop@latest"
+    "htop@latest",
+    "gh@latest",
+    "gh-copilot@latest"
   ],
   "shell": {
     "init_hook": [
