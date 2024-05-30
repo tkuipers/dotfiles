@@ -24,5 +24,7 @@ ln -fs $SCRIPT_DIR/../home/.config/zellij/layouts/terminal.kdl $HOME/.config/zel
 #link vimrc
 ln -fs $SCRIPT_DIR/../home/.vimrc $HOME/.vimrc
 vim +'PlugInstall --sync' +qa
+#link taskwarrior
+ln -fs $SCRIPT_DIR/../home/.taskrc $HOME/.taskrc
 
 cp $SCRIPT_DIR/../home/.localrc $HOME/.localrc

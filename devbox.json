@@ -13,7 +13,8 @@
     "starship@latest",
     "htop@latest",
     "gh@latest",
-    "gh-copilot@latest"
+    "gh-copilot@latest",
+    "taskwarrior@latest"
   ],
   "shell": {
     "init_hook": [
