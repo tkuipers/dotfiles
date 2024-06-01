@@ -13,10 +13,12 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
-  {'nvim-lualine/lualine.nvim', dependencies = { 'nvim-tree/nvim-web-devicons' }},
+  { "nvim-lualine/lualine.nvim", dependencies = { "nvim-tree/nvim-web-devicons" }},
   { "github/copilot.vim" },
   { "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" },
   { "preservim/nerdtree" },
+  { "DreamMaoMao/yazi.nvim", dependencies = {"nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim"}},
+  { "kdheepak/lazygit.nvim", dependencies = {"nvim-lua/plenary.nvim"}, cmd = {"LazyGit", "LazyGitConfig", "LazyGitCurrentFile", "LazyGitFilter", "LazyGitFilterCurrentFile"}},
 })
 
 vim.cmd.colorscheme "catppuccin-frappe"
@@ -38,7 +40,8 @@ require('lualine').setup {
 
 -- Non-macOS key mappings
 vim.api.nvim_set_keymap("i", "<C-i>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
-vim.api.nvim_set_keymap("n", "<C-n>", ":NERDTreeToggle<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<C-n>", ":Yazi<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<C-b>", ":LazyGit<CR>", { noremap = true, silent = true })
 
 -- Misc settings
 vim.wo.number = true

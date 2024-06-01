@@ -24,6 +24,8 @@ alias untrack="git update-index --assume-unchanged"
 alias track="git update-index --no-assume-unchanged" 
 alias ai="gh-copilot suggest"
 
+export EDITOR=nvim
+
 HISTSIZE=3000
 HISTFILESIZE=4000
 HISTTIMEFORMAT="%F %T "
