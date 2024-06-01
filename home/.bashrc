@@ -4,11 +4,11 @@ eval "$(starship init bash)"
 
 [ -f ~/.localrc ] && source ~/.localrc
 
-alias ls='ls -CF --color=auto'
-alias ks='ls -CF --color=auto'
-alias ll='ls -al'
-alias la='ls -A'
-alias l='ls -CF'
+alias ls='exa'
+alias ks='exa'
+alias ll='exa -al'
+alias la='exa -A'
+alias l='exa -CF'
 alias rc='source ~/.bashrc'
 alias gituntrack='git update-index --skip-worktree'
 alias gittrack='git update-index --no-skip-worktree'

@@ -16,7 +16,10 @@
     "gh-copilot@latest",
     "taskwarrior@latest",
     "poetry@latest",
-    "neovim@latest"
+    "neovim@latest",
+    "exa@latest",
+    "ncdu@latest",
+    "tig@latest"
   ],
   "shell": {
     "init_hook": [
