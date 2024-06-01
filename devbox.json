@@ -19,7 +19,8 @@
     "neovim@latest",
     "exa@latest",
     "ncdu@latest",
-    "tig@latest"
+    "tig@latest",
+    "glow@latest"
   ],
   "shell": {
     "init_hook": [

@@ -6,6 +6,12 @@ success_symbol = "[[♥](green) ❯](maroon)"
 error_symbol = "[[✱](red) ❯](red)"
 vimcmd_symbol = "[❮](green)"
 
+[username]
+show_always = true
+
+[directory]
+read_only = " 🔒 "
+
 [aws]
 symbol = "🖥️ "
 
