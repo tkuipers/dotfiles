@@ -18,6 +18,9 @@ local config = wezterm.config_builder()
 -- For example, changing the color scheme:
 config.color_scheme = scheme_for_appearance(wezterm.gui.get_appearance())
 
+config.window_background_opacity = 0.90
+config.hide_tab_bar_if_only_one_tab = true
+
 config.font_size = 16.0
 -- and finally, return the configuration to wezterm
 return config
