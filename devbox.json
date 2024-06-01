@@ -15,7 +15,8 @@
     "gh@latest",
     "gh-copilot@latest",
     "taskwarrior@latest",
-    "poetry@latest"
+    "poetry@latest",
+    "neovim@latest"
   ],
   "shell": {
     "init_hook": [

@@ -7,6 +7,7 @@ curl -fsSL https://get.jetify.com/devbox | bash
 sudo chmod 755 /usr/local/bin/devbox
 
 mkdir -p $HOME/.config/zellij/layouts
+mkdir -p $HOME/.config/nvim
 
 # symlink the devbox file
 #link  devbox
@@ -24,7 +25,10 @@ ln -fs $SCRIPT_DIR/../home/.config/zellij/layouts/terminal.kdl $HOME/.config/zel
 #link vimrc
 ln -fs $SCRIPT_DIR/../home/.vimrc $HOME/.vimrc
 vim +'PlugInstall --sync' +qa
+# nvim config
+ln -fs $SCRIPT_DIR/../home/.config/nvim/init.lua $HOME/.config/nvim/init.lua
 #link taskwarrior
 ln -fs $SCRIPT_DIR/../home/.taskrc $HOME/.taskrc
 
 cp $SCRIPT_DIR/../home/.localrc $HOME/.localrc
+
