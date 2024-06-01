@@ -20,7 +20,9 @@
     "exa@latest",
     "ncdu@latest",
     "tig@latest",
-    "glow@latest"
+    "glow@latest",
+    "yazi@latest",
+    "lazygit@latest"
   ],
   "shell": {
     "init_hook": [
