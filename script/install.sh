@@ -30,5 +30,6 @@ ln -fs $SCRIPT_DIR/../home/.config/nvim/init.lua $HOME/.config/nvim/init.lua
 #link taskwarrior
 ln -fs $SCRIPT_DIR/../home/.taskrc $HOME/.taskrc
 
-cp $SCRIPT_DIR/../home/.localrc $HOME/.localrc
-
+if [ ! -e "$HOME/.localrc" ]; then
+    cp $SCRIPT_DIR/../home/.localrc $HOME/.localrc
+fi
