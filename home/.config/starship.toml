@@ -11,6 +11,7 @@ show_always = true
 
 [directory]
 read_only = " 🔒 "
+truncate_to_repo = false
 
 [aws]
 symbol = "🖥️ "

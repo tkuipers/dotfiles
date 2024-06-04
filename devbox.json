@@ -22,7 +22,11 @@
     "tig@latest",
     "glow@latest",
     "yazi@latest",
-    "lazygit@latest"
+    "lazygit@latest",
+    "vscode@latest",
+    "zathura@latest",
+    "cargo@latest",
+    "rustup@latest"
   ],
   "shell": {
     "init_hook": [
