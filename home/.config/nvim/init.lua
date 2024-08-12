@@ -56,6 +56,7 @@ vim.api.nvim_set_keymap("n", "<C-b>", ":LazyGit<CR>", { noremap = true, silent =
 vim.wo.number = true
 
 vim.g.NERDTreeShowHidden = 1
+vim.opt.mouse=""
 
 
 

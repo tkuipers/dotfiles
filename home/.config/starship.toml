@@ -19,6 +19,12 @@ symbol = "🖥️ "
 [nix_shell]
 disabled = true
 
+[time]
+disabled = false
+format = '[$time]($style) '
+time_format = '%T'
+utc_time_offset = '-6'
+
 [palettes.catppuccin_frappe]
 rosewater = "#f2d5cf"
 flamingo = "#eebebe"

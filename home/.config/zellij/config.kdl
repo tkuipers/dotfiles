@@ -6,6 +6,11 @@ keybinds clear-defaults=true {
     locked {
         bind "Ctrl g" { SwitchToMode "Normal"; }
         bind "Alt n" { NewPane; }
+        bind "Ctrl n" {  NewTab;  }
+        bind "Alt Left" { MoveFocus "Left"; }
+        bind "Alt Right" { MoveFocus "Right"; }
+        bind "Alt Down" { MoveFocus "Down"; }
+        bind "Alt Up" { MoveFocus "Up"; }
     }
     resize {
         bind "Ctrl u" { SwitchToMode "Normal"; }
