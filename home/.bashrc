@@ -1,5 +1,7 @@
 eval "$(devbox global shellenv --recompute)"
-eval "$(zellij setup --generate-auto-start bash)"
+if [ -z "$SSH_CONNECTION" ]; then
+        eval "$(zellij setup --generate-auto-start bash)"
+fi
 eval "$(starship init bash)"
 
 [ -f ~/.localrc ] && source ~/.localrc
@@ -27,6 +29,7 @@ alias gsr="git branch -a | grep "
 #alias grxc="git restore --staged  modules/configuration/config/config.xml modules/configuration/config/database-config.xml studio/plugins/ij-studio/lib/studio-branding.jar  modules/configuration/config/plugin/registry/IBillingSummaryPlugin.gwp modules/configuration/config/plugin/registry/IBillingSystemPlugin.gwp"
 alias grxc="git restore --staged  modules/configuration/config/config.xml modules/configuration/config/database-config.xml studio/plugins/ij-studio/lib/studio-branding.jar"
 # git reset $(git merge-base origin/feature/PASO $(git branch --show-current))
+alias ssh1p='ssh.exe'
 
 export EDITOR=nvim
 
@@ -40,6 +43,14 @@ function reset-lfs() {
     git rm .gitattributes
     git reset .
     git checkout .
+}
+
+folder-size() {
+  # Use the current directory if no directory is provided
+  target_dir="${1:-.}"
+
+  # Use du to calculate the size of each folder, then sort them in descending order
+  du -sh "$target_dir"/* 2>/dev/null | sort -rh
 }
 
 

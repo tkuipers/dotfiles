@@ -29,7 +29,8 @@
     "rustup@latest",
     "python312Packages.pyodbc@latest",
     "unixODBC@latest",
-    "gradle@7.6.1"
+    "gradle@7.6.1",
+    "sl@latest"
   ],
   "shell": {
     "init_hook": [
