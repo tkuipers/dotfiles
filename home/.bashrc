@@ -5,6 +5,7 @@ fi
 eval "$(starship init bash)"
 
 [ -f ~/.localrc ] && source ~/.localrc
+[ -d /opt/homebrew/bin ] && export PATH=$PATH:/opt/homebrew/bin
 
 alias ls='exa'
 alias ks='exa'
