@@ -23,8 +23,8 @@ ln -fs $SCRIPT_DIR/../home/.config/zellij/config.kdl $HOME/.config/zellij/config
 #link layouts for zellij
 ln -fs $SCRIPT_DIR/../home/.config/zellij/layouts/terminal.kdl $HOME/.config/zellij/layouts/terminal.kdl
 #link vimrc
-ln -fs $SCRIPT_DIR/../home/.vimrc $HOME/.vimrc
-vim +'PlugInstall --sync' +qa
+#ln -fs $SCRIPT_DIR/../home/.vimrc $HOME/.vimrc
+#vim +'PlugInstall --sync' +qa
 # nvim config
 ln -fs $SCRIPT_DIR/../home/.config/nvim/init.lua $HOME/.config/nvim/init.lua
 #link taskwarrior
