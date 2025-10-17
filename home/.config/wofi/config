@@ -1,0 +1,15 @@
+show=drun
+prompt=Start typing...
+hide_scroll=true
+allow_images=true
+term=footclient
+gtk_dark=true
+insensitive=true
+height=40%
+width=30%
+image_size=28
+filter_rate=50
+dynamic_lines=true
+drun-display_generic=true
+location=center
+layer=overlay

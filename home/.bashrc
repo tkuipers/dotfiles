@@ -1,17 +1,21 @@
-eval "$(devbox global shellenv --recompute)"
-if [ -z "$SSH_CONNECTION" ]; then
-        eval "$(zellij setup --generate-auto-start bash)"
+export PATH="$PATH:/snap/bin"
+
+# Start zellij and close terminal when it exits
+if [ -z "$SSH_CONNECTION" ] && [ -z "$ZELLIJ" ]; then
+    cd ~
+    exec zellij
 fi
+
 eval "$(starship init bash)"
 
 [ -f ~/.localrc ] && source ~/.localrc
 [ -d /opt/homebrew/bin ] && export PATH=$PATH:/opt/homebrew/bin
 
-alias ls='exa'
-alias ks='exa'
-alias ll='exa -al'
-alias la='exa -a'
-alias l='exa'
+alias ls='eza'
+alias ks='eza'
+alias ll='eza -al'
+alias la='eza -a'
+alias l='eza'
 alias rc='source ~/.bashrc'
 alias gituntrack='git update-index --skip-worktree'
 alias gittrack='git update-index --no-skip-worktree'
@@ -58,3 +62,32 @@ folder-size() {
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
+export PATH="$PATH:$HOME/.local/bin"
+export EZA_CONFIG_DIR="$HOME/.config/eza"
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+####################
+# Added by sway-wsl2
+####################
+
+# Set environment variables when running sway
+if [[ $XDG_SESSION_DESKTOP == "sway" ]]; then
+  # Default browser is "wslview"
+  export BROWSER=firefox
+
+  # Allows xdg-open to open programs within the VM, instead of windows
+  export DE=generic
+
+  # Allow VSCode to open within the VM instead of telling you to install it on windows
+  export DONT_PROMPT_WSL_INSTALL=1
+
+  # Uncomment to get kitty working. GTK_USE_PORTAL may break some other things so I left it disabled for now
+  # Kitty is low resolution in WSL2 though for some reason? Would stick to xfce4-terminal or another terminal emulator
+  # export GTK_USE_PORTAL=1
+  # export LIBGL_ALWAYS_INDIRECT=0
+  # export GALLIUM_DRIVER=llvmpipe
+fi
+

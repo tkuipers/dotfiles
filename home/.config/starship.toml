@@ -12,6 +12,7 @@ show_always = true
 [directory]
 read_only = " 🔒 "
 truncate_to_repo = false
+style = "bold teal"
 
 [aws]
 symbol = "🖥️ "
@@ -24,6 +25,12 @@ disabled = false
 format = '[$time]($style) '
 time_format = '%T'
 utc_time_offset = '-6'
+
+[cmd_duration]
+style = "bold sky"
+
+[git_branch]
+style = "bold peach"
 
 [palettes.catppuccin_frappe]
 rosewater = "#f2d5cf"
