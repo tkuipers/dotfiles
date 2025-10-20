@@ -49,6 +49,10 @@ exec swaymsg create_output
 exec wl-paste --watch clipboard-to-win
 # Run win to clipboard service to sync windows clipboard to wayland
 exec systemctl --user restart win-to-clipboard
+# Launch terminal on workspace 2 at startup
+exec swaymsg 'workspace 2; exec $term'
+# Launch Teams on workspace 4 at startup
+exec swaymsg 'workspace 4; exec /snap/bin/teams-for-linux'
 #workspace 1 output WL-1
 #workspace 2 output WL-2
 # Misc optioms
@@ -94,6 +98,30 @@ output DP-2 {
     bg $(find $wallpapers_path -type f | shuf -n 1) fill
 }
 
+# Assign applications to specific workspaces
+assign [class="Brave-browser"] workspace number 1
+assign [app_id="brave-browser"] workspace number 1
+assign [class="Code"] workspace number 3
+assign [app_id="code"] workspace number 3
+assign [class="code-oss"] workspace number 3
+assign [app_id="code-oss"] workspace number 3
+assign [class="Cursor"] workspace number 3
+assign [app_id="cursor"] workspace number 3
+assign [class="neovide"] workspace number 3
+assign [app_id="neovide"] workspace number 3
+assign [class="nvim-qt"] workspace number 3
+assign [app_id="nvim-qt"] workspace number 3
+assign [class="jetbrains-idea"] workspace number 3
+assign [instance="jetbrains-idea"] workspace number 3
+assign [class="microsoft teams"] workspace number 4
+assign [app_id="teams"] workspace number 4
+assign [class="teams"] workspace number 4
+assign [app_id="microsoft-teams"] workspace number 4
+assign [class="teams-for-linux"] workspace number 4
+assign [app_id="teams-for-linux"] workspace number 4
+assign [class="Cider"] workspace number 5
+assign [app_id="cider"] workspace number 5
+
 for_window {
     [window_role="pop-up"] floating enable
     [window_role="bubble"] floating enable
@@ -121,6 +149,7 @@ bindsym {
     $mod+Return exec $term
     $mod+Shift+q kill
     $mod+d exec $launcher
+    $mod+Shift+t exec $HOME/.local/bin/launch-teams
     $mod+Shift+c reload
     $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
     $mod+$left focus left

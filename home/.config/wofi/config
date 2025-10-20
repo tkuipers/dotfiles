@@ -1,5 +1,5 @@
 show=drun
-prompt=Start typing...
+prompt=...
 hide_scroll=true
 allow_images=true
 term=footclient
