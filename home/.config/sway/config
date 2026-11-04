@@ -111,8 +111,6 @@ assign [class="neovide"] workspace number 3
 assign [app_id="neovide"] workspace number 3
 assign [class="nvim-qt"] workspace number 3
 assign [app_id="nvim-qt"] workspace number 3
-assign [class="jetbrains-idea"] workspace number 3
-assign [instance="jetbrains-idea"] workspace number 3
 assign [class="microsoft teams"] workspace number 4
 assign [app_id="teams"] workspace number 4
 assign [class="teams"] workspace number 4
@@ -143,15 +141,17 @@ for_window {
     [app_id="telegram-desktop"] floating enable
 }
 
+
+
 bindsym {
     $mod+greater move workspace to output right
     $mod+less move workspace to output left
     $mod+Return exec $term
     $mod+Shift+q kill
     $mod+d exec $launcher
-    $mod+Shift+t exec $HOME/.local/bin/launch-teams
     $mod+Shift+c reload
     $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
+    $mod+Shift+s exec slurp | grim -g - - | wl-copy
     $mod+$left focus left
     $mod+$down focus down
     $mod+$up focus up

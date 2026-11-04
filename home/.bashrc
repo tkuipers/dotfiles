@@ -1,5 +1,16 @@
 export PATH="$PATH:/snap/bin"
 
+# Load bash-completion first
+if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+fi
+
+# Then kubectl completion
+source <(kubectl completion bash)
+alias k=kubectl
+complete -o default -F __start_kubectl k
 # Start zellij and close terminal when it exits
 if [ -z "$SSH_CONNECTION" ] && [ -z "$ZELLIJ" ]; then
     cd ~
@@ -38,6 +49,9 @@ alias ssh1p='ssh.exe'
 
 export EDITOR=nvim
 
+# Avoid duplicate Backspace deletion from enhanced keyboard events in Codex.
+export CODEX_TUI_DISABLE_KEYBOARD_ENHANCEMENT=1
+
 HISTSIZE=3000
 HISTFILESIZE=4000
 HISTTIMEFORMAT="%F %T "
@@ -67,8 +81,7 @@ export PATH="$PATH:$HOME/.local/bin"
 export EZA_CONFIG_DIR="$HOME/.config/eza"
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+alias sdkman='source "$HOME/.sdkman/bin/sdkman-init.sh"'
 ####################
 # Added by sway-wsl2
 ####################
@@ -91,3 +104,13 @@ if [[ $XDG_SESSION_DESKTOP == "sway" ]]; then
   # export GALLIUM_DRIVER=llvmpipe
 fi
 
+export CNI_PATH=~/.local/libexec/cni
+export CNI_PATH=~/.local/libexec/cni
+source <(kubectl completion bash)
+alias k=kubectl
+complete -o default -F __start_kubectl k
+eval "$(~/.local/bin/mise activate bash)"
+
+# Rust toolchain (rustup), if installed
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+export PATH=$PATH:$HOME/.maestro/bin

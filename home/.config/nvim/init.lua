@@ -16,8 +16,23 @@ require("lazy").setup({
   { "nvim-lualine/lualine.nvim", dependencies = { "nvim-tree/nvim-web-devicons" }},
   { "github/copilot.vim" },
   { "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" },
-  { "preservim/nerdtree" },
+  {
+    "nvim-tree/nvim-tree.lua",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      require("nvim-tree").setup({
+        view = { side = "left", width = 30 },
+        filters = { dotfiles = false },
+      })
+    end,
+  },
   { "DreamMaoMao/yazi.nvim", dependencies = {"nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim"}},
+  {
+    "coder/claudecode.nvim",
+    config = function()
+      require("claudecode").setup()
+    end,
+  },
   { "kdheepak/lazygit.nvim", dependencies = {"nvim-lua/plenary.nvim"}, cmd = {"LazyGit", "LazyGitConfig", "LazyGitCurrentFile", "LazyGitFilter", "LazyGitFilterCurrentFile"}},
   {
   "lervag/vimtex",
@@ -51,11 +66,11 @@ require('lualine').setup {
 vim.api.nvim_set_keymap("i", "<C-i>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
 vim.api.nvim_set_keymap("n", "<C-n>", ":Yazi<CR>", { noremap = true, silent = true })
 vim.api.nvim_set_keymap("n", "<C-b>", ":LazyGit<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<C-e>", ":NvimTreeToggle<CR>", { noremap = true, silent = true })
 
 -- Misc settings
 vim.wo.number = true
 
-vim.g.NERDTreeShowHidden = 1
 vim.opt.mouse=""
 
 
