@@ -49,7 +49,6 @@ seat seat0 {
 # Launch terminal on workspace 2 at startup
 exec swaymsg 'workspace 2; exec $term'
 # Launch Teams on workspace 4 at startup
-# Launch Teams on workspace 4 at startup
 exec swaymsg 'workspace 4; exec teams-for-linux'
 # Cycle wallpapers on each output
 exec $HOME/.local/bin/wallpaper-cycle
