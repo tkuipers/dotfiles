@@ -9,6 +9,12 @@ mkdir -p $HOME/.config/sway
 mkdir -p $HOME/.config/wofi
 mkdir -p $HOME/.config/polybar
 mkdir -p $HOME/.config/alacritty
+mkdir -p $HOME/.config/mise
+mkdir -p $HOME/Pictures/Wallpapers
+mkdir -p $HOME/.config/eza
+mkdir -p $HOME/.config/git
+mkdir -p $HOME/.config/systemd/user
+mkdir -p $HOME/.local/bin
 
 # backup existing configs if they exist
 [ -d "$HOME/.config/waybar" ] && [ ! -L "$HOME/.config/waybar" ] && mv "$HOME/.config/waybar" "$HOME/.config/waybar.backup"
@@ -47,6 +53,22 @@ ln -fs $SCRIPT_DIR/../home/.config/polybar/executable_spotify.sh $HOME/.config/p
 ln -fs $SCRIPT_DIR/../home/.config/alacritty/alacritty.toml $HOME/.config/alacritty/alacritty.toml
 #link taskwarrior
 ln -fs $SCRIPT_DIR/../home/.taskrc $HOME/.taskrc
+#link eza theme
+ln -fs $SCRIPT_DIR/../home/.config/eza/theme.yml $HOME/.config/eza/theme.yml
+#link global gitignore
+ln -fs $SCRIPT_DIR/../home/.config/git/ignore $HOME/.config/git/ignore
+#link sway on wsl helpers
+ln -fs $SCRIPT_DIR/../home/.local/bin/start-sway $HOME/.local/bin/start-sway
+ln -fs $SCRIPT_DIR/../home/.local/bin/clipboard-to-win $HOME/.local/bin/clipboard-to-win
+ln -fs $SCRIPT_DIR/../home/.local/bin/win-to-clipboard $HOME/.local/bin/win-to-clipboard
+ln -fs $SCRIPT_DIR/../home/.config/systemd/user/win-to-clipboard.service $HOME/.config/systemd/user/win-to-clipboard.service
+#link mise
+ln -fs $SCRIPT_DIR/../home/.config/mise/config.toml $HOME/.config/mise/config.toml
+#download wallpapers
+while read -r url; do
+    file="$HOME/Pictures/Wallpapers/${url##*/}"
+    [ -e "$file" ] || curl -fsSL -o "$file" "$url"
+done < "$SCRIPT_DIR/wallpapers.txt"
 
 if [ ! -e "$HOME/.localrc" ]; then
     cp $SCRIPT_DIR/../home/.localrc $HOME/.localrc
