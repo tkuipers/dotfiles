@@ -44,7 +44,9 @@
   nixpkgs.config.allowUnfree = true;
   fonts.packages = with pkgs; [ nerd-fonts.iosevka nerd-fonts.jetbrains-mono ];
   environment.systemPackages = with pkgs; [
-    swayfx swaybg waybar wofi alacritty wl-clipboard grim slurp xwayland jq brave libva-utils mesa-demos
+    swayfx swaybg waybar wofi alacritty wl-clipboard grim slurp xwayland jq libva-utils mesa-demos
+    # GPU rasterization draws pages wrong on d3d12: stray triangles on buttons and off colors in text.
+    (brave.override { commandLineArgs = "--ozone-platform=wayland --disable-gpu-rasterization"; })
     (writeShellScriptBin "custom-weaselway-session" ''
       export XDG_CURRENT_DESKTOP=sway
       # dxgdrm, not card0: from kernel 6.18.54.1 on card0 is WSL's vgem.
