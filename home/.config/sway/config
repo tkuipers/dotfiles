@@ -44,15 +44,11 @@ seat seat0 {
     hide_cursor when-typing enable
 }
 
-exec swaymsg create_output
 # When wayland clipboard changes, run clipboard-to-win
-exec wl-paste --watch clipboard-to-win
 # Run win to clipboard service to sync windows clipboard to wayland
-exec systemctl --user restart win-to-clipboard
 # Launch terminal on workspace 2 at startup
 exec swaymsg 'workspace 2; exec $term'
 # Launch Teams on workspace 4 at startup
-exec swaymsg 'workspace 4; exec /snap/bin/teams-for-linux'
 # Cycle wallpapers on each output
 exec $HOME/.local/bin/wallpaper-cycle
 #workspace 1 output WL-1
@@ -80,15 +76,28 @@ gaps {
 
 font pango:Iosevka Nerd Font Medium 12
 
+# SwayFX
+corner_radius 8
+
 bindswitch lid:on exec sway_lock.sh
 
 output * {
     bg $(find $wallpapers_path -type f | shuf -n 1) fill
 }
 
-output Virtual-1 {
-    res 1920x1080
+# The left monitor is the first viewer, the right one the second.
+output Virtual-2 {
+    mode --custom 1680x1002@60Hz
+    pos 1680 0
 }
+
+output Virtual-1 {
+    mode --custom 1680x1002@60Hz
+    pos 0 0
+}
+
+input "7531:260:Weaselway_pointer" map_to_output Virtual-1
+input "7531:260:Weaselway_pointer_2" map_to_output Virtual-2
 
 output HDMI-A-1 {
     pos 0 0
