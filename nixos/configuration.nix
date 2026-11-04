@@ -106,6 +106,29 @@
     mode = "0755";
   };
 
+  # Other WSL distros share this kernel and /dev, and their udev resets the GPU
+  # nodes when they start. Apps here then can't open them, so put them back.
+  systemd.services.weaselway-dri-perms = {
+    description = "Keep the dxgdrm device nodes open to Weaselway";
+    wantedBy = [ "multi-user.target" ];
+    path = with pkgs; [ coreutils inotify-tools systemd ];
+    serviceConfig.Restart = "always";
+    script = ''
+      until [ -d /dev/dri ]; do sleep 1; done
+      while true; do
+        for node in /dev/dri/by-path/platform-dxgdrm-*; do
+          [ -e "$node" ] || continue
+          if [ "$(stat -Lc %a "$node")" != 666 ]; then
+            udevadm trigger --subsystem-match=drm --action=change
+            udevadm settle --timeout=10
+            break
+          fi
+        done
+        inotifywait -qq -t 60 -e attrib -e create /dev/dri || true
+      done
+    '';
+  };
+
   environment.unixODBCDrivers = with pkgs.unixODBCDrivers; [ msodbcsql18 ];
 
   # Same major version and locale as the Ubuntu cluster these databases came from.
