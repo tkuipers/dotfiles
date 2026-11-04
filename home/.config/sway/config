@@ -22,25 +22,34 @@ set {
     $right l
 }
 
-# Theme: Catppuccin
+# Theme: Catppuccin Mocha
 set {
-    $teal #94E2D5
-    $black #11111B
-    $red #F28FAD
-    $peach #F8BD96
-    $transparent #00000000
+    $rosewater #F5E0DC
+    $mauve #CBA6F7
+    $red #F38BA8
+    $peach #FAB387
+    $lavender #B4BEFE
+    $text #CDD6F4
+    $subtext #A6ADC8
+    $overlay #6C7086
+    $surface1 #45475A
+    $surface0 #313244
+    $base #1E1E2E
+    $mantle #181825
+    $crust #11111B
 }
 
-
 # Colors
-# Class			border	background	text	indicator	child_border
-client.focused		$teal 	$teal 		$black 	$red 		$teal
-client.focused_inactive $peach 	$peach 		$black 	$red 		$teal
-client.unfocused	$peach 	$peach 		$black 	$red 		$peach
-client.urgent 		$red 	$red 		$black 	$red 		$red
+# Class			border		background	text		indicator	child_border
+client.focused		$lavender	$base		$text		$rosewater	$lavender
+client.focused_inactive	$overlay	$base		$text		$overlay	$overlay
+client.unfocused	$surface1	$mantle		$subtext	$surface1	$surface1
+client.urgent		$peach		$base		$peach		$overlay	$peach
+client.placeholder	$overlay	$base		$text		$overlay	$overlay
+client.background	$base
 
 seat seat0 {
-    xcursor_theme Colloid-dark-cursors
+    xcursor_theme catppuccin-mocha-lavender-cursors 24
     hide_cursor when-typing enable
 }
 
@@ -50,6 +59,8 @@ seat seat0 {
 exec swaymsg 'workspace 2; exec $term'
 # Launch Teams on workspace 4 at startup
 exec swaymsg 'workspace 4; exec teams-for-linux'
+# Turn unfocused windows to glass
+exec $HOME/.local/bin/glass-unfocused
 # Cycle wallpapers on each output
 exec $HOME/.local/bin/wallpaper-cycle
 workspace 1 output Virtual-1
@@ -68,17 +79,35 @@ titlebar_border_thickness 2
 title_align center
 
 gaps {
-    inner 2
-    left 3
-    right 3
-    top 3
-    bottom 0
+    inner 5
+    outer 3
 }
 
-font pango:Iosevka Nerd Font Medium 12
+font pango:JetBrainsMono Nerd Font 11
 
 # SwayFX
 corner_radius 8
+titlebar_separator disable
+
+blur enable
+blur_passes 2
+blur_radius 4
+blur_noise 0.02
+blur_saturation 1.1
+
+shadows enable
+shadows_on_csd disable
+shadow_blur_radius 24
+shadow_offset 0 4
+shadow_color #11111BCC
+shadow_inactive_color #11111B66
+
+layer_effects "waybar" {
+    blur enable; blur_ignore_transparent enable; shadows enable; corner_radius 8;
+}
+layer_effects "wofi" {
+    blur enable; blur_ignore_transparent enable; shadows enable; corner_radius 10;
+}
 
 bindswitch lid:on exec sway_lock.sh
 

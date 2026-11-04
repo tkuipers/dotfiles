@@ -42,7 +42,7 @@
 
   # Sway session and desktop tools. SwayFX installs as `sway`.
   nixpkgs.config.allowUnfree = true;
-  fonts.packages = with pkgs; [ nerd-fonts.iosevka nerd-fonts.jetbrains-mono ];
+  fonts.packages = with pkgs; [ nerd-fonts.iosevka nerd-fonts.jetbrains-mono font-awesome ];
   environment.systemPackages = with pkgs; [
     swayfx swaybg waybar wofi alacritty wl-clipboard grim slurp xwayland jq libva-utils mesa-demos
     # GPU rasterization draws pages wrong on d3d12: stray triangles on buttons and off colors in text.
@@ -89,6 +89,11 @@
       '';
     })
 
+    # Theme
+    (catppuccin-gtk.override { accents = [ "lavender" ]; variant = "mocha"; })
+    (catppuccin-papirus-folders.override { flavor = "mocha"; accent = "lavender"; })
+    catppuccin-cursors.mochaLavender
+
     # Applications
     vscode code-cursor bruno beekeeper-studio teams-for-linux firefox thunderbird
     zotero anki-bin cider-2
@@ -128,6 +133,16 @@
       done
     '';
   };
+
+  programs.dconf.profiles.user.databases = [{
+    settings."org/gnome/desktop/interface" = {
+      color-scheme = "prefer-dark";
+      gtk-theme = "catppuccin-mocha-lavender-standard";
+      icon-theme = "Papirus-Dark";
+      cursor-theme = "catppuccin-mocha-lavender-cursors";
+      font-name = "JetBrainsMono Nerd Font 11";
+    };
+  }];
 
   environment.unixODBCDrivers = with pkgs.unixODBCDrivers; [ msodbcsql18 ];
 

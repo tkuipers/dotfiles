@@ -2,12 +2,14 @@
     border: none;
     border-radius: 0;
     font-family: "JetBrainsMono Nerd Font", "Font Awesome 6 Free";
-    font-size: 11px;
+    font-size: 12px;
     min-height: 0;
 }
 
 window#waybar {
-    background: rgba(30, 30, 46, 0.9);
+    background: rgba(30, 30, 46, 0.55);
+    border: 1px solid rgba(180, 190, 254, 0.15);
+    border-radius: 8px;
     color: #cdd6f4;
 }
 

@@ -27,9 +27,9 @@
 @define-color	crust		rgb(17, 17, 27);
 
 #window {
-	border-radius: 16px;
-	border: 2px solid rgba(137, 180, 250, 0.3);
-	background-color: rgba(30, 30, 46, 0.95);
+	border-radius: 10px;
+	border: 1px solid rgba(180, 190, 254, 0.3);
+	background-color: rgba(30, 30, 46, 0.7);
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 

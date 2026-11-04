@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Turn windows to glass, the focused one a little less so. SwayFX blurs
+# whatever shows through. Exits with sway, when the subscription ends.
+
+focused=0.90
+unfocused=0.85
+
+swaymsg "[tiling] opacity $unfocused; [floating] opacity $unfocused" > /dev/null
+previous=$(swaymsg -t get_tree | jq -r '.. | objects | select(.focused == true) | .id')
+swaymsg "[con_id=$previous] opacity $focused" > /dev/null
+
+swaymsg -m -t subscribe '["window"]' |
+  jq --unbuffered -r 'select(.change == "focus") | .container.id' |
+  while read -r id; do
+    [ "$id" = "$previous" ] && continue
+    swaymsg "[con_id=$previous] opacity $unfocused; [con_id=$id] opacity $focused" > /dev/null
+    previous=$id
+  done
