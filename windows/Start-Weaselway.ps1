@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 public static class WeaselwayWindows {
     delegate bool EnumProc(IntPtr hwnd, IntPtr param);
+    [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
     [DllImport("user32.dll")] static extern bool EnumWindows(EnumProc proc, IntPtr param);
     [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr hwnd);
     [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr hwnd, out uint pid);
@@ -46,21 +47,31 @@ function Get-ViewerPid([int]$port) {
 
 & wsl.exe -d $distro -- bash -lc "systemctl is-active --quiet weaselway-session || ww-start-session"
 
-foreach ($display in 1, 2) {
-    if (Get-ViewerPid $ports[$display]) { continue }
-    if ($display -eq 1) {
-        & wsl.exe -d $distro -- bash -lc "ww-start-viewer -decorations -grab-keyboard"
-    } else {
-        & wsl.exe -d $distro -- bash -lc "ww-start-viewer --display $display -decorations -grab-keyboard"
-    }
+function Start-Viewer([int]$display) {
+    $arguments = if ($display -eq 1) { "" } else { "--display $display " }
+    & wsl.exe -d $distro -- bash -lc "ww-start-viewer $arguments-decorations -grab-keyboard"
 }
 
-$screens = @([System.Windows.Forms.Screen]::AllScreens | Sort-Object { $_.Bounds.X })
+foreach ($display in 1, 2) {
+    if (-not (Get-ViewerPid $ports[$display])) { Start-Viewer $display }
+}
+
+# The monitors, not the laptop's own screen when it is open: with three screens
+# the primary one is left out.
+[void][WeaselwayWindows]::SetProcessDPIAware()
+$screens = @([System.Windows.Forms.Screen]::AllScreens)
+if ($screens.Count -gt 2) { $screens = @($screens | Where-Object { -not $_.Primary }) }
+$screens = @($screens | Sort-Object { $_.Bounds.X })
 foreach ($display in 1, 2) {
     $hwnd = [IntPtr]::Zero
     for ($i = 0; $i -lt 60 -and $hwnd -eq [IntPtr]::Zero; $i++) {
         $viewerPid = Get-ViewerPid $ports[$display]
-        if ($viewerPid) { $hwnd = [WeaselwayWindows]::Find($viewerPid) }
+        if ($viewerPid) {
+            $hwnd = [WeaselwayWindows]::Find($viewerPid)
+        } elseif ($i % 10 -eq 9) {
+            # A viewer started right after the session can exit without a word.
+            Start-Viewer $display
+        }
         if ($hwnd -eq [IntPtr]::Zero) { Start-Sleep -Milliseconds 500 }
     }
     if ($hwnd -eq [IntPtr]::Zero) { throw "No window for the viewer of display $display" }
