@@ -152,6 +152,8 @@
     };
   }];
 
+  environment.sessionVariables.IDEA_HOME = "/home/nixos/idea/current";
+
   environment.unixODBCDrivers = with pkgs.unixODBCDrivers; [ msodbcsql18 ];
 
   # Same major version and locale as the Ubuntu cluster these databases came from.
@@ -180,7 +182,21 @@
   };
 
   # Paths Ubuntu had: scripts and symlinks in the copied home directory use them.
-  systemd.tmpfiles.rules = [
+  systemd.tmpfiles.rules = let
+    # Guidewire Studio refuses any other IntelliJ version. nix-ld runs it unpatched.
+    studioIdea = pkgs.runCommand "idea-2025.3.4" {
+      src = pkgs.fetchurl {
+        url = "https://download.jetbrains.com/idea/idea-2025.3.4.tar.gz";
+        sha256 = "b86ddae3a3fd6c2afbaca160a3b7d54f4b4fa6d1361ac2616bdb7a6416632ea1";
+      };
+    } ''
+      mkdir -p $out
+      tar -xzf $src --strip-components=1 -C $out
+    '';
+  in [
+    # ~/.localrc points IDEA_HOME here.
+    "d /home/nixos/idea 0755 nixos users -"
+    "L+ /home/nixos/idea/current - - - - ${studioIdea}"
     "L+ /home/administrator - - - - /home/nixos"
     "L+ /bin/bash - - - - /run/current-system/sw/bin/bash"
   ];

@@ -11,7 +11,31 @@ Add-Type @'
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+public struct PropertyKey { public Guid Format; public uint Id; }
+[StructLayout(LayoutKind.Sequential)]
+public struct PropVariant { public ushort Type; public ushort R1, R2, R3; public IntPtr Value; public IntPtr Extra; }
+[ComImport, Guid("886D8EEB-8CF2-4446-8D02-CDBA1DBDCF99"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+public interface IPropertyStore {
+    void GetCount(out uint count);
+    void GetAt(uint index, out PropertyKey key);
+    void GetValue(ref PropertyKey key, out PropVariant value);
+    void SetValue(ref PropertyKey key, ref PropVariant value);
+    void Commit();
+}
 public static class WeaselwayWindows {
+    [DllImport("shell32.dll")] static extern int SHGetPropertyStoreForWindow(IntPtr hwnd, ref Guid iid, out IPropertyStore store);
+    // The taskbar groups windows under the pin that has the same app id.
+    public static void SetAppId(IntPtr hwnd, string appId) {
+        Guid iid = typeof(IPropertyStore).GUID;
+        IPropertyStore store;
+        Marshal.ThrowExceptionForHR(SHGetPropertyStoreForWindow(hwnd, ref iid, out store));
+        PropertyKey key = new PropertyKey { Format = new Guid("9F4C2855-9F79-4B39-A8D0-E1D42DE1D5F3"), Id = 5 };
+        PropVariant value = new PropVariant { Type = 31, Value = Marshal.StringToCoTaskMemUni(appId) };
+        store.SetValue(ref key, ref value);
+        Marshal.FreeCoTaskMem(value.Value);
+        Marshal.ReleaseComObject(store);
+    }
     delegate bool EnumProc(IntPtr hwnd, IntPtr param);
     [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
     [DllImport("user32.dll")] static extern bool EnumWindows(EnumProc proc, IntPtr param);
@@ -77,4 +101,5 @@ foreach ($display in 1, 2) {
     if ($hwnd -eq [IntPtr]::Zero) { throw "No window for the viewer of display $display" }
     $screen = $screens[[Math]::Min($display - 1, $screens.Count - 1)]
     [WeaselwayWindows]::Maximize($hwnd, $screen.WorkingArea.X, $screen.WorkingArea.Y)
+    [WeaselwayWindows]::SetAppId($hwnd, "Tkuipers.Weaselway")
 }
