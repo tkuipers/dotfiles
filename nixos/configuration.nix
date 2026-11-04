@@ -90,13 +90,21 @@
     })
 
     # Theme
+    swaynotificationcenter wlogout lutgen fastfetch playerctl swayr
     (catppuccin-gtk.override { accents = [ "lavender" ]; variant = "mocha"; })
     (catppuccin-papirus-folders.override { flavor = "mocha"; accent = "lavender"; })
     catppuccin-cursors.mochaLavender
 
     # Applications
     vscode code-cursor bruno beekeeper-studio teams-for-linux firefox thunderbird
-    zotero anki-bin cider-2
+    zotero anki-bin
+    # Without libpulse, Cider's sound falls back to ALSA, which has no devices here.
+    (cider-2.overrideAttrs (old: {
+      nativeBuildInputs = old.nativeBuildInputs ++ [ makeWrapper ];
+      postFixup = (old.postFixup or "") + ''
+        wrapProgram $out/bin/cider-2 --prefix LD_LIBRARY_PATH : ${libpulseaudio}/lib
+      '';
+    }))
   ];
 
   # Separate from the Windows app, so it needs its own sign-in. Commit signing

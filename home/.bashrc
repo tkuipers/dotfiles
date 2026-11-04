@@ -79,6 +79,8 @@ export NVM_DIR="$HOME/.nvm"
 export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
 export PATH="$PATH:$HOME/.local/bin"
 export EZA_CONFIG_DIR="$HOME/.config/eza"
+export BAT_THEME="Catppuccin Mocha"
+export FZF_DEFAULT_OPTS="--color=bg+:#313244,bg:-1,spinner:#f5e0dc,hl:#f38ba8,fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc,marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8,selected-bg:#45475a"
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 alias sdkman='source "$HOME/.sdkman/bin/sdkman-init.sh"'

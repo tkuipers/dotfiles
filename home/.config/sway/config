@@ -12,7 +12,7 @@ set {
     $launcher wofi &
     $browser firefox-bin
     $file_manager footclient nnn
-    $wallpapers_path $HOME/Pictures/Wallpapers
+    $wallpapers_path $HOME/Pictures/Wallpapers-Mocha
 }
 
 set {
@@ -59,6 +59,10 @@ seat seat0 {
 exec swaymsg 'workspace 2; exec $term'
 # Launch Teams on workspace 4 at startup
 exec swaymsg 'workspace 4; exec teams-for-linux'
+# Notifications
+exec swaync
+# Window switcher behind the clock
+exec swayrd
 # Turn unfocused windows to glass
 exec $HOME/.local/bin/glass-unfocused
 # Cycle wallpapers on each output
@@ -80,7 +84,7 @@ title_align center
 
 gaps {
     inner 5
-    outer 3
+    outer -2
 }
 
 font pango:JetBrainsMono Nerd Font 11
@@ -108,8 +112,15 @@ layer_effects "waybar" {
 layer_effects "wofi" {
     blur enable; blur_ignore_transparent enable; shadows enable; corner_radius 10;
 }
-
-bindswitch lid:on exec sway_lock.sh
+layer_effects "swaync-control-center" {
+    blur enable; blur_ignore_transparent enable; shadows enable; corner_radius 10;
+}
+layer_effects "swaync-notification-window" {
+    blur enable; blur_ignore_transparent enable; corner_radius 8;
+}
+layer_effects "logout_dialog" {
+    blur enable;
+}
 
 output * {
     bg $(find $wallpapers_path -type f | shuf -n 1) fill
@@ -160,6 +171,7 @@ assign [class="teams-for-linux"] workspace number 4
 assign [app_id="teams-for-linux"] workspace number 4
 assign [class="Cider"] workspace number 5
 assign [app_id="cider"] workspace number 5
+assign [app_id="Cider"] workspace number 5
 
 for_window {
     [window_role="pop-up"] floating enable

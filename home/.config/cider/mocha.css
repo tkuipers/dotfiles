@@ -1,0 +1,13 @@
+/* Catppuccin Mocha. Paste into Cider's Custom CSS setting. */
+:root {
+  --keyColor: #b4befe !important;
+  --keyColor-default: #b4befe !important;
+  --keyColor-rollover: #cba6f7 !important;
+  --keyColor-pressed: #89b4fa !important;
+  --keyColor-deepPressed: #89b4fa !important;
+  --keyColor-disabled: #6c7086 !important;
+  --bgColor: #1e1e2e !important;
+  --bgColorBase: #1e1e2e !important;
+  --bgColorMixed: #181825 !important;
+  --surfaceColor: #313244 !important;
+}

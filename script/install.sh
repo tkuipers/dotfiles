@@ -74,3 +74,13 @@ done < "$SCRIPT_DIR/wallpapers.txt"
 if [ ! -e "$HOME/.localrc" ]; then
     cp $SCRIPT_DIR/../home/.localrc $HOME/.localrc
 fi
+
+#link desktop extras
+for dir in swaync wlogout lazygit fastfetch swayr; do
+  ln -sfn $SCRIPT_DIR/../home/.config/$dir $HOME/.config/$dir
+done
+
+#link teams theme
+mkdir -p $HOME/.config/teams-for-linux
+ln -fs $SCRIPT_DIR/../home/.config/teams-for-linux/config.json $HOME/.config/teams-for-linux/config.json
+ln -fs $SCRIPT_DIR/../home/.config/teams-for-linux/mocha.css $HOME/.config/teams-for-linux/mocha.css

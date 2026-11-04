@@ -1,0 +1,33 @@
+/* Catppuccin Mocha */
+* {
+  background-image: none;
+  box-shadow: none;
+  font-family: "JetBrainsMono Nerd Font";
+  font-size: 14px;
+}
+
+window {
+  background-color: rgba(17, 17, 27, 0.45);
+}
+
+button {
+  margin: 10px;
+  color: #cdd6f4;
+  background-color: rgba(30, 30, 46, 0.7);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 25%;
+  border: 1px solid rgba(180, 190, 254, 0.25);
+  border-radius: 10px;
+}
+
+button:focus,
+button:hover {
+  color: #b4befe;
+  background-color: rgba(69, 71, 90, 0.75);
+  border-color: #b4befe;
+}
+
+#logout { background-image: image(url("/run/current-system/sw/share/wlogout/icons/logout.png")); }
+#reboot { background-image: image(url("/run/current-system/sw/share/wlogout/icons/reboot.png")); }
+#shutdown { background-image: image(url("/run/current-system/sw/share/wlogout/icons/shutdown.png")); }

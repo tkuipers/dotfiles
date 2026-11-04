@@ -1,0 +1,29 @@
+[menu]
+executable = 'wofi'
+args = [
+  '--show=dmenu',
+  '--allow-markup',
+  '--allow-images',
+  '--insensitive',
+  '--cache-file=/dev/null',
+  '--parse-search',
+  '--height=50%',
+  '--prompt=Windows',
+]
+
+[format]
+window_format = 'img:{app_icon}:text:<b>{app_name}</b>  {title}  <span alpha="55%">{workspace_name}</span>'
+workspace_format = '<b>Workspace {name}</b>'
+output_format = '<b>Output {name}</b>'
+container_format = '<b>Container {layout}</b>'
+indent = '  '
+urgency_start = '<span foreground="#f38ba8">'
+urgency_end = '</span>'
+html_escape = true
+icon_dirs = [
+  '/run/current-system/sw/share/icons/Papirus-Dark/48x48/apps',
+  '/run/current-system/sw/share/icons/Papirus/48x48/apps',
+  '/run/current-system/sw/share/icons/hicolor/128x128/apps',
+  '/run/current-system/sw/share/icons/hicolor/48x48/apps',
+  '/run/current-system/sw/share/pixmaps',
+]

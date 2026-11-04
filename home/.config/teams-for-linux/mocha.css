@@ -1,0 +1,40 @@
+/* Catppuccin Mocha over Teams' Fluent colour tokens */
+:root,
+body,
+[class*="fui-FluentProvider"] {
+  --colorNeutralBackground1: #1e1e2e !important;
+  --colorNeutralBackground1Hover: #313244 !important;
+  --colorNeutralBackground1Pressed: #45475a !important;
+  --colorNeutralBackground1Selected: #313244 !important;
+  --colorNeutralBackground2: #181825 !important;
+  --colorNeutralBackground2Hover: #313244 !important;
+  --colorNeutralBackground2Pressed: #45475a !important;
+  --colorNeutralBackground2Selected: #313244 !important;
+  --colorNeutralBackground3: #181825 !important;
+  --colorNeutralBackground3Hover: #313244 !important;
+  --colorNeutralBackground3Pressed: #45475a !important;
+  --colorNeutralBackground3Selected: #313244 !important;
+  --colorNeutralBackground4: #11111b !important;
+  --colorNeutralBackground5: #11111b !important;
+  --colorNeutralBackground6: #313244 !important;
+  --colorSubtleBackgroundHover: #313244 !important;
+  --colorSubtleBackgroundPressed: #45475a !important;
+  --colorSubtleBackgroundSelected: #313244 !important;
+  --colorNeutralForeground1: #cdd6f4 !important;
+  --colorNeutralForeground2: #bac2de !important;
+  --colorNeutralForeground3: #a6adc8 !important;
+  --colorNeutralForeground4: #9399b2 !important;
+  --colorNeutralStroke1: #45475a !important;
+  --colorNeutralStroke2: #313244 !important;
+  --colorNeutralStroke3: #313244 !important;
+  --colorBrandBackground: #b4befe !important;
+  --colorBrandBackgroundHover: #cba6f7 !important;
+  --colorBrandBackgroundPressed: #89b4fa !important;
+  --colorBrandForeground1: #b4befe !important;
+  --colorBrandForeground2: #cba6f7 !important;
+  --colorBrandForegroundLink: #89b4fa !important;
+  --colorNeutralForegroundOnBrand: #1e1e2e !important;
+  --colorCompoundBrandBackground: #b4befe !important;
+  --colorCompoundBrandForeground1: #b4befe !important;
+  --colorCompoundBrandStroke: #b4befe !important;
+}

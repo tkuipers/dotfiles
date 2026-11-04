@@ -60,10 +60,11 @@ window#waybar {
 #cpu,
 #memory,
 #temperature,
-#backlight,
 #network,
 #pulseaudio,
 #idle_inhibitor,
+#custom-media,
+#custom-notification,
 #custom-power {
     padding: 3px 12px;
     margin: 3px 2px;
@@ -116,10 +117,6 @@ window#waybar {
     color: #f38ba8;
 }
 
-#backlight {
-    background: rgba(148, 226, 213, 0.2);
-}
-
 #network {
     background: rgba(180, 190, 254, 0.2);
 }
@@ -161,3 +158,20 @@ tooltip label {
     color: #cdd6f4;
 }
 
+#network {
+    background: rgba(180, 190, 254, 0.2);
+}
+
+#custom-media {
+    background: rgba(245, 194, 231, 0.2);
+}
+
+#custom-notification {
+    background: rgba(180, 190, 254, 0.2);
+    color: #b4befe;
+}
+
+#custom-notification.notification {
+    background: rgba(243, 139, 168, 0.3);
+    color: #f38ba8;
+}

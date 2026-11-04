@@ -2,7 +2,7 @@
 # Give each sway output a random wallpaper every 15-30 minutes.
 # Exits once sway is gone, so it never outlives the session.
 
-wallpapers="$HOME/Pictures/Wallpapers"
+wallpapers="$HOME/Pictures/Wallpapers-Mocha"
 
 # Let startup finish creating outputs before the first pass
 sleep 5
