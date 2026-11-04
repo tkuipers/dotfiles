@@ -61,6 +61,7 @@ ln -fs $SCRIPT_DIR/../home/.config/git/ignore $HOME/.config/git/ignore
 ln -fs $SCRIPT_DIR/../home/.local/bin/start-sway $HOME/.local/bin/start-sway
 ln -fs $SCRIPT_DIR/../home/.local/bin/clipboard-to-win $HOME/.local/bin/clipboard-to-win
 ln -fs $SCRIPT_DIR/../home/.local/bin/win-to-clipboard $HOME/.local/bin/win-to-clipboard
+ln -fs $SCRIPT_DIR/../home/.local/bin/wallpaper-cycle $HOME/.local/bin/wallpaper-cycle
 ln -fs $SCRIPT_DIR/../home/.config/systemd/user/win-to-clipboard.service $HOME/.config/systemd/user/win-to-clipboard.service
 #link mise
 ln -fs $SCRIPT_DIR/../home/.config/mise/config.toml $HOME/.config/mise/config.toml

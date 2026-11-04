@@ -53,6 +53,8 @@ exec systemctl --user restart win-to-clipboard
 exec swaymsg 'workspace 2; exec $term'
 # Launch Teams on workspace 4 at startup
 exec swaymsg 'workspace 4; exec /snap/bin/teams-for-linux'
+# Cycle wallpapers on each output
+exec $HOME/.local/bin/wallpaper-cycle
 #workspace 1 output WL-1
 #workspace 2 output WL-2
 # Misc optioms

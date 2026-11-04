@@ -1,0 +1,15 @@
+#!/bin/bash
+# Give each sway output a random wallpaper every 15-30 minutes.
+# Exits once sway is gone, so it never outlives the session.
+
+wallpapers="$HOME/Pictures/Wallpapers"
+
+# Let startup finish creating outputs before the first pass
+sleep 5
+
+while outputs=$(swaymsg -t get_outputs -r | jq -r '.[].name'); do
+  for output in $outputs; do
+    swaymsg output "$output" bg "$(find "$wallpapers" -type f | shuf -n 1)" fill > /dev/null
+  done
+  sleep $((900 + RANDOM % 900))
+done
