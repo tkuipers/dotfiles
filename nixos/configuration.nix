@@ -109,16 +109,12 @@
   environment.unixODBCDrivers = with pkgs.unixODBCDrivers; [ msodbcsql18 ];
 
   # Same major version and locale as the Ubuntu cluster these databases came from.
-  # Port 5433 while Ubuntu's Postgres holds 5432: WSL distros share localhost.
   services.postgresql = {
     enable = true;
     package = pkgs.postgresql_15;
     extensions = ps: [ ps.postgis ];
     initdbArgs = [ "--encoding=UTF8" "--locale=C.UTF-8" ];
-    settings = {
-      port = 5433;
-      timezone = "America/Denver";
-    };
+    settings.timezone = "America/Denver";
   };
 
   virtualisation.docker.enable = true;
