@@ -60,7 +60,7 @@
 
     # Development
     git-lfs gh gcc gnumake pkg-config openssl postgresql python3 uv flutter android-tools
-    nodejs go rustup gradle maven jetbrains.idea claude-code
+    nodejs go rustup maven jetbrains.idea claude-code
 
     cmake ninja meson clang pipx dotnetCorePackages.sdk_8_0 codex
 
@@ -92,12 +92,6 @@
   users.users.nixos.extraGroups = [ "docker" ];
 
   # Java 21 by default, and 17 for the projects that still need it.
-  programs.java = {
-    enable = true;
-    package = pkgs.corretto21;
-  };
-  environment.etc."jdks/17".source = pkgs.corretto17;
-  environment.etc."jdks/21".source = pkgs.corretto21;
 
   # Binaries downloaded for a regular Linux, such as JDKs, node and JetBrains IDEs.
   programs.nix-ld = {
