@@ -62,12 +62,34 @@
     git-lfs gh gcc gnumake pkg-config openssl postgresql python3 uv flutter android-tools
     nodejs go rustup gradle maven jetbrains.idea claude-code
 
+    cmake ninja meson clang pipx dotnetCorePackages.sdk_8_0 codex
+
+    # Command line clients and utilities
+    imagemagick pandoc poppler-utils sqlite mariadb.client dnsutils nmap whois samba
+    yamllint silver-searcher unrar zstd xdg-utils wkhtmltopdf sqlcmd texliveMedium
+
     # Cloud
     kubectl kubernetes-helm terraform awscli2 azure-cli
 
     # Applications
-    vscode code-cursor bruno beekeeper-studio
+    vscode code-cursor bruno beekeeper-studio teams-for-linux firefox thunderbird
+    zotero anki-bin cider-2
   ];
+
+  # Separate from the Windows app, so it needs its own sign-in. Commit signing
+  # and ssh.exe go through the Windows one.
+  programs._1password.enable = true;
+  programs._1password-gui = {
+    enable = true;
+    polkitPolicyOwners = [ "nixos" ];
+  };
+  environment.etc."1password/custom_allowed_browsers" = {
+    text = "brave\n";
+    mode = "0755";
+  };
+
+  virtualisation.docker.enable = true;
+  users.users.nixos.extraGroups = [ "docker" ];
 
   # Java 21 by default, and 17 for the projects that still need it.
   programs.java = {
