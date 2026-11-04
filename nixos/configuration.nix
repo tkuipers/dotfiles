@@ -59,7 +59,7 @@
     lsof file tree ncdu unzip zip wget curl
 
     # Development
-    git-lfs gh gcc gnumake pkg-config openssl postgresql python3 uv flutter android-tools
+    git-lfs gh gcc gnumake pkg-config openssl python3 uv flutter android-tools
     nodejs go rustup maven jetbrains.idea claude-code
 
     cmake ninja meson clang pipx dotnetCorePackages.sdk_8_0 codex
@@ -70,6 +70,24 @@
 
     # Cloud
     kubectl kubernetes-helm terraform awscli2 azure-cli
+
+    # bcp only. sqlcmd above is the Go client, and nixpkgs has no package for bcp.
+    (stdenv.mkDerivation {
+      pname = "mssql-tools18";
+      version = "18.7.1.1-1";
+      src = fetchurl {
+        url = "https://packages.microsoft.com/ubuntu/24.04/prod/pool/main/m/mssql-tools18/mssql-tools18_18.7.1.1-1_amd64.deb";
+        sha256 = "1nyfhw39c1wvh3njpqc2s28wr2lkn9kfjjn4anj3izgk3xn4khyp";
+      };
+      nativeBuildInputs = [ dpkg autoPatchelfHook ];
+      buildInputs = [ unixODBC libtool.lib stdenv.cc.cc.lib ];
+      unpackPhase = "dpkg-deb -x $src .";
+      installPhase = ''
+        mkdir -p $out/bin
+        cp -r opt $out/
+        ln -s $out/opt/mssql-tools18/bin/bcp $out/bin/bcp
+      '';
+    })
 
     # Applications
     vscode code-cursor bruno beekeeper-studio teams-for-linux firefox thunderbird
@@ -86,6 +104,21 @@
   environment.etc."1password/custom_allowed_browsers" = {
     text = "brave\n";
     mode = "0755";
+  };
+
+  environment.unixODBCDrivers = with pkgs.unixODBCDrivers; [ msodbcsql18 ];
+
+  # Same major version and locale as the Ubuntu cluster these databases came from.
+  # Port 5433 while Ubuntu's Postgres holds 5432: WSL distros share localhost.
+  services.postgresql = {
+    enable = true;
+    package = pkgs.postgresql_15;
+    extensions = ps: [ ps.postgis ];
+    initdbArgs = [ "--encoding=UTF8" "--locale=C.UTF-8" ];
+    settings = {
+      port = 5433;
+      timezone = "America/Denver";
+    };
   };
 
   virtualisation.docker.enable = true;
