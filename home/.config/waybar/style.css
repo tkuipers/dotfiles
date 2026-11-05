@@ -60,7 +60,7 @@ window#waybar {
 #cpu,
 #memory,
 #temperature,
-#network,
+#custom-weather,
 #pulseaudio,
 #idle_inhibitor,
 #custom-camera,
@@ -122,7 +122,7 @@ window#waybar {
     color: #f38ba8;
 }
 
-#network {
+#custom-weather {
     background: rgba(180, 190, 254, 0.2);
 }
 
@@ -161,10 +161,6 @@ tooltip {
 
 tooltip label {
     color: #cdd6f4;
-}
-
-#network {
-    background: rgba(180, 190, 254, 0.2);
 }
 
 #custom-agenda {

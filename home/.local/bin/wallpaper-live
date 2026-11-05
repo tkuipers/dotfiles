@@ -19,5 +19,5 @@ touch "$flag"
 say "Live wallpapers off"
 awww query | sed -nE 's/^: ([^:]+):.*\.gif$/\1/p' | while read -r output; do
   awww img --outputs "$output" --resize crop --transition-type fade \
-    --transition-duration 2 --transition-fps 30 "$(find "$static" -type f | shuf -n 1)"
+    --transition-duration 2 --transition-fps 30 "$("$HOME/.local/bin/wallpaper-pick" "$static")"
 done

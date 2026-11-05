@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Give each sway output a random wallpaper every 15-30 minutes, static or animated.
+# Give each sway output a wallpaper that suits the weather every 15-30 minutes,
+# static or animated.
 # Exits once sway is gone, so it never outlives the session.
 
 wallpapers="$HOME/Pictures/Wallpapers-Mocha"
@@ -10,7 +11,7 @@ pick() {
   local folder=$wallpapers
   [ -e "$HOME/.cache/wallpapers-static" ] ||
     { ((RANDOM % 2)) && [ -n "$(find "$live" -name '*.gif' 2>/dev/null | head -n 1)" ] && folder=$live; }
-  find "$folder" -type f ! -name '*.tmp.gif' | shuf -n 1
+  "$HOME/.local/bin/wallpaper-pick" "$folder"
 }
 
 # Let startup finish creating outputs before the first pass

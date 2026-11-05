@@ -15,7 +15,7 @@
         "custom/media",
         "custom/camera",
         "idle_inhibitor",
-        "network",
+        "custom/weather",
         "memory",
         "cpu",
         "battery",
@@ -77,15 +77,10 @@
         },
         "tooltip": true
     },
-    "network": {
-        "interval": 5,
-        "format-ethernet": "<span foreground='#b4befe' font_weight='normal'>󰈀</span> {ifname}",
-        "format-wifi": "<span foreground='#b4befe' font_weight='normal'>󰖩</span> {essid}",
-        "format-linked": "<span foreground='#b4befe' font_weight='normal'>󰤮</span> {ifname}",
-        "format-disconnected": "<span foreground='#b4befe' font_weight='normal'>󰤮</span> offline",
-        "max-length": 28,
-        "tooltip": true,
-        "tooltip-format": "{ipaddr}/{cidr}"
+    "custom/weather": {
+        "exec": "$HOME/.local/bin/weather-now --bar",
+        "return-type": "json",
+        "interval": 300
     },
     "battery": {
         "states": {

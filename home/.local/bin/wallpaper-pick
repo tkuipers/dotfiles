@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Prints a random wallpaper from a folder that suits the weather, going by
+# ~/.config/wallpaper/labels.tsv. Wallpapers with no labels suit any day, and
+# with no weather to go on every wallpaper does.
+folder=$1
+weather=${WEATHER:-$("$HOME/.local/bin/weather-now")}
+all=$(find "$folder" -type f ! -name '*.tmp.gif')
+
+suited=$(awk -F '\t' -v weather="$weather" '
+  NR == FNR { if (!/^#/) labels[$1] = $2; next }
+  {
+    name = $0; sub(/.*\//, "", name)
+    if (weather == "" || labels[name] == "" || index("," labels[name] ",", "," weather ",")) print
+  }' "$HOME/.config/wallpaper/labels.tsv" <(printf '%s\n' "$all"))
+
+printf '%s\n' "${suited:-$all}" | shuf -n 1

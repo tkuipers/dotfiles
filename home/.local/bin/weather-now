@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# The weather in Edmonton, from Open-Meteo. Prints sunny, cloudy or snowy for
+# wallpaper-pick, with --bar the JSON for the waybar pill, or with --card a line
+# for the fastfetch card. Asks at most every
+# 30 minutes. Prints nothing if it has never had an answer.
+cache=${XDG_RUNTIME_DIR:-/tmp}/weather-now
+url='https://api.open-meteo.com/v1/forecast?latitude=53.55&longitude=-113.49&current=weather_code,temperature_2m,is_day'
+
+# --card never waits on the network: the bar keeps the answer fresh.
+if [ "$1" != --card ] && [ -z "$(find "$cache" -mmin -30 2>/dev/null)" ]; then
+  answer=$(curl -fsS --max-time 10 "$url" |
+    jq -r '.current | "\(.weather_code) \(.temperature_2m | round) \(.is_day)"' 2>/dev/null)
+  [ -n "$answer" ] && echo "$answer" > "$cache"
+fi
+read -r code temperature day 2>/dev/null < "$cache" || exit 0
+
+# WMO weather codes.
+case $code in
+  0 | 1) kind=sunny icon=󰖙 words=Clear ;;
+  2) kind=sunny icon=󰖕 words='Partly cloudy' ;;
+  3) kind=cloudy icon=󰖐 words=Overcast ;;
+  45 | 48) kind=cloudy icon=󰖑 words=Fog ;;
+  7[1-7] | 85 | 86) kind=snowy icon=󰖘 words=Snow ;;
+  9[5-9]) kind=cloudy icon=󰖓 words=Thunderstorm ;;
+  *) kind=cloudy icon=󰖗 words=Rain ;;
+esac
+
+[ "$day" = 0 ] && [ "$kind" = sunny ] && icon=󰖔
+
+case $1 in
+  --bar) ;;
+  --card)
+    echo "$icon $words, $temperature°C"
+    exit
+    ;;
+  *)
+    echo "$kind"
+    exit
+    ;;
+esac
+
+case $kind in sunny) colour='#f9e2af' ;; cloudy) colour='#89b4fa' ;; snowy) colour='#cdd6f4' ;; esac
+jq -cn --arg text "<span foreground='$colour' font_weight='normal'>$icon</span>" \
+  --arg tooltip "$words, $temperature°C" --arg class "$kind" \
+  '{text: $text, tooltip: $tooltip, class: $class}'
