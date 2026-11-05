@@ -111,7 +111,7 @@
     },
     "custom/power": {
         "format": "<span foreground='#94e2d5' font_weight='normal'></span>",
-        "on-click": "wlogout -b 4 -T 340 -B 340",
+        "on-click": "$HOME/.local/bin/power-menu",
         "tooltip": false
     },
     "custom/notification": {

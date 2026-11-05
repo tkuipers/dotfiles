@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# The power menu. While it is open the flag lets the mouse alone bring up the
+# Windows taskbar: see Weaselway-Taskbar.ps1.
+flag=/mnt/c/Users/tyler.kuipers/Weaselway/power-menu-open
+trap 'command rm -f "$flag"' EXIT
+: > "$flag"
+wlogout -b 4 -T 340 -B 340

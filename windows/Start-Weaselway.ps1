@@ -92,6 +92,10 @@ foreach ($display in 1, 2) {
     if (-not (Get-ViewerPid $ports[$display])) { Start-Viewer $display }
 }
 
+# First, so the viewers are maximized into the height the taskbar gives up.
+Start-Process powershell.exe -WindowStyle Hidden -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$PSScriptRoot\Weaselway-Taskbar.ps1`""
+Start-Sleep -Seconds 1
+
 # The monitors, not the laptop's own screen when it is open: with three screens
 # the primary one is left out.
 [void][WeaselwayWindows]::SetProcessDPIAware()
