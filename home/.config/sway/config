@@ -72,7 +72,8 @@ exec swaync
 exec swayrd
 # Turn unfocused windows to glass
 exec $HOME/.local/bin/glass-unfocused
-# Cycle wallpapers on each output
+# Cycle wallpapers on each output, fading between them
+exec awww-daemon
 exec $HOME/.local/bin/wallpaper-cycle
 workspace 1 output Virtual-1
 workspace 2 output Virtual-2
@@ -129,10 +130,6 @@ layer_effects "logout_dialog" {
     blur enable;
 }
 
-output * {
-    bg $(find $wallpapers_path -type f | shuf -n 1) fill
-}
-
 # The left monitor is the first viewer, the right one the second. Sizes follow
 # the viewers' windows, so they fit at any desk.
 exec ~/.local/bin/fit-outputs
@@ -142,12 +139,10 @@ input "7531:260:Weaselway_pointer_2" map_to_output Virtual-2
 
 output HDMI-A-1 {
     pos 0 0
-    bg $(find $wallpapers_path -type f | shuf -n 1) fill
 }
 
 output DP-2 {
     pos 1920 0
-    bg $(find $wallpapers_path -type f | shuf -n 1) fill
 }
 
 # Assign applications to specific workspaces

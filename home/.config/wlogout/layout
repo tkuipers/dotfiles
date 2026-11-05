@@ -1,3 +1,4 @@
+{ "label": "wallpaper", "action": "$HOME/.local/bin/wallpaper-live", "text": "Live wallpapers", "keybind": "w" }
 { "label": "logout", "action": "swaymsg exit", "text": "Log out", "keybind": "e" }
 { "label": "reboot", "action": "systemctl reboot", "text": "Restart", "keybind": "r" }
 { "label": "shutdown", "action": "systemctl poweroff", "text": "Shut down", "keybind": "s" }

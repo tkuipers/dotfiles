@@ -1,0 +1,23 @@
+#!/bin/bash
+# Turns animated wallpapers off or on, from the power menu. Off swaps any that is
+# playing for a static one at once and keeps wallpaper-cycle to static ones.
+flag=$HOME/.cache/wallpapers-static
+static=$HOME/Pictures/Wallpapers-Mocha
+
+say() {
+  busctl --user call org.freedesktop.Notifications /org/freedesktop/Notifications \
+    org.freedesktop.Notifications Notify susssasa{sv}i Wallpapers 0 "" "$1" "" 0 0 3000 >/dev/null
+}
+
+if [ -e "$flag" ]; then
+  rm -f "$flag"
+  say "Live wallpapers on, from the next change"
+  exit
+fi
+
+touch "$flag"
+say "Live wallpapers off"
+awww query | sed -nE 's/^: ([^:]+):.*\.gif$/\1/p' | while read -r output; do
+  awww img --outputs "$output" --resize crop --transition-type fade \
+    --transition-duration 2 --transition-fps 30 "$(find "$static" -type f | shuf -n 1)"
+done

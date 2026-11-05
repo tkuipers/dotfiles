@@ -28,6 +28,7 @@ button:hover {
   border-color: #b4befe;
 }
 
+#wallpaper { background-image: image(url("/home/nixos/.config/wlogout/wallpaper.png")); }
 #logout { background-image: image(url("/run/current-system/sw/share/wlogout/icons/logout.png")); }
 #reboot { background-image: image(url("/run/current-system/sw/share/wlogout/icons/reboot.png")); }
 #shutdown { background-image: image(url("/run/current-system/sw/share/wlogout/icons/shutdown.png")); }

@@ -1,15 +1,26 @@
 #!/usr/bin/env bash
-# Give each sway output a random wallpaper every 15-30 minutes.
+# Give each sway output a random wallpaper every 15-30 minutes, static or animated.
 # Exits once sway is gone, so it never outlives the session.
 
 wallpapers="$HOME/Pictures/Wallpapers-Mocha"
+live="$HOME/Pictures/Wallpapers-Mocha-Live"
+
+# Half the time an animated one, when there are any and wallpaper-live allows it.
+pick() {
+  local folder=$wallpapers
+  [ -e "$HOME/.cache/wallpapers-static" ] ||
+    { ((RANDOM % 2)) && [ -n "$(find "$live" -name '*.gif' 2>/dev/null | head -n 1)" ] && folder=$live; }
+  find "$folder" -type f ! -name '*.tmp.gif' | shuf -n 1
+}
 
 # Let startup finish creating outputs before the first pass
 sleep 5
+until awww query > /dev/null 2>&1; do sleep 1; done
 
 while outputs=$(swaymsg -t get_outputs -r | jq -r '.[].name'); do
   for output in $outputs; do
-    swaymsg output "$output" bg "$(find "$wallpapers" -type f | shuf -n 1)" fill > /dev/null
+    awww img --outputs "$output" --resize crop --transition-type fade \
+      --transition-duration 2 --transition-fps 30 "$(pick)"
   done
   sleep $((900 + RANDOM % 900))
 done
