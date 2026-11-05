@@ -3,6 +3,8 @@
 # it only starts what is missing and puts the windows back.
 
 $ErrorActionPreference = "Stop"
+# The shortcut hides this window, so this is the only trace of a failed start.
+Start-Transcript -Path "$env:TEMP\weaselway-launch.log" -Force | Out-Null
 $distro = "Weaselway"
 $ports = @{ 1 = 3389; 2 = 3390 }
 
@@ -62,10 +64,20 @@ public static class WeaselwayWindows {
 '@
 
 function Get-ViewerPid([int]$port) {
-    $viewer = Get-CimInstance Win32_Process -Filter "Name = 'sdl-freerdp.exe'" |
-        Where-Object { $_.CommandLine -match ":$port(\s|`"|$)" } |
-        Select-Object -First 1
-    if ($viewer) { return [uint32]$viewer.ProcessId }
+    # WMI can fail for a moment while Windows and WSL start. That must not end
+    # the launch with only one viewer up, so give it a few tries.
+    for ($try = 0; $try -lt 5; $try++) {
+        try {
+            $viewer = Get-CimInstance Win32_Process -Filter "Name = 'sdl-freerdp.exe'" |
+                Where-Object { $_.CommandLine -match ":$port(\s|`"|$)" } |
+                Select-Object -First 1
+            if ($viewer) { return [uint32]$viewer.ProcessId }
+            return $null
+        } catch {
+            Write-Warning "Could not list the viewers: $_"
+            Start-Sleep -Seconds 1
+        }
+    }
     return $null
 }
 
@@ -98,8 +110,16 @@ foreach ($display in 1, 2) {
         }
         if ($hwnd -eq [IntPtr]::Zero) { Start-Sleep -Milliseconds 500 }
     }
-    if ($hwnd -eq [IntPtr]::Zero) { throw "No window for the viewer of display $display" }
+    # One viewer's trouble must not leave the other one unplaced.
+    if ($hwnd -eq [IntPtr]::Zero) {
+        Write-Warning "No window for the viewer of display $display"
+        continue
+    }
     $screen = $screens[[Math]::Min($display - 1, $screens.Count - 1)]
-    [WeaselwayWindows]::Maximize($hwnd, $screen.WorkingArea.X, $screen.WorkingArea.Y)
-    [WeaselwayWindows]::SetAppId($hwnd, "Tkuipers.Weaselway")
+    try {
+        [WeaselwayWindows]::Maximize($hwnd, $screen.WorkingArea.X, $screen.WorkingArea.Y)
+        [WeaselwayWindows]::SetAppId($hwnd, "Tkuipers.Weaselway")
+    } catch {
+        Write-Warning "Could not place the viewer of display ${display}: $_"
+    }
 }

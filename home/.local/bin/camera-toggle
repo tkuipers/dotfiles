@@ -61,6 +61,8 @@ if systemctl --user is-active --quiet webcam; then
   systemctl --user stop webcam
   "$usbipd" detach --hardware-id "$headset" 2> /dev/null
 else
+  # Other WSL distros share /dev, and their udev can take the device for their own group.
+  [ -w /dev/video10 ] || sudo chgrp video /dev/video10
   systemd-run --user --collect --unit=webcam --setenv=PATH="$PATH" "$0" stream
   if ! plugged_in "$logitech" && plugged_in "$headset"; then
     sudo modprobe vhci_hcd

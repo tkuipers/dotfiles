@@ -58,7 +58,8 @@ seat seat0 {
 # Launch terminal on workspace 2 at startup
 exec swaymsg 'workspace 2; exec $term'
 # Launch Teams on workspace 4 at startup
-exec swaymsg 'workspace 4; exec teams-for-linux'
+exec teams-for-linux
+exec prospect-mail
 # The portals run under the user manager and need to find this session
 exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP SWAYSOCK
 # Notifications
@@ -164,6 +165,7 @@ assign [class="teams"] workspace number 4
 assign [app_id="microsoft-teams"] workspace number 4
 assign [class="teams-for-linux"] workspace number 4
 assign [app_id="teams-for-linux"] workspace number 4
+assign [app_id="prospect-mail"] workspace number 6
 assign [class="Cider"] workspace number 5
 assign [app_id="cider"] workspace number 5
 assign [app_id="Cider"] workspace number 5

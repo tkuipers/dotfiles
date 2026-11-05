@@ -112,6 +112,8 @@
       contents = appimageTools.extract { inherit pname version src; };
     in appimageTools.wrapType2 {
       inherit pname version src;
+      # Without it Electron has no way to show notifications.
+      extraPkgs = pkgs: [ pkgs.libnotify ];
       # On its default X11 path the window never appears.
       extraInstallCommands = ''
         source ${makeWrapper}/nix-support/setup-hook
@@ -141,6 +143,11 @@
     text = "brave\n";
     mode = "0755";
   };
+
+  # usbipd attaches as root, which starts a root user manager. These would then run
+  # there too, fail on the taken ports and retry forever, setting up the GPU each time.
+  systemd.user.services.weaselwayd.unitConfig.ConditionUser = "!root";
+  systemd.user.services.weaselwayd-2.unitConfig.ConditionUser = "!root";
 
   # Teams sees these as "Weaselway" and "Webcam Mic". camera-toggle feeds them.
   systemd.services.weaselway-virtual-camera = {
