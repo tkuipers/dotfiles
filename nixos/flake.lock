@@ -8,11 +8,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793810949,
-        "narHash": "sha256-j153IQloiCODuAqJ62e6LOyF4nIFeFTctu2fAh0YMHI=",
+        "lastModified": 1793889303,
+        "narHash": "sha256-R8LFufwvwNDnBz+5VQ7V3HTOgqiOxd8Ey+rqdHhokGs=",
         "owner": "tkuipers",
         "repo": "dxgdrm",
-        "rev": "31d5af6f1709d2214e1e3dfc310aabc3fcac9c1a",
+        "rev": "d8057245c00dea7e76f255afdf2d3a5225efbc07",
         "type": "github"
       },
       "original": {
@@ -46,10 +46,10 @@
         ]
       },
       "locked": {
-        "lastModified": 1791727870,
-        "narHash": "sha256-jY/rHFh5k78WY7aX12lyU5ZZePabfXk31Dm+IHZDPDM=",
+        "lastModified": 1793791763,
+        "narHash": "sha256-Myh4yBAW1cey+2CoHpFDkQMbFgQhfvuqVrSHwlS0uoo=",
         "ref": "main",
-        "rev": "588de0c06ab58e703f113aaa73a110b1cc2b9c42",
+        "rev": "0074147b8dfabb818169e9b83318ffd4af675caf",
         "shallow": true,
         "type": "git",
         "url": "https://github.com/weaselway/freerdp"
@@ -64,16 +64,16 @@
     "mesa-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1791796405,
-        "narHash": "sha256-E3Om9haqEysSoCnZNnluMdJK3ezUOKQ74afcgw2iZA8=",
-        "ref": "mesa-26.2.1-wsl",
-        "rev": "e2008be3fa70d4b6e2cc519abb3dfabb58d1e169",
+        "lastModified": 1793878677,
+        "narHash": "sha256-vMQ49CpETSaP0uvKOLiH+FVqN2bNypu0sUmwzKXKoMQ=",
+        "ref": "mesa-26.2.6-wsl",
+        "rev": "e9280987cf45d60c395c5825af6ae141aa03113d",
         "shallow": true,
         "type": "git",
         "url": "https://github.com/weaselway/mesa"
       },
       "original": {
-        "ref": "mesa-26.2.1-wsl",
+        "ref": "mesa-26.2.6-wsl",
         "shallow": true,
         "type": "git",
         "url": "https://github.com/weaselway/mesa"
@@ -103,16 +103,32 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1791143449,
-        "narHash": "sha256-9+n3ReS2y9xS199LoJjKUWHwZrISGHWgkD/LUZTDZyA=",
+        "lastModified": 1793633738,
+        "narHash": "sha256-tItrb9M8eYA6WhFgmT9tpGKueri3+wRuVA952o/2xSU=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "0d9e9b832d03ac387417e16ce1febf73b2e631e1",
+        "rev": "7dcdd87373d72e7a2173e4db02e20d3d7f495cfd",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
         "ref": "nixos-26.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-unstable": {
+      "locked": {
+        "lastModified": 1793726008,
+        "narHash": "sha256-jQp1wKvbwWdLBASTXkSi/VYmDJ5AbBi1WvcMt9HWJC8=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "1d060086d60cb76a40cf37109f979d88a5bd6396",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -128,14 +144,15 @@
         "freerdp": "freerdp",
         "mesa-src": "mesa-src",
         "nixos-wsl": "nixos-wsl",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "nixpkgs-unstable": "nixpkgs-unstable"
       },
       "locked": {
-        "lastModified": 1793888906,
-        "narHash": "sha256-HPznAtbJ2kKQAcebe6KNhi8W2c/CjSS8mm6Ty5LQy/E=",
+        "lastModified": 1793890868,
+        "narHash": "sha256-enJniwV/eReSM4g7kUp4PrNHeM0q9ZgGwvvaAmhYgw4=",
         "owner": "tkuipers",
         "repo": "weaselway",
-        "rev": "3c555f6cee19bd07f928a32e586e8d6fa6a14bbb",
+        "rev": "0f5e2707be1bd737fe5b3b61547017a0fa0ad6ba",
         "type": "github"
       },
       "original": {
