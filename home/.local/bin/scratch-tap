@@ -1,0 +1,13 @@
+#!/bin/bash
+# Alt+Space: once for the notes, twice quickly for the terminal.
+pending=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/scratch-tap.pid
+
+if [ -f "$pending" ] && kill "$(cat "$pending")" 2>/dev/null; then
+  rm -f "$pending"
+  exec "$HOME/.local/bin/scratch-toggle" term
+fi
+
+echo $$ >"$pending"
+sleep 0.3
+rm -f "$pending"
+exec "$HOME/.local/bin/scratch-toggle" notes

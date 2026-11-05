@@ -64,6 +64,7 @@ window#waybar {
 #pulseaudio,
 #idle_inhibitor,
 #custom-camera,
+#custom-agenda,
 #custom-media,
 #custom-notification,
 #custom-power {
@@ -163,8 +164,17 @@ tooltip label {
     background: rgba(180, 190, 254, 0.2);
 }
 
+#custom-agenda {
+    background: rgba(203, 166, 247, 0.2);
+}
+
 #custom-media {
     background: rgba(245, 194, 231, 0.2);
+}
+
+#custom-media.paused {
+    background: rgba(108, 112, 134, 0.2);
+    color: #a6adc8;
 }
 
 #custom-camera {

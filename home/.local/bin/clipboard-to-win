@@ -1,13 +1,23 @@
 #!/bin/bash
+# Run by wl-paste --watch with the new selection on stdin: passes it on to the
+# PowerShell process of win-to-clipboard. $1 is text or image.
 
-CLIPBOARD_TO_WIN=/tmp/clipboard-to-win
-WIN_TO_CLIPBOARD=/tmp/win-to-clipboard
+run=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}
+fifo=$run/clipboard-to-win.fifo
+last=$run/clipboard-last
 
-# Inidcates that win-to-clipboard just copied the clipboard to wayland,
-# No need to copy the clipboard contents back to windows
-if [[ -f $WIN_TO_CLIPBOARD ]]; then
-  rm $WIN_TO_CLIPBOARD
-else
-  touch $CLIPBOARD_TO_WIN
-  /mnt/c/windows/system32/clip.exe
-fi
+[ -p "$fifo" ] || exit 0
+
+tmp=$(mktemp "$run/clipboard.XXXXXX")
+trap 'rm -f "$tmp"' EXIT
+cat >"$tmp"
+[ -s "$tmp" ] || exit 0
+
+# What just came from Windows stays there as it was.
+sha=$(sha256sum <"$tmp")
+[ "$sha" = "$(cat "$last" 2>/dev/null)" ] && exit 0
+printf '%s\n' "$sha" >"$last"
+
+kind=T
+[ "$1" = image ] && kind=I
+{ printf '%s ' "$kind"; base64 -w0 <"$tmp"; printf '\n'; } >"$fifo"

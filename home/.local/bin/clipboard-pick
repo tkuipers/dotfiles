@@ -1,0 +1,4 @@
+#!/bin/bash
+# Pick from the clipboard history; the choice becomes the clipboard.
+choice=$(cliphist list | wofi --dmenu --prompt Clipboard) || exit 0
+cliphist decode <<<"$choice" | wl-copy

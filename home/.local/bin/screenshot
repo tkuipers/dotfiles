@@ -1,0 +1,7 @@
+#!/bin/bash
+# Pick a region and annotate it; Enter copies it to the clipboard.
+# Without dmabuf: GTK cannot read satty's canvas back from it on d3d12, and the
+# picture stays blank.
+region=$(slurp) || exit 0
+grim -g "$region" - |
+  GDK_DISABLE=dmabuf satty --filename - --early-exit --copy-command wl-copy --actions-on-enter save-to-clipboard

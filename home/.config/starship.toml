@@ -26,6 +26,10 @@ format = '[$time]($style) '
 time_format = '%T'
 utc_time_offset = '-6'
 
+[kubernetes]
+disabled = false
+style = "bold lavender"
+
 [cmd_duration]
 style = "bold sky"
 

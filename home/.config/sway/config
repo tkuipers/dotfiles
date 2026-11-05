@@ -53,8 +53,12 @@ seat seat0 {
     hide_cursor when-typing enable
 }
 
-# When wayland clipboard changes, run clipboard-to-win
-# Run win to clipboard service to sync windows clipboard to wayland
+# Clipboard: both ways with Windows, and a history
+exec $HOME/.local/bin/win-to-clipboard
+exec wl-paste --type text --watch $HOME/.local/bin/clipboard-to-win text
+exec wl-paste --type image/png --watch $HOME/.local/bin/clipboard-to-win image
+exec wl-paste --type text --watch cliphist store
+exec wl-paste --type image/png --watch cliphist store
 # Launch terminal on workspace 2 at startup
 exec swaymsg 'workspace 2; exec $term'
 # Launch Teams on workspace 4 at startup
@@ -171,6 +175,9 @@ assign [app_id="cider"] workspace number 5
 assign [app_id="Cider"] workspace number 5
 
 for_window {
+    [app_id="com.gabm.satty"] floating enable
+    [app_id="scratchterm"] floating enable, resize set 70 ppt 60 ppt, move position center, move scratchpad, scratchpad show
+    [app_id="scratchnotes"] floating enable, resize set 30 ppt 45 ppt, move position center, move scratchpad, scratchpad show
     [window_role="pop-up"] floating enable
     [window_role="bubble"] floating enable
     [window_role="dialog"] floating enable
@@ -201,7 +208,7 @@ bindsym {
     $mod+d exec $launcher
     $mod+Shift+c reload
     $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
-    $mod+Shift+s exec slurp | grim -g - - | wl-copy
+    $mod+Shift+s exec $HOME/.local/bin/screenshot
     $mod+$left focus left
     $mod+$down focus down
     $mod+$up focus up
@@ -242,6 +249,7 @@ bindsym {
 
     $mod+b splith
     $mod+v splitv
+    $mod+Shift+v exec $HOME/.local/bin/clipboard-pick
     
     $mod+s layout stacking
     $mod+w layout tabbed
@@ -249,7 +257,7 @@ bindsym {
     $mod+f fullscreen
     
     $mod+Shift+space floating toggle
-    $mod+space focus mode_toggle
+    $mod+space exec $HOME/.local/bin/scratch-tap
     $mod+a focus parent
 
     $mod+Shift+minus move scratchpad

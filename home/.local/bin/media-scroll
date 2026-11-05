@@ -1,11 +1,31 @@
 #!/usr/bin/env bash
 # The track for the bar. One too long to fit rests on its start, then scrolls through.
-# `media-scroll focus` goes to the app that is playing it.
+# `media-scroll focus` goes to the app that is playing it, `toggle` pauses or resumes it.
 width=18
-track() { playerctl metadata --format '{{ title }} - {{ artist }}' 2> /dev/null; }
+
+# The player to show: the one playing, or else a paused one. Browsers count as
+# players too, and sit there stopped.
+current() {
+  playerctl -a --format '{{ lc(status) }} {{ playerInstance }}' status 2> /dev/null |
+    awk '$1 == "playing" { print; found = 1; exit } $1 == "paused" && !paused { paused = $0 }
+         END { if (!found && paused) print paused }'
+}
+status() { current | cut -d' ' -f1; }
+instance() { current | cut -d' ' -f2; }
+track() {
+  local player
+  player=$(instance)
+  [ -n "$player" ] && playerctl -p "$player" metadata --format '{{ title }} - {{ artist }}' 2> /dev/null
+}
+
+if [ "$1" = toggle ]; then
+  player=$(instance)
+  [ -n "$player" ] && exec playerctl -p "$player" play-pause
+  exec playerctl play-pause
+fi
 
 if [ "$1" = focus ]; then
-  player=$(playerctl metadata --format '{{ playerInstance }}')
+  player=$(instance)
   # Electron apps like Cider call themselves chromium.instance<pid>.
   case "$player" in
     *.instance*) swaymsg "[pid=${player##*instance}] focus" ;;
@@ -14,17 +34,35 @@ if [ "$1" = focus ]; then
   exit
 fi
 
+# One line of JSON for waybar: the text, and the state that picks the icon.
+show() {
+  local text=${1//\\/\\\\}
+  text=${text//\"/\\\"}
+  printf '{"text":"%s","alt":"%s","class":"%s"}\n' "$text" "$state" "$state"
+}
+
 while :; do
   text=$(track)
-  echo "${text:0:width}"
-  sleep 2.5
+  state=$(status)
+  show "${text:0:width}"
+  # Rests in short steps, so pausing shows up at once.
+  for _ in 1 2 3 4 5; do
+    sleep 0.5
+    now=$(status)
+    [ "$now" = "$state" ] && continue
+    state=$now
+    show "${text:0:width}"
+  done
   (( ${#text} > width )) || continue
 
   loop="$text   $text"
   for ((i = 1; i <= ${#text} + 3; i++)); do
-    echo "${loop:i:width}"
+    show "${loop:i:width}"
     sleep 0.125
     # A new track shouldn't wait for this one to finish scrolling.
-    (( i % 8 )) || [ "$(track)" = "$text" ] || break
+    if ! (( i % 4 )); then
+      state=$(status)
+      [ "$(track)" = "$text" ] || break
+    fi
   done
 done

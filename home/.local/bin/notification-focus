@@ -1,0 +1,11 @@
+#!/bin/bash
+# swaync runs this when a notification is clicked. Wayland does not let the app
+# raise its own window, so sway does it.
+printf '%s|%s\n' "$SWAYNC_APP_NAME" "$SWAYNC_DESKTOP_ENTRY" >"${XDG_RUNTIME_DIR:-/tmp}/notification-focus.last"
+case "${SWAYNC_APP_NAME,,} ${SWAYNC_DESKTOP_ENTRY,,}" in
+  *teams*) app_id=teams-for-linux ;;
+  *prospect*) app_id=prospect-mail ;;
+  *) exit 0 ;;
+esac
+swaync-client --close-panel
+swaymsg "[app_id=\"$app_id\"] focus"

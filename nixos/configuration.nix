@@ -93,6 +93,7 @@
 
     # Theme
     kmod usbutils v4l-utils ffmpeg-headless
+    btop delta cliphist satty
     swaynotificationcenter wlogout lutgen fastfetch playerctl swayr
     (catppuccin-gtk.override { accents = [ "lavender" ]; variant = "mocha"; })
     (catppuccin-papirus-folders.override { flavor = "mocha"; accent = "lavender"; })
@@ -148,6 +149,8 @@
   # there too, fail on the taken ports and retry forever, setting up the GPU each time.
   systemd.user.services.weaselwayd.unitConfig.ConditionUser = "!root";
   systemd.user.services.weaselwayd-2.unitConfig.ConditionUser = "!root";
+  # win-to-clipboard carries the clipboard instead
+  systemd.user.services.weaselwayd.serviceConfig.ExecStart = pkgs.lib.mkForce "${pkgs.weaselwayd}/bin/weaselwayd --follow-client --no-clipboard";
 
   # Teams sees these as "Weaselway" and "Webcam Mic". camera-toggle feeds them.
   systemd.services.weaselway-virtual-camera = {
@@ -293,5 +296,6 @@
   security.rtkit.enable = true;
 
   # Leave this at the release the distro was first installed with.
+  time.timeZone = "America/Edmonton";
   system.stateVersion = "26.05";
 }

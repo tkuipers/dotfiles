@@ -1,92 +1,133 @@
 #!/bin/bash
+# Two-way clipboard between Windows and Wayland, text and images.
+#
+# One PowerShell process watches the Windows clipboard, whatever has focus, and
+# prints what changes; it also sets the Windows clipboard from lines on stdin,
+# which clipboard-to-win feeds through a fifo. Weaselway's RDP clipboard is off
+# (--no-clipboard): it missed Windows copies, and handing a Windows copy back
+# to Windows as plain text would strip Excel and Word of their formats.
 
-CLIPBOARD_TO_WIN=/tmp/clipboard-to-win
-WIN_TO_CLIPBOARD=/tmp/win-to-clipboard
+run=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}
+fifo=$run/clipboard-to-win.fifo
+last=$run/clipboard-last
+powershell=/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
 
-monitorWindowsClipboard() {
-  # https://stackoverflow.com/a/70010344
-  /mnt/c/windows/System32/WindowsPowerShell/v1.0/powershell.exe -noprofile -command '
-Add-Type @"
-using System;
-using System.Runtime.InteropServices;
-using System.Text;
-public class APIFuncs
-{
-[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-public static extern int GetWindowText(IntPtr hwnd,StringBuilder
-lpString, int cch);
-[DllImport("user32.dll", SetLastError=true, CharSet=CharSet.Auto)]
-public static extern IntPtr GetForegroundWindow();
-[DllImport("user32.dll", SetLastError=true, CharSet=CharSet.Auto)]
-public static extern Int32 GetWindowThreadProcessId(IntPtr hWnd,out
-Int32 lpdwProcessId);
-[DllImport("user32.dll", SetLastError=true, CharSet=CharSet.Auto)]
-public static extern Int32 GetWindowTextLength(IntPtr hWnd);
+exec 9>"$run/win-to-clipboard.lock"
+flock -n 9 || exit 0
+
+[ -p "$fifo" ] || mkfifo -m 600 "$fifo"
+exec 8<>"$fifo"
+
+script=$(cat <<'PS'
+$ErrorActionPreference = 'Stop'
+Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+Add-Type -Namespace Win -Name Clip -MemberDefinition @'
+[DllImport("user32.dll")] public static extern uint GetClipboardSequenceNumber();
+[DllImport("user32.dll")] public static extern IntPtr GetClipboardOwner();
+[DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint p);
+'@
+$clip = [Windows.Forms.Clipboard]
+
+function Settle {
+  # One copy bumps the number several times.
+  do { $s = [Win.Clip]::GetClipboardSequenceNumber(); Start-Sleep -Milliseconds 100 }
+  while ($s -ne [Win.Clip]::GetClipboardSequenceNumber())
+  $s
 }
-"@
 
-# https://stackoverflow.com/a/75871005
-# Define the p/invoke signatures for using the WinAPI clipboard functions.
-Add-Type -NameSpace WinApi -Name ClipboardSeq -MemberDefinition "[DllImport(`"user32.dll`")] public static extern uint GetClipboardSequenceNumber();"
-$inWsl = $true
-$lastSequenceNumber = [WinApi.ClipboardSeq]::GetClipboardSequenceNumber()
-
-while(1) {
-  $w = [apifuncs]::GetForegroundWindow()
-  $len = [apifuncs]::GetWindowTextLength($w)
-  $sb = New-Object text.stringbuilder -ArgumentList ($len + 1)
-  $rtnlen = [apifuncs]::GetWindowText($w,$sb,$sb.Capacity)
-  $currWindow = $sb.tostring()
-
-  #write-host "Window Title: $($currWindow)"
-  if ($currWindow -like "*wlroots*") {
-    if (!$inWsl) {
-      # In WSL, check if clipboard has changed
-      $inWsl = $true
-      $newSequenceNumber = [WinApi.ClipboardSeq]::GetClipboardSequenceNumber()
-      if( $lastSequenceNumber -ne $newSequenceNumber ) {
-        $lastSequenceNumber = $newSequenceNumber
-
-        # I believe copying non-text contents from windows -> linux clipboard is not possible
-        $clipboard = (Get-Clipboard -Raw)
-        $clipboardBytes = [System.Text.Encoding]::UTF8.GetBytes($clipboard)
-        $encodedClipboard = [Convert]::ToBase64String($clipboardBytes)
-
-        # Output clipboard contents as base64
-        Write-Output $encodedClipboard
-      }
-    }
-  } else {
-    if ($inWsl) {
-      # No longer in WSL, track current clipboard state
-      $inWsl = $false
-      $lastSequenceNumber = [WinApi.ClipboardSeq]::GetClipboardSequenceNumber()
-    }
+function Retry([scriptblock]$action) {
+  # Another program may hold the clipboard open for a moment.
+  for ($i = 0; $i -lt 10; $i++) {
+    try { return & $action } catch { Start-Sleep -Milliseconds 50 }
   }
-  sleep -Milliseconds 200
-}'
 }
 
-updateWslClipboard() {
-  if ((${#} == 0)); then
-    while read -r clipboard; do
-      # Cover edge case in which user goes from not wsl to wsl then quickly copies something. This is very unlikely to happen
-      if [[ -f $CLIPBOARD_TO_WIN ]]; then
-        current_ms=$(date +%s%3N)
-        modified_ms=$(date -r $CLIPBOARD_TO_WIN +%s%3N)
-        diff=$((current_ms - modified_ms))
-        if [[ $diff -lt 1000 ]]; then
-          #echo "Less than 1 second since wayland clipboard was updated, skip copying windows keyboard"
-          continue
-        fi
-      fi
+function Send-Clipboard {
+  $data = $clip::GetDataObject()
+  # Password managers mark what they copy; it must stay out of the history.
+  $kind = if ($data.GetDataPresent('ExcludeClipboardContentFromMonitorProcessing')) { 'S' } else { 'T' }
+  if ($data.GetDataPresent([Windows.Forms.DataFormats]::UnicodeText)) {
+    $bytes = [Text.Encoding]::UTF8.GetBytes($clip::GetText())
+    [Console]::Out.WriteLine("$kind " + [Convert]::ToBase64String($bytes))
+  } elseif ($clip::ContainsImage()) {
+    $png = New-Object IO.MemoryStream
+    $image = $clip::GetImage()
+    $image.Save($png, [Drawing.Imaging.ImageFormat]::Png)
+    $image.Dispose()
+    [Console]::Out.WriteLine('I ' + [Convert]::ToBase64String($png.ToArray()))
+  }
+}
 
-      # Indicate to clipboard-to-win that a copy just occured
-      touch $WIN_TO_CLIPBOARD
+function Receive-Clipboard([string]$line) {
+  $kind, $payload = $line -split ' ', 2
+  $bytes = [Convert]::FromBase64String($payload)
+  if ($kind -eq 'I') {
+    $image = [Drawing.Image]::FromStream((New-Object IO.MemoryStream (,$bytes)))
+    Retry { $clip::SetImage($image) }
+    $image.Dispose()
+  } else {
+    $text = [Text.Encoding]::UTF8.GetString($bytes) -replace '(?<!\r)\n', "`r`n"
+    if ($text) { Retry { $clip::SetText($text) } }
+  }
+}
 
-      printf "$clipboard" | base64 --decode 2>/dev/null | tr -d '\r' | wl-copy
-    done
+$in = New-Object IO.StreamReader ([Console]::OpenStandardInput())
+$pending = $in.ReadLineAsync()
+$seen = [Win.Clip]::GetClipboardSequenceNumber()
+$beat = [DateTime]::UtcNow
+
+while ($true) {
+  if ($pending.IsCompleted) {
+    if ($null -eq $pending.Result) { break }
+    try { Receive-Clipboard $pending.Result } catch {}
+    $seen = Settle
+    $pending = $in.ReadLineAsync()
+  }
+
+  if ([Win.Clip]::GetClipboardSequenceNumber() -ne $seen) {
+    $seen = Settle
+    [uint32]$owner = 0
+    [void][Win.Clip]::GetWindowThreadProcessId([Win.Clip]::GetClipboardOwner(), [ref]$owner)
+    if ($owner -ne $PID) { Retry { Send-Clipboard } }
+  }
+
+  # Notices when the Linux side is gone, so this does not outlive it.
+  if (([DateTime]::UtcNow - $beat).TotalSeconds -ge 30) {
+    $beat = [DateTime]::UtcNow
+    [Console]::Out.WriteLine('P')
+  }
+  Start-Sleep -Milliseconds 200
+}
+PS
+)
+encoded=$(iconv -f utf-8 -t utf-16le <<<"$script" | base64 -w0)
+
+apply() {
+  local kind=$1 tmp
+  tmp=$(mktemp "$run/clipboard.XXXXXX")
+  if [ "$kind" = I ]; then
+    base64 -d >"$tmp"
+    sha256sum <"$tmp" >"$last"
+    wl-copy -t image/png <"$tmp" 9>&- 8>&-
+  else
+    base64 -d | tr -d '\r' >"$tmp"
+    sha256sum <"$tmp" >"$last"
+    if [ "$kind" = S ]; then
+      wl-copy --sensitive <"$tmp" 9>&- 8>&-
+    else
+      wl-copy <"$tmp" 9>&- 8>&-
+    fi
   fi
+  rm -f "$tmp"
 }
 
-monitorWindowsClipboard | updateWslClipboard
+cd /mnt/c || exit 1
+while :; do
+  "$powershell" -NoProfile -NonInteractive -STA -EncodedCommand "$encoded" <&8 2>>"$run/win-to-clipboard.log" 9>&- |
+    while read -r kind data; do
+      case $kind in
+        T | S | I) apply "$kind" <<<"${data%$'\r'}" ;;
+      esac
+    done
+  sleep 2
+done

@@ -13,10 +13,32 @@
   "timeout-critical": 0,
   "fit-to-screen": true,
   "hide-on-clear": true,
-  "widgets": ["title", "dnd", "mpris", "notifications"],
+  "widgets": [
+    "title",
+    "dnd",
+    "mpris",
+    "notifications"
+  ],
   "widget-config": {
-    "title": { "text": "Notifications", "clear-all-button": true, "button-text": "Clear" },
-    "dnd": { "text": "Do not disturb" },
-    "mpris": { "image-size": 64, "image-radius": 8 }
-  }
+    "title": {
+      "text": "Notifications",
+      "clear-all-button": true,
+      "button-text": "Clear"
+    },
+    "dnd": {
+      "text": "Do not disturb"
+    },
+    "mpris": {
+      "image-size": 64,
+      "image-radius": 8
+    }
+  },
+  "scripts": {
+    "focus-app": {
+      "app-name": ".*",
+      "run-on": "action",
+      "exec": "/home/nixos/.local/bin/notification-focus"
+    }
+  },
+  "script-fail-notify": false
 }

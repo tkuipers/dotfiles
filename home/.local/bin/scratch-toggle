@@ -1,0 +1,20 @@
+#!/bin/bash
+# Show or hide a scratchpad window, starting it the first time. $1 is term or notes.
+case $1 in
+  term) app_id=scratchterm command=(alacritty --class scratchterm) ;;
+  notes)
+    app_id=scratchnotes
+    mkdir -p "$HOME/notes"
+    command=(alacritty --class scratchnotes -e nvim
+      -c 'set noswapfile wrap linebreak nonumber norelativenumber signcolumn=no'
+      -c 'autocmd TextChanged,TextChangedI,FocusLost * silent! update'
+      "$HOME/notes/scratch.md")
+    ;;
+  *) exit 2 ;;
+esac
+
+if swaymsg -t get_tree | jq -e --arg id "$app_id" '.. | objects | select(.app_id? == $id)' >/dev/null; then
+  swaymsg "[app_id=\"$app_id\"] scratchpad show"
+else
+  exec "${command[@]}"
+fi

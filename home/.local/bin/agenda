@@ -1,0 +1,98 @@
+#!/bin/bash
+# Outlook calendar for the bar. Windows' Outlook is asked over COM, which starts
+# it hidden for a few seconds, so it is only asked every 15 minutes.
+#   agenda        one JSON line for waybar every 30 s: the next meeting today
+#   agenda pick   choose a meeting; one with a Teams link joins, others open mail
+run=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}
+cache=$run/agenda.tsv
+powershell=/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
+
+script=$(cat <<'PS'
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
+$items = (New-Object -ComObject Outlook.Application).Session.GetDefaultFolder(9).Items
+# In this order: recurring meetings do not expand otherwise
+$items.Sort('[Start]')
+$items.IncludeRecurrences = $true
+$from = (Get-Date).Date; $to = $from.AddDays(2)
+# Spelled out: Outlook reads 11/5 as the 11th of May here
+$format = 'MMMM d, yyyy h:mm tt'
+$found = $items.Restrict("[Start] >= '" + $from.ToString($format) + "' AND [Start] < '" + $to.ToString($format) + "'")
+foreach ($item in $found) {
+  if ($item.Start -ge $to) { break }
+  # All day, declined, cancelled
+  if ($item.AllDayEvent -or $item.ResponseStatus -eq 4 -or $item.MeetingStatus -in 5, 7) { continue }
+  $link = ''
+  if ($item.Body -match 'https://teams\.microsoft\.com/(l/meetup-join|meet)/[^\s<>"]+') { $link = $Matches[0] }
+  $subject = $item.Subject -replace '[\t\r\n]', ' '
+  $start = ([DateTimeOffset]$item.Start).ToUnixTimeSeconds()
+  $end = ([DateTimeOffset]$item.End).ToUnixTimeSeconds()
+  [Console]::Out.WriteLine("$start`t$end`t$subject`t$link")
+}
+PS
+)
+
+fetch() {
+  local tmp
+  exec 7>"$run/agenda.lock"
+  flock -n 7 || return
+  tmp=$(mktemp "$run/agenda.XXXXXX")
+  if (cd /mnt/c && timeout 60 "$powershell" -NoProfile -NonInteractive -EncodedCommand \
+    "$(iconv -f utf-8 -t utf-16le <<<"$script" | base64 -w0)" </dev/null 2>/dev/null) | tr -d '\r' | sort -n >"$tmp" &&
+    [ "${PIPESTATUS[0]}" = 0 ]; then
+    mv "$tmp" "$cache"
+  else
+    rm -f "$tmp"
+  fi
+  exec 7>&-
+}
+
+stale() { [ -z "$(find "$cache" -mmin -15 2>/dev/null)" ]; }
+
+upcoming() {
+  awk -F'\t' -v now="$(date +%s)" '$2 > now' "$cache" 2>/dev/null
+}
+
+markup() { local s=${1//&/&amp;}; s=${s//</&lt;}; printf '%s' "${s//>/&gt;}"; }
+
+show() {
+  local now today text='' tooltip='' start end subject link line
+  now=$(date +%s)
+  today=$(date +%F)
+  while IFS=$'\t' read -r start end subject link; do
+    [ "$(date -d "@$start" +%F)" = "$today" ] || continue
+    line="$(date -d "@$start" +%H:%M)  $(markup "$subject")"
+    tooltip+="${tooltip:+$'\n'}$line"
+    [ -n "$text" ] && continue
+    if ((start <= now)); then
+      text="now: ${subject:0:16}"
+    else
+      text="$(date -d "@$start" +%H:%M) ${subject:0:16}"
+    fi
+  done < <(upcoming)
+  jq -cn --arg text "$(markup "$text")" --arg tooltip "${tooltip:-Nothing else today}" '{text: $text, tooltip: $tooltip}'
+}
+
+if [ "$1" = pick ]; then
+  stale && fetch
+  list=$(upcoming)
+  choice=$(while IFS=$'\t' read -r start _ subject link; do
+    printf '%s  %s%s\n' "$(date -d "@$start" '+%a %H:%M')" "$subject" "${link:+  (Teams)}"
+  done <<<"$list" | wofi --dmenu --prompt Meetings) || exit 0
+  n=$(while IFS=$'\t' read -r start _ subject link; do
+    printf '%s  %s%s\n' "$(date -d "@$start" '+%a %H:%M')" "$subject" "${link:+  (Teams)}"
+  done <<<"$list" | grep -nxF -- "$choice" | head -n 1 | cut -d: -f1)
+  link=$(sed -n "${n}p" <<<"$list" | cut -f4)
+  if [ -n "$link" ]; then
+    teams-for-linux "$link" &
+    swaymsg '[app_id="teams-for-linux"] focus'
+  else
+    swaymsg '[app_id="prospect-mail"] focus'
+  fi
+  exit
+fi
+
+while :; do
+  stale && fetch
+  show
+  sleep 30
+done

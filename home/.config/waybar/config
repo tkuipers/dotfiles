@@ -11,6 +11,7 @@
         "clock"
     ],
     "modules-right": [
+        "custom/agenda",
         "custom/media",
         "custom/camera",
         "idle_inhibitor",
@@ -50,6 +51,18 @@
         "tooltip": true
     },
     "clock": {
+        // Waybar's own zone data still has Alberta on MST; Regina is the same UTC-6 all year
+        "timezone": "America/Regina",
+        "tooltip-format": "<tt>{calendar}</tt>",
+        "calendar": {
+            "mode": "month",
+            "format": {
+                "months": "<span color='#cba6f7'><b>{}</b></span>",
+                "weekdays": "<span color='#74c7ec'>{}</span>",
+                "days": "<span color='#cdd6f4'>{}</span>",
+                "today": "<span color='#f5c2e7'><b><u>{}</u></b></span>"
+            }
+        },
         "format": "<span foreground='#74c7ec' font_weight='normal'></span> {:%I:%M %p  %A %d %b}",
         "tooltip": false,
         "on-click": "swayr switch-window"
@@ -126,12 +139,26 @@
         "signal": 9,
         "on-click": "$HOME/.local/bin/camera-toggle"
     },
+    "custom/agenda": {
+        "format": "<span foreground='#cba6f7' font_weight='normal'>󰃭</span> {text}",
+        "return-type": "json",
+        "exec": "$HOME/.local/bin/agenda",
+        "hide-empty-text": true,
+        "on-click": "$HOME/.local/bin/agenda pick",
+        "on-click-right": "swaymsg '[app_id=\"prospect-mail\"] focus'"
+    },
     "custom/media": {
-        "format": "<span foreground='#f5c2e7' font_weight='normal'>󰝚</span> {}",
+        "format": "<span font_weight='normal'>{icon}</span> {text}",
+        "format-icons": {
+            "playing": "<span foreground='#a6e3a1'>󰐊</span>",
+            "paused": "<span foreground='#f9e2af'>󰏤</span>",
+            "default": "<span foreground='#f5c2e7'>󰝚</span>"
+        },
+        "return-type": "json",
         "exec": "$HOME/.local/bin/media-scroll",
         "escape": true,
         "tooltip": false,
-        "on-click": "playerctl play-pause",
+        "on-click": "$HOME/.local/bin/media-scroll toggle",
         "on-click-right": "$HOME/.local/bin/media-scroll focus"
     }
 }
