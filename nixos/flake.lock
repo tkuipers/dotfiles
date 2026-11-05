@@ -131,11 +131,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1793810958,
-        "narHash": "sha256-GVx3fLQ7bduAgLEf16kyxuja31hckAoQiosAV6QMCZo=",
+        "lastModified": 1793888906,
+        "narHash": "sha256-HPznAtbJ2kKQAcebe6KNhi8W2c/CjSS8mm6Ty5LQy/E=",
         "owner": "tkuipers",
         "repo": "weaselway",
-        "rev": "e311937d797187f3fa2a731289d662158e8d66a9",
+        "rev": "3c555f6cee19bd07f928a32e586e8d6fa6a14bbb",
         "type": "github"
       },
       "original": {
