@@ -63,6 +63,7 @@ alias gsr="git branch -a | grep "
 alias grxc="git restore --staged  modules/configuration/config/config.xml modules/configuration/config/database-config.xml studio/plugins/ij-studio/lib/studio-branding.jar"
 # git reset $(git merge-base origin/feature/PASO $(git branch --show-current))
 alias ssh1p='ssh.exe'
+alias c='claude'
 
 export EDITOR=nvim
 
