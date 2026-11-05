@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # The track for the bar. One too long to fit rests on its start, then scrolls through.
-# `media-scroll focus` goes to the app that is playing it, `toggle` pauses or resumes it.
+# `media-scroll focus` goes to the app that is playing it, `toggle`, `next`, `previous` and `stop` control it.
 width=18
 
 # The player to show: the one playing, or else a paused one. Browsers count as
@@ -18,11 +18,15 @@ track() {
   [ -n "$player" ] && playerctl -p "$player" metadata --format '{{ title }} - {{ artist }}' 2> /dev/null
 }
 
-if [ "$1" = toggle ]; then
-  player=$(instance)
-  [ -n "$player" ] && exec playerctl -p "$player" play-pause
-  exec playerctl play-pause
-fi
+case $1 in
+  toggle | next | previous | stop)
+    command=$1
+    [ "$1" = toggle ] && command=play-pause
+    player=$(instance)
+    [ -n "$player" ] && exec playerctl -p "$player" "$command"
+    exec playerctl "$command"
+    ;;
+esac
 
 if [ "$1" = focus ]; then
   player=$(instance)

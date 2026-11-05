@@ -1,0 +1,51 @@
+#!/bin/bash
+# Media keys belong to Windows, whatever has focus, and nothing plays there. A
+# PowerShell process takes them with RegisterHotKey and hands them to the Linux
+# player. Volume keys stay with Windows, which owns the speakers.
+
+run=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}
+powershell=/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
+
+exec 9>"$run/win-media-keys.lock"
+flock -n 9 || exit 0
+
+script=$(cat <<'PS'
+Add-Type -TypeDefinition @'
+using System; using System.Runtime.InteropServices;
+public static class Keys {
+  [StructLayout(LayoutKind.Sequential)] public struct MSG { public IntPtr hwnd; public uint message; public IntPtr wParam, lParam; public uint time; public int x, y; }
+  [DllImport("user32.dll")] public static extern bool RegisterHotKey(IntPtr w, int id, uint mods, uint vk);
+  [DllImport("user32.dll")] public static extern bool PeekMessage(out MSG m, IntPtr w, uint a, uint b, uint remove);
+}
+'@
+$names = @{ 0xB0 = 'next'; 0xB1 = 'previous'; 0xB2 = 'stop'; 0xB3 = 'toggle' }
+foreach ($vk in $names.Keys) {
+  if (-not [Keys]::RegisterHotKey([IntPtr]::Zero, $vk, 0, $vk)) { [Console]::Error.WriteLine("taken: " + $names[$vk]) }
+}
+$beat = [DateTime]::UtcNow
+$msg = New-Object Keys+MSG
+while ($true) {
+  while ([Keys]::PeekMessage([ref]$msg, [IntPtr]::Zero, 0x312, 0x312, 1)) {
+    [Console]::Out.WriteLine($names[[int]$msg.wParam])
+  }
+  # Notices when the Linux side is gone, so this does not outlive it.
+  if (([DateTime]::UtcNow - $beat).TotalSeconds -ge 30) {
+    $beat = [DateTime]::UtcNow
+    [Console]::Out.WriteLine('beat')
+  }
+  Start-Sleep -Milliseconds 50
+}
+PS
+)
+encoded=$(iconv -f utf-8 -t utf-16le <<<"$script" | base64 -w0)
+
+cd /mnt/c || exit 1
+while :; do
+  "$powershell" -NoProfile -NonInteractive -EncodedCommand "$encoded" 2>>"$run/win-media-keys.log" 9>&- </dev/null |
+    while read -r key; do
+      case ${key%$'\r'} in
+        toggle | next | previous | stop) "$HOME/.local/bin/media-scroll" "${key%$'\r'}" 9>&- ;;
+      esac
+    done
+  sleep 2
+done
