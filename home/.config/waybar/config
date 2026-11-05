@@ -13,6 +13,7 @@
     "modules-right": [
         "custom/notification",
         "custom/media",
+        "custom/camera",
         "idle_inhibitor",
         "network",
         "memory",
@@ -116,6 +117,13 @@
         "on-click": "swaync-client -t -sw",
         "on-click-right": "swaync-client -d -sw",
         "escape": true
+    },
+    "custom/camera": {
+        "exec": "$HOME/.local/bin/camera-toggle status",
+        "return-type": "json",
+        "interval": 5,
+        "signal": 9,
+        "on-click": "$HOME/.local/bin/camera-toggle"
     },
     "custom/media": {
         "format": "<span foreground='#f5c2e7' font_weight='normal'>󰝚</span> {}",

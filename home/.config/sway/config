@@ -59,6 +59,8 @@ seat seat0 {
 exec swaymsg 'workspace 2; exec $term'
 # Launch Teams on workspace 4 at startup
 exec swaymsg 'workspace 4; exec teams-for-linux'
+# The portals run under the user manager and need to find this session
+exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP SWAYSOCK
 # Notifications
 exec swaync
 # Window switcher behind the clock
@@ -126,16 +128,9 @@ output * {
     bg $(find $wallpapers_path -type f | shuf -n 1) fill
 }
 
-# The left monitor is the first viewer, the right one the second.
-output Virtual-2 {
-    mode --custom 1680x1002@60Hz
-    pos 1680 0
-}
-
-output Virtual-1 {
-    mode --custom 1680x1002@60Hz
-    pos 0 0
-}
+# The left monitor is the first viewer, the right one the second. Sizes follow
+# the viewers' windows, so they fit at any desk.
+exec ~/.local/bin/fit-outputs
 
 input "7531:260:Weaselway_pointer" map_to_output Virtual-1
 input "7531:260:Weaselway_pointer_2" map_to_output Virtual-2

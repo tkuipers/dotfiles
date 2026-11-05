@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# Streams the webcam and its mic from Windows into the virtual camera and mic here.
+# USB forwarding can't keep up with 720p, so the webcam itself stays on Windows.
+# At the office, without the Logitech, the Poly headset is forwarded for sound.
+usbipd='/mnt/c/Program Files/usbipd-win/usbipd.exe'
+powershell=/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
+logitech=046d:0825
+headset=047f:430b
+
+plugged_in() {
+  local devices
+  devices=$("$usbipd" list)
+  grep -q "$1" <<< "${devices%%Persisted:*}"
+}
+
+stop_windows_side() {
+  "$powershell" -NoProfile -Command "Get-CimInstance Win32_Process -Filter \"Name='ffmpeg.exe'\" |
+    Where-Object { \$_.CommandLine -match 'tcp://127.0.0.1:560[02]' } | ForEach-Object { Stop-Process -Id \$_.ProcessId }"
+}
+
+stream() {
+  local windows_ffmpeg receive=(-hide_banner -loglevel warning -fflags nobuffer -flags low_delay -probesize 32 -analyzeduration 0)
+  windows_ffmpeg=$(echo /mnt/c/Users/*/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg.Essentials*/ffmpeg-*/bin/ffmpeg.exe)
+  trap stop_windows_side EXIT
+
+  ffmpeg "${receive[@]}" -use_wallclock_as_timestamps 1 -f mjpeg -i 'tcp://0.0.0.0:5600?listen' \
+    -pix_fmt yuv420p -fps_mode passthrough -f v4l2 /dev/video10 &
+  sleep 1
+  local camera='Integrated Webcam'
+  if plugged_in "$logitech"; then
+    camera='Logi C270 HD WebCam'
+    ffmpeg "${receive[@]}" -f s16le -ar 48000 -ac 1 -i 'tcp://0.0.0.0:5602?listen' -f s16le - |
+      pw-cat --playback --raw -P '{ node.name=webcam-mic-feed node.autoconnect=false }' \
+        --rate 48000 --channels 1 --format s16 --latency 20ms - &
+    sleep 1
+    "$windows_ffmpeg" -hide_banner -loglevel error -f dshow -audio_buffer_size 20 \
+      -i 'audio=Microphone (Logi C270 HD WebCam)' -ac 1 -ar 48000 -f s16le -flush_packets 1 tcp://127.0.0.1:5602 &
+    until pw-link webcam-mic-feed:output_MONO weaselway_camera_mic:input_MONO 2> /dev/null; do sleep 0.5; done
+  fi
+  "$windows_ffmpeg" -hide_banner -loglevel error -f dshow -rtbufsize 8M -vcodec mjpeg -video_size 1280x720 -framerate 30 \
+    -i "video=$camera" -c copy -f mjpeg -flush_packets 1 tcp://127.0.0.1:5600 &
+  wait -n
+}
+
+case "$1" in
+  status)
+    if systemctl --user is-active --quiet webcam; then
+      echo '{"text":"󰄀","class":"on","tooltip":"Webcam is streaming to Weaselway. Click to stop."}'
+    else
+      echo '{"text":"󰗟","class":"off","tooltip":"Webcam is off. Click to stream it to Weaselway."}'
+    fi
+    exit ;;
+  stream)
+    cd /mnt/c || exit 1
+    stream
+    exit ;;
+esac
+
+cd /mnt/c || exit 1
+if systemctl --user is-active --quiet webcam; then
+  systemctl --user stop webcam
+  "$usbipd" detach --hardware-id "$headset" 2> /dev/null
+else
+  systemd-run --user --collect --unit=webcam --setenv=PATH="$PATH" "$0" stream
+  if ! plugged_in "$logitech" && plugged_in "$headset"; then
+    sudo modprobe vhci_hcd
+    "$usbipd" attach --wsl --hardware-id "$headset"
+  fi
+fi
+sleep 2
+pkill -RTMIN+9 waybar

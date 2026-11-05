@@ -1,5 +1,5 @@
 # The weaselway NixOS-WSL system. Edit it and run `sudo nixos-rebuild switch`.
-{ pkgs, ... }:
+{ pkgs, dxgdrm, ... }:
 
 {
   nixpkgs.hostPlatform = "x86_64-linux";
@@ -51,7 +51,9 @@
       export XDG_CURRENT_DESKTOP=sway
       # dxgdrm, not card0: from kernel 6.18.54.1 on card0 is WSL's vgem.
       export WLR_DRM_DEVICES=/dev/dri/by-path/platform-dxgdrm-card
-      exec sway "$@"
+      # The login session hands down CAP_WAKE_ALARM. Portals can't inspect a process
+      # holding a capability they lack, so they would refuse every app in the session.
+      exec ${util-linux}/bin/setpriv --inh-caps=-wake_alarm --ambient-caps=-wake_alarm sway "$@"
     '')
 
     # Shell
@@ -90,6 +92,7 @@
     })
 
     # Theme
+    kmod usbutils v4l-utils ffmpeg-headless
     swaynotificationcenter wlogout lutgen fastfetch playerctl swayr
     (catppuccin-gtk.override { accents = [ "lavender" ]; variant = "mocha"; })
     (catppuccin-papirus-folders.override { flavor = "mocha"; accent = "lavender"; })
@@ -98,6 +101,26 @@
     # Applications
     vscode code-cursor bruno beekeeper-studio teams-for-linux firefox thunderbird
     zotero anki-bin
+    # Outlook in an Electron wrapper. Not in nixpkgs, so this wraps the release AppImage.
+    (let
+      pname = "prospect-mail";
+      version = "1.3.2";
+      src = fetchurl {
+        url = "https://github.com/julian-alarcon/prospect-mail/releases/download/v${version}/Prospect-Mail-${version}.AppImage";
+        sha256 = "982b7d1bba8d89f8c4b028aed7b529976768b6f48091d6e8c2dcf45c8c47d064";
+      };
+      contents = appimageTools.extract { inherit pname version src; };
+    in appimageTools.wrapType2 {
+      inherit pname version src;
+      # On its default X11 path the window never appears.
+      extraInstallCommands = ''
+        source ${makeWrapper}/nix-support/setup-hook
+        wrapProgram $out/bin/prospect-mail --add-flags "--ozone-platform=wayland --disable-gpu"
+        install -Dm444 ${contents}/prospect-mail.desktop $out/share/applications/prospect-mail.desktop
+        substituteInPlace $out/share/applications/prospect-mail.desktop --replace-fail 'Exec=AppRun' 'Exec=prospect-mail'
+        cp -r ${contents}/usr/share/icons $out/share/icons
+      '';
+    })
     # Without libpulse, Cider's sound falls back to ALSA, which has no devices here.
     (cider-2.overrideAttrs (old: {
       nativeBuildInputs = old.nativeBuildInputs ++ [ makeWrapper ];
@@ -118,6 +141,35 @@
     text = "brave\n";
     mode = "0755";
   };
+
+  # Teams sees these as "Weaselway" and "Webcam Mic". camera-toggle feeds them.
+  systemd.services.weaselway-virtual-camera = {
+    description = "Load the virtual camera";
+    wantedBy = [ "multi-user.target" ];
+    path = [ pkgs.kmod ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      [ -d /sys/module/v4l2loopback ] && exit
+      modprobe videodev
+      insmod ${pkgs.callPackage ./v4l2loopback.nix { inherit dxgdrm; }}/lib/modules/$(uname -r)/extra/v4l2loopback.ko \
+        devices=1 video_nr=10 card_label=Weaselway exclusive_caps=1
+    '';
+  };
+  services.pipewire.extraConfig.pipewire."30-webcam-mic"."context.objects" = [
+    {
+      factory = "adapter";
+      args = {
+        "factory.name" = "support.null-audio-sink";
+        "node.name" = "weaselway_camera_mic";
+        "node.description" = "Webcam Mic";
+        "media.class" = "Audio/Source/Virtual";
+        "audio.position" = "[ MONO ]";
+      };
+    }
+  ];
 
   # Other WSL distros share this kernel and /dev, and their udev resets the GPU
   # nodes when they start. Apps here then can't open them, so put them back.
@@ -151,6 +203,23 @@
       font-name = "JetBrainsMono Nerd Font 11";
     };
   }];
+
+  # Screen sharing. With two monitors, slurp asks which one to share.
+  xdg.portal = {
+    enable = true;
+    wlr = {
+      enable = true;
+      settings.screencast = {
+        chooser_type = "simple";
+        chooser_cmd = "${pkgs.slurp}/bin/slurp -f %o -or";
+      };
+    };
+    config.sway = {
+      default = [ "gtk" ];
+      "org.freedesktop.impl.portal.ScreenCast" = [ "wlr" ];
+      "org.freedesktop.impl.portal.Screenshot" = [ "wlr" ];
+    };
+  };
 
   environment.sessionVariables.IDEA_HOME = "/home/nixos/idea/current";
 

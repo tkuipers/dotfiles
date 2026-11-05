@@ -8,6 +8,7 @@
     { weaselway, ... }:
     {
       nixosConfigurations.nixos = weaselway.inputs.nixpkgs.lib.nixosSystem {
+        specialArgs = { inherit (weaselway.inputs) dxgdrm; };
         modules = [
           weaselway.inputs.nixos-wsl.nixosModules.default
           weaselway.nixosModules.weaselway
