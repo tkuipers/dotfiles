@@ -1,40 +1,50 @@
 palette = "catppuccin_mocha"
+add_newline = true
+# accent is the folder pill and the arrow. .bashrc swaps it to show how the last
+# command went: blue fine, pink failed, yellow cancelled with Ctrl+C.
+format = """[](fg:accent)$directory${custom.no_repo}$git_branch$git_status$kubernetes[](fg:surface0) $aws$cmd_duration
+$character"""
 
 [character]
-# Note the use of Catppuccin color 'maroon'
-success_symbol = "[[♥](green) ❯](maroon)"
-error_symbol = "[[✱](red) ❯](red)"
-vimcmd_symbol = "[❮](green)"
-
-[username]
-show_always = true
+success_symbol = "[❯](accent)"
+error_symbol = "[❯](accent)"
+vimcmd_symbol = "[❮](accent)"
 
 [directory]
-read_only = " 🔒 "
+format = "[ $path$read_only ](bg:accent fg:crust bold)"
+read_only = " 󰌾"
+truncation_length = 3
 truncate_to_repo = false
-style = "bold teal"
 
-[aws]
-symbol = "🖥️ "
+[git_branch]
+format = "[](fg:accent bg:surface1)[  $branch ](bg:surface1 fg:text)"
 
-[nix_shell]
-disabled = true
+[git_status]
+stashed = ""
+format = "([$all_status$ahead_behind ](bg:surface1 fg:yellow))[](fg:surface1 bg:surface0)"
 
-[time]
-disabled = false
-format = '[$time]($style) '
-time_format = '%T'
-utc_time_offset = '-6'
+# Outside a repo there is no git pill, so the folder joins the next one itself
+[custom.no_repo]
+command = "echo x"
+when = "! git rev-parse --git-dir >/dev/null 2>&1"
+shell = ["sh"]
+format = "[](fg:accent bg:surface0)"
 
 [kubernetes]
 disabled = false
-style = "bold lavender"
+format = "[ 󱃾 $context( / $namespace) ](bg:surface0 fg:subtext0)"
+
+# EKS contexts are whole ARNs: the cluster name is enough
+[[kubernetes.contexts]]
+context_pattern = "arn:aws:eks:[^:]+:[0-9]+:cluster/(?P<cluster>.+)"
+context_alias = "$cluster"
+
+[aws]
+format = "([󰅣 $profile](sapphire) )"
 
 [cmd_duration]
-style = "bold sky"
-
-[git_branch]
-style = "bold peach"
+format = "[󰔛 $duration]($style) "
+style = "sky"
 
 [palettes.catppuccin_frappe]
 rosewater = "#f2d5cf"
@@ -65,6 +75,7 @@ mantle = "#292c3c"
 crust = "#232634"
 
 [palettes.catppuccin_mocha]
+accent = "#89b4fa"
 rosewater = "#f5e0dc"
 flamingo = "#f2cdcd"
 pink = "#f5c2e7"

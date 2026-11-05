@@ -17,6 +17,23 @@ if [ -z "$SSH_CONNECTION" ] && [ -z "$ZELLIJ" ]; then
     exec zellij
 fi
 
+# The folder pill shows how the last command went: blue fine, pink failed, yellow
+# cancelled. Starship has no conditional colours, so each has its own copy.
+prompt_themes=$HOME/.cache/starship
+mkdir -p "$prompt_themes"
+for theme in failed:f5c2e7 cancelled:f9e2af; do
+  if [ "$HOME/.config/starship.toml" -nt "$prompt_themes/${theme%:*}.toml" ]; then
+    command sed "s/^accent = .*/accent = \"#${theme#*:}\"/" "$HOME/.config/starship.toml" >"$prompt_themes/${theme%:*}.toml"
+  fi
+done
+prompt_colour() {
+  case $STARSHIP_CMD_STATUS in
+    0) export STARSHIP_CONFIG=$HOME/.config/starship.toml ;;
+    130) export STARSHIP_CONFIG=$prompt_themes/cancelled.toml ;;
+    *) export STARSHIP_CONFIG=$prompt_themes/failed.toml ;;
+  esac
+}
+starship_precmd_user_func=prompt_colour
 eval "$(starship init bash)"
 
 [ -f ~/.localrc ] && source ~/.localrc

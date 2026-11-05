@@ -8,6 +8,8 @@ case $1 in
     command=(alacritty --class scratchnotes -e nvim
       -c 'set noswapfile wrap linebreak nonumber norelativenumber signcolumn=no'
       -c 'autocmd TextChanged,TextChangedI,FocusLost * silent! update'
+      -c 'autocmd FocusGained * startinsert!'
+      -c 'normal! G' -c 'startinsert!'
       "$HOME/notes/scratch.md")
     ;;
   *) exit 2 ;;

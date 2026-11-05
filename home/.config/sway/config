@@ -120,7 +120,7 @@ layer_effects "wofi" {
     blur enable; blur_ignore_transparent enable; shadows enable; corner_radius 10;
 }
 layer_effects "swaync-control-center" {
-    blur enable; blur_ignore_transparent enable; shadows enable; corner_radius 10;
+    blur enable; shadows enable; corner_radius 16;
 }
 layer_effects "swaync-notification-window" {
     blur enable; blur_ignore_transparent enable; corner_radius 8;

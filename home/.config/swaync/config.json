@@ -30,7 +30,10 @@
     },
     "mpris": {
       "image-size": 64,
-      "image-radius": 8
+      "image-radius": 8,
+      "blacklist": [
+        "brave"
+      ]
     }
   },
   "scripts": {
