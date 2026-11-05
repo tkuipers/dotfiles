@@ -128,10 +128,10 @@
     },
     "custom/media": {
         "format": "<span foreground='#f5c2e7' font_weight='normal'>󰝚</span> {}",
-        "exec": "playerctl --follow metadata --format '{{ title }} - {{ artist }}'",
-        "max-length": 45,
+        "exec": "$HOME/.local/bin/media-scroll",
         "escape": true,
         "tooltip": false,
-        "on-click": "playerctl play-pause"
+        "on-click": "playerctl play-pause",
+        "on-click-right": "$HOME/.local/bin/media-scroll focus"
     }
 }
