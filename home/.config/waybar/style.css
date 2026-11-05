@@ -74,10 +74,13 @@ window#waybar {
     border-radius: 16px;
 }
 
+/* The clock and the next meeting make one split pill */
 #clock {
     background: rgba(116, 199, 236, 0.2);
     color: #74c7ec;
     font-weight: bold;
+    margin-right: 0;
+    border-radius: 16px 0 0 16px;
 }
 
 #battery {
@@ -166,6 +169,8 @@ tooltip label {
 
 #custom-agenda {
     background: rgba(203, 166, 247, 0.2);
+    margin-left: 0;
+    border-radius: 0 16px 16px 0;
 }
 
 #custom-media {

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Outlook calendar for the bar. Windows' Outlook is asked over COM, which starts
 # it hidden for a few seconds, so it is only asked every 15 minutes.
-#   agenda        one JSON line for waybar every 30 s: the next meeting today
+#   agenda        JSON lines for waybar: the current or next meeting, long names scrolling
 #   agenda pick   choose a meeting; one with a Teams link joins, others open mail
 run=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}
 cache=$run/agenda.tsv
@@ -54,22 +54,37 @@ upcoming() {
 
 markup() { local s=${1//&/&amp;}; s=${s//</&lt;}; printf '%s' "${s//>/&gt;}"; }
 
-show() {
-  local now today text='' tooltip='' start end subject link line
+# The current or nearest meeting, today or tomorrow, into when and subject; the
+# tooltip lists today.
+meeting() {
+  local now today start end link line
   now=$(date +%s)
   today=$(date +%F)
-  while IFS=$'\t' read -r start end subject link; do
-    [ "$(date -d "@$start" +%F)" = "$today" ] || continue
-    line="$(date -d "@$start" +%H:%M)  $(markup "$subject")"
-    tooltip+="${tooltip:+$'\n'}$line"
-    [ -n "$text" ] && continue
-    if ((start <= now)); then
-      text="now: ${subject:0:16}"
-    else
-      text="$(date -d "@$start" +%H:%M) ${subject:0:16}"
+  when='' subject='' tooltip=''
+  while IFS=$'\t' read -r start end name link; do
+    if [ -z "$when" ]; then
+      subject=$name
+      if ((start <= now)); then
+        when=now
+      elif [ "$(date -d "@$start" +%F)" = "$today" ]; then
+        when=$(date -d "@$start" +%H:%M)
+      else
+        when=$(date -d "@$start" '+%a %H:%M')
+      fi
     fi
+    [ "$(date -d "@$start" +%F)" = "$today" ] || continue
+    line="$(date -d "@$start" +%H:%M)  $(markup "$name")"
+    tooltip+="${tooltip:+$'\n'}$line"
   done < <(upcoming)
-  jq -cn --arg text "$(markup "$text")" --arg tooltip "${tooltip:-Nothing else today}" '{text: $text, tooltip: $tooltip}'
+  tip=$(printf '%s' "${tooltip:-Nothing else today}" | jq -Rs .)
+}
+
+# One line of JSON for waybar.
+emit() {
+  local text
+  text=$(markup "$1")
+  text=${text//\\/\\\\}
+  printf '{"text":"%s","tooltip":%s}\n' "${text//\"/\\\"}" "$tip"
 }
 
 if [ "$1" = pick ]; then
@@ -93,6 +108,27 @@ fi
 
 while :; do
   stale && fetch
-  show
-  sleep 30
+  meeting
+  if [ -z "$when" ]; then
+    emit 'No meetings'
+    sleep 30
+    continue
+  fi
+
+  # 13 characters of name, fewer beside a longer time, for the pill's width
+  room=$((19 - ${#when} - 1))
+  ((room > 13)) && room=13
+  emit "$when ${subject:0:room}"
+  if ((${#subject} <= room)); then
+    sleep 30
+    continue
+  fi
+
+  # Too long to fit: rests on its start, then scrolls through, like media-scroll
+  sleep 2.5
+  loop="$subject   $subject"
+  for ((i = 1; i <= ${#subject} + 3; i++)); do
+    emit "$when ${loop:i:room}"
+    sleep 0.125
+  done
 done
