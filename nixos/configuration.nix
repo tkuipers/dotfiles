@@ -100,7 +100,26 @@
     catppuccin-cursors.mochaLavender
 
     # Applications
-    vscode code-cursor bruno beekeeper-studio teams-for-linux firefox thunderbird
+    # Teams hands its player paths inside app.asar, which only Electron can read,
+    # so a pw-play in front of the real one plays an unpacked copy.
+    (let
+      sounds = runCommand "teams-for-linux-sounds" { nativeBuildInputs = [ asar ]; } ''
+        app=${teams-for-linux}/share/teams-for-linux/app.asar
+        mkdir $out && cd $out
+        for sound in $(asar list $app | grep '^/app/assets/sounds/.*\.wav$'); do
+          asar extract-file $app "''${sound#/}"
+        done
+      '';
+      player = writeShellScriptBin "pw-play" ''
+        exec ${pipewire}/bin/pw-play "${sounds}/$(basename "''${@: -1}")"
+      '';
+    in symlinkJoin {
+      name = "teams-for-linux";
+      paths = [ teams-for-linux ];
+      nativeBuildInputs = [ makeWrapper ];
+      postBuild = "wrapProgram $out/bin/teams-for-linux --prefix PATH : ${player}/bin";
+    })
+    vscode code-cursor bruno beekeeper-studio firefox thunderbird
     zotero anki-bin
     # Outlook in an Electron wrapper. Not in nixpkgs, so this wraps the release AppImage.
     (let

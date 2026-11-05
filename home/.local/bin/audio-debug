@@ -1,0 +1,108 @@
+#!/bin/bash
+# Run when sound lags or goes silent, while it is happening. Records what each
+# end of the audio path is doing to ~/audio-debug and says where it looks stuck.
+# Linux quiet while the Windows viewer is still loud means a backlog in the viewer.
+seconds=${1:-8}
+dir=$HOME/audio-debug
+mkdir -p "$dir"
+log=$dir/$(date +%Y-%m-%d_%H-%M-%S).log
+echo "Log: $log"
+powershell=/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
+
+script=$(cat <<'PS'
+Add-Type -TypeDefinition @'
+using System; using System.Runtime.InteropServices;
+[StructLayout(LayoutKind.Sequential)] public struct PK { public Guid f; public int p; }
+[StructLayout(LayoutKind.Sequential)] public struct PV { public short vt, a, b, c; public IntPtr v, w; }
+[ComImport, Guid("A95664D2-9614-4F35-A746-DE8DB63617E6"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+public interface IEnum { int EnumAudioEndpoints(int flow, int mask, out ICol c); int GetDefaultAudioEndpoint(int flow, int role, out IDev d); }
+[ComImport, Guid("0BD7A1BE-7A1A-44DB-8397-CC5392387B5E"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+public interface ICol { int GetCount(out int n); int Item(int i, out IDev d); }
+[ComImport, Guid("D666063F-1587-4E43-81F1-B948E807363F"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+public interface IDev { int Activate(ref Guid id, int ctx, IntPtr p, [MarshalAs(UnmanagedType.IUnknown)] out object o); int OpenPropertyStore(int m, out IProps s); int GetId([MarshalAs(UnmanagedType.LPWStr)] out string id); }
+[ComImport, Guid("886d8eeb-8cf2-4446-8d02-cdba1dbdcf99"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+public interface IProps { int GetCount(out int n); int GetAt(int i, out PK k); int GetValue(ref PK k, out PV v); }
+[ComImport, Guid("77AA99A0-1BD6-484F-8BC7-2C654C9A9B6F"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+public interface IMgr { int a(); int b(); int GetSessionEnumerator(out ISess e); }
+[ComImport, Guid("E2F5BB11-0570-40CA-ACDD-3AA01277DEE8"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+public interface ISess { int GetCount(out int n); int GetSession(int i, [MarshalAs(UnmanagedType.IUnknown)] out object s); }
+[ComImport, Guid("BFB7FF88-7239-4FC9-8FA2-07C950BE9C6D"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+public interface ICtl { int a(); int b(); int c(); int d(); int e(); int f(); int g(); int h(); int i(); int j(); int k(); int GetProcessId(out int pid); }
+[ComImport, Guid("C02216F6-8C67-4B5B-9D00-D008E73E0064"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+public interface IMeter { int GetPeakValue(out float p); }
+[ComImport, Guid("BCDE0395-E52F-467C-8E3D-C4579291692E")] public class Enumerator {}
+public static class A {
+  public static void Sample(string when, string name) {
+    var e = (IEnum)new Enumerator(); ICol c; IDev def; string defId;
+    e.GetDefaultAudioEndpoint(0, 1, out def); def.GetId(out defId);
+    e.EnumAudioEndpoints(0, 1, out c); int n; c.GetCount(out n);
+    var iid = typeof(IMgr).GUID; bool seen = false;
+    for (int i = 0; i < n; i++) {
+      IDev d; c.Item(i, out d); string id; d.GetId(out id);
+      IProps s; d.OpenPropertyStore(0, out s);
+      var k = new PK { f = new Guid("a45c254e-df1c-4efd-8020-67d146a850e0"), p = 14 }; PV v; s.GetValue(ref k, out v);
+      string dev = Marshal.PtrToStringUni(v.v);
+      object o; d.Activate(ref iid, 23, IntPtr.Zero, out o); ISess ss; ((IMgr)o).GetSessionEnumerator(out ss);
+      int m; ss.GetCount(out m);
+      for (int j = 0; j < m; j++) {
+        object so; ss.GetSession(j, out so); int pid; ((ICtl)so).GetProcessId(out pid); if (pid == 0) continue;
+        string pn = ""; try { pn = System.Diagnostics.Process.GetProcessById(pid).ProcessName; } catch {}
+        if (pn != name) continue;
+        float p; ((IMeter)so).GetPeakValue(out p); seen = true;
+        Console.WriteLine(when + " windows viewer pid=" + pid + " peak=" + p.ToString("0.000") + " default=" + (id == defId) + " device=" + dev);
+      }
+    }
+    if (!seen) Console.WriteLine(when + " windows viewer has no audio session on any active device");
+  }
+}
+'@
+$end = (Get-Date).AddSeconds(SECONDS)
+while ((Get-Date) -lt $end) { [A]::Sample((Get-Date -Format HH:mm:ss), 'sdl-freerdp'); Start-Sleep -Seconds 1 }
+PS
+)
+encoded=$(iconv -f utf-8 -t utf-16le <<<"${script//SECONDS/$seconds}" | base64 -w0)
+
+windows=$(mktemp)
+(cd /mnt/c && "$powershell" -NoProfile -NonInteractive -EncodedCommand "$encoded" 2>&1 | tr -d '\r') >"$windows" &
+
+{
+  echo "== $(date)"
+  echo "== players"; playerctl -a --format '{{playerInstance}} {{status}}' status 2>&1
+  echo "== load"; uptime
+  echo "== linux sink"
+  for ((i = 0; i < seconds; i++)); do
+    wav=$(mktemp --suffix=.wav)
+    timeout 1 pw-record --target weaselway_rdp_sink -P stream.capture.sink=true --rate 48000 --channels 2 --format s16 "$wav" 2>/dev/null
+    peak=$(ffmpeg -v info -i "$wav" -af volumedetect -f null - 2>&1 | sed -n 's/.*max_volume: //p')
+    # Digital silence reads as -91 dB
+    case $peak in '' | -9[0-9]* | -8[0-9]*) peak=silent ;; esac
+    echo "$(date +%H:%M:%S) linux sink max=$peak"
+    rm -f "$wav"
+  done
+} >"$log"
+
+wait
+{
+  echo "== windows"; cat "$windows"
+  echo "== graph"; pw-top -b -n 2 2>&1 | tail -n 12
+  echo "== streams"; wpctl status 2>&1 | sed -n '/Audio/,/^Video/p'
+  echo "== display server"; journalctl --user -u weaselwayd.service --no-pager --since '-15 min' 2>&1 | grep -iE 'audio|snd' | tail -n 15
+  echo "== viewer log"; tail -n 15 "${XDG_RUNTIME_DIR:-/tmp}/weaselway-viewer.log" 2>&1
+} >>"$log"
+rm -f "$windows"
+
+linux=$(grep -c 'linux sink max=-[0-9. ]*dB' "$log")
+loud=$(grep -cE 'peak=0\.[0-9]*[1-9]' "$log")
+quiet=$(grep -c 'linux sink max=silent' "$log")
+echo "Linux samples with sound: $linux of $seconds; Windows samples with sound: $loud"
+if grep -q 'no audio session' "$log"; then
+  echo "Viewer has no Windows audio session: suspect the viewer or a device change."
+elif grep -q 'default=False' "$log"; then
+  echo "Viewer is playing on a device that is not the Windows default."
+elif ((quiet == seconds && loud > 0)); then
+  echo "Linux is silent but the viewer is still playing: a backlog in the viewer."
+elif ((linux > 0 && loud == 0)); then
+  echo "Linux is sending sound but the viewer plays nothing: stuck between them."
+else
+  echo "Both ends agree. Nothing obviously stuck right now."
+fi
