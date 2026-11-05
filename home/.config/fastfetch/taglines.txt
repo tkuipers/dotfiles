@@ -1,0 +1,40 @@
+Built low for performance.
+Compiled with extra length.
+Sausage-grade reliability.
+Now with 40% more dog per dog.
+All back, no brakes.
+The long way round is the only way.
+Runs on treats and spite.
+Good boy, bad merges.
+Digging through your logs since breakfast.
+Rebased. Rolled over. Played dead.
+Fetch succeeded. Pull is another matter.
+Sit. Stay. Commit.
+Please do not pet the kernel.
+Low latency, lower ground clearance.
+Extended support, extended everything.
+Long-running process. Very good process.
+Burrowing into the stack.
+Treat-driven development.
+Will work for belly rubs.
+Sniffing every packet.
+Roll over, then roll back.
+Stretch goals only.
+Maximum length exceeded.
+Chases every exception, catches none.
+Fetching, always fetching.
+Buried the bone, forgot the path.
+Barking up the dependency tree.
+Unleashed in staging.
+Naps between deploys.
+Loyal to the last commit.
+Sniffed the diff. Approved.
+Dug a hole in the backlog.
+Shakes hands over TLS.
+Trained on treats, not tokens.
+No bones about it, it's a bug.
+Walks the tree every morning.
+Sits, stays, ships.
+Off-leash in production.
+Sleeps through the standup.
+Followed the breadcrumbs to the stack trace.

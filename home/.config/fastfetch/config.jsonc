@@ -2,24 +2,75 @@
   "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
   "logo": {
     "type": "file",
-    "source": "~/.config/fastfetch/weasel.txt",
-    "color": { "1": "#b4befe", "2": "#cba6f7", "3": "#f5c2e7" },
-    "padding": { "top": 1, "right": 3 }
+    "source": "~/.config/fastfetch/wiener.txt",
+    "color": {
+      "1": "#b4befe",
+      "2": "#cba6f7",
+      "3": "#f5c2e7"
+    },
+    "padding": {
+      "top": 1,
+      "right": 3
+    }
   },
   "display": {
     "separator": "  ",
-    "color": { "keys": "#b4befe", "title": "#cba6f7" }
+    "color": {
+      "keys": "#b4befe",
+      "title": "#cba6f7"
+    }
   },
   "modules": [
-    "title",
-    { "type": "os", "key": "󰣇 os" },
-    { "type": "kernel", "key": " kernel" },
-    { "type": "wm", "key": " wm" },
-    { "type": "terminal", "key": " term" },
-    { "type": "shell", "key": " shell" },
-    { "type": "gpu", "key": "󰾲 gpu" },
-    { "type": "memory", "key": " mem" },
-    { "type": "uptime", "key": "󰅐 up" },
-    "colors"
+    {
+      "type": "command",
+      "key": " ",
+      "keyColor": "#f5c2e7",
+      "outputColor": "#f5c2e7",
+      "text": "shuf -n 1 ~/.config/fastfetch/taglines.txt"
+    },
+    {
+      "type": "custom",
+      "format": "────────────────────────",
+      "outputColor": "#585b70"
+    },
+    {
+      "type": "command",
+      "key": "󰔏 sky",
+      "text": "~/.local/bin/weather-now --card"
+    },
+    {
+      "type": "os",
+      "key": "󱄅 os",
+      "format": "{3}"
+    },
+    {
+      "type": "wm",
+      "key": " wm",
+      "format": "SwayFX on Weaselway"
+    },
+    {
+      "type": "gpu",
+      "key": "󰾲 gpu",
+      "format": "{2}"
+    },
+    {
+      "type": "memory",
+      "key": " mem"
+    },
+    {
+      "type": "disk",
+      "key": " disk",
+      "folders": "/",
+      "format": "{1} / {2} ({3})"
+    },
+    {
+      "type": "uptime",
+      "key": "󰅐 up"
+    },
+    "break",
+    {
+      "type": "colors",
+      "symbol": "circle"
+    }
   ]
 }

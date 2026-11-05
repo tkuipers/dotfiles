@@ -134,3 +134,8 @@ eval "$(~/.local/bin/mise activate bash)"
 # Rust toolchain (rustup), if installed
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 export PATH=$PATH:$HOME/.maestro/bin
+
+# A hello on the first pane of each new terminal, when there is room for it.
+if [[ $- == *i* ]] && [ "$ZELLIJ_PANE_ID" = 0 ] && [ "$(tput cols)" -ge 80 ]; then
+  fastfetch
+fi

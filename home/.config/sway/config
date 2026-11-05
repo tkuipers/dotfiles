@@ -62,7 +62,7 @@ exec wl-paste --type image/png --watch $HOME/.local/bin/clipboard-to-win image
 exec wl-paste --type text --watch cliphist store
 exec wl-paste --type image/png --watch cliphist store
 # Launch terminal on workspace 2 at startup
-exec swaymsg 'workspace 2; exec $term'
+exec $term --class startup-term
 # Launch Teams on workspace 4 at startup
 exec teams-for-linux
 exec prospect-mail
@@ -148,6 +148,7 @@ output DP-2 {
 }
 
 # Assign applications to specific workspaces
+assign [app_id="startup-term"] workspace number 2
 assign [class="Brave-browser"] workspace number 1
 assign [app_id="brave-browser"] workspace number 1
 assign [class="Code"] workspace number 3
