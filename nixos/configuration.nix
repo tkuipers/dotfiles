@@ -209,6 +209,13 @@
     "flakes"
   ];
 
+  # Builds take only CPU nothing else wants. WSL's CPUs are Windows threads, so
+  # a build on every core starves the viewer on Windows, and the sound pops.
+  nix.daemonCPUSchedPolicy = "idle";
+
+  # Realtime priority for PipeWire's audio threads.
+  security.rtkit.enable = true;
+
   # Leave this at the release the distro was first installed with.
   system.stateVersion = "26.05";
 }
