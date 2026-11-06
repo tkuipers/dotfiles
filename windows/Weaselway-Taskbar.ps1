@@ -86,17 +86,12 @@ public static class WeaselwayTaskbar {
         }
     }
 
-    // True while the keyboard is on Linux. Anything else, like a tray popup or the
-    // Start menu, means the taskbar is in use and has to stay.
-    static bool ViewerFocused() {
+    static string ForegroundClass() {
         StringBuilder name = new StringBuilder(64);
         GetClassName(GetForegroundWindow(), name, name.Capacity);
-        return name.ToString() == "SDL_app";
+        return name.ToString();
     }
 
-    static void RestoreViewers() {
-        foreach (IntPtr viewer in Viewers()) SetWindowPos(viewer, IntPtr.Zero, 0, 0, 0, 0, NoMoveSizeActivate);
-    }
 
     public static void AutoHideOff() {
         AppBarData data = new AppBarData();
@@ -121,6 +116,7 @@ public static class WeaselwayTaskbar {
         SetProcessDPIAware();
         bool revealed = false;
         IntPtr tucked = IntPtr.Zero;
+        int windowsTicks = 0;
         int tick = 0;
         bool viewers = true;
         while (true) {
@@ -128,12 +124,16 @@ public static class WeaselwayTaskbar {
             Point cursor;
             GetCursorPos(out cursor);
             int distance = BottomOf(cursor) - cursor.Y;
-            if (distance <= EdgeHeight && (Held(LeftWin) || Held(RightWin) || File.Exists(menuFlag))) revealed = true;
-            else if (distance > TaskbarHeight && ViewerFocused()) revealed = false;
+            // Anything but a viewer in front means Windows is in use, so the taskbar
+            // stays until focus is back on Linux. Blank for a moment during a switch.
+            string front = ForegroundClass();
+            windowsTicks = front == "SDL_app" ? 0 : front == "" ? windowsTicks : windowsTicks + 1;
+            if (windowsTicks >= 3) revealed = true;
+            else if (distance <= EdgeHeight && (Held(LeftWin) || Held(RightWin) || File.Exists(menuFlag))) revealed = true;
+            else if (distance > TaskbarHeight && front == "SDL_app") revealed = false;
             Set(revealed || !viewers);
             IntPtr monitor = revealed ? MonitorFromPoint(cursor, 2) : IntPtr.Zero;
             if (monitor != tucked) {
-                if (tucked != IntPtr.Zero) RestoreViewers();
                 if (revealed) TuckViewer(monitor);
                 tucked = monitor;
             }
