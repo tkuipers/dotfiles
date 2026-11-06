@@ -1,0 +1,60 @@
+theme = "mocha"
+fps = 30.0
+peaks = "auto"
+lazy_capture = true
+max_volume_percent = 100.0
+enforce_max_volume = true
+keybindings = [
+  { key = "Esc", action = "Exit" },
+]
+
+# Electron apps all call themselves Chromium, so go by the program instead
+[[names.overrides]]
+types = [ "stream" ]
+matches = [ { "node:application.process.binary" = "~(?i)cider" } ]
+templates = [ "Cider" ]
+
+[[names.overrides]]
+types = [ "stream" ]
+matches = [ { "node:application.process.binary" = "~(?i)brave" } ]
+templates = [ "Brave" ]
+
+[[names.overrides]]
+types = [ "stream" ]
+matches = [ { "node:application.process.binary" = "~(?i)teams" } ]
+templates = [ "Teams" ]
+
+[[names.overrides]]
+types = [ "stream" ]
+matches = [ { "node:application.process.binary" = "~(?i)prospect" } ]
+templates = [ "Prospect Mail" ]
+
+# Catppuccin Mocha, lavender accent
+[themes.mocha]
+default_device = { fg = "#f9e2af" }
+default_stream = { fg = "#f9e2af" }
+selector = { fg = "#b4befe" }
+tab = { fg = "#a6adc8" }
+tab_selected = { fg = "#b4befe", add_modifier = "BOLD" }
+tab_marker = { fg = "#cba6f7" }
+list_more = { fg = "#585b70" }
+node_title = { fg = "#cdd6f4" }
+node_target = { fg = "#a6adc8" }
+volume = { fg = "#cba6f7" }
+volume_empty = { fg = "#45475a" }
+volume_filled = { fg = "#b4befe" }
+meter_inactive = { fg = "#45475a" }
+meter_active = { fg = "#a6e3a1" }
+meter_overload = { fg = "#f38ba8" }
+meter_center_inactive = { fg = "#45475a" }
+meter_center_active = { fg = "#a6e3a1" }
+config_device = { fg = "#cdd6f4" }
+config_profile = { fg = "#a6adc8" }
+dropdown_icon = { fg = "#b4befe" }
+dropdown_border = { fg = "#585b70" }
+dropdown_item = { fg = "#cdd6f4" }
+dropdown_selected = { fg = "#1e1e2e", bg = "#b4befe" }
+dropdown_more = { fg = "#585b70" }
+help_border = { fg = "#585b70" }
+help_item = { fg = "#cdd6f4" }
+help_more = { fg = "#585b70" }

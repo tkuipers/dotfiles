@@ -177,6 +177,7 @@ for_window {
     [app_id="com.gabm.satty"] floating enable
     [app_id="scratchterm"] floating enable, resize set 70 ppt 60 ppt, move position center, move scratchpad, scratchpad show
     [app_id="scratchnotes"] floating enable, resize set 30 ppt 45 ppt, move position center, move scratchpad, scratchpad show
+    [app_id="scratchmixer"] floating enable, resize set 45 ppt 55 ppt, move position center, move scratchpad, scratchpad show
     [window_role="pop-up"] floating enable
     [window_role="bubble"] floating enable
     [window_role="dialog"] floating enable
@@ -249,6 +250,7 @@ bindsym {
     $mod+b splith
     $mod+v splitv
     $mod+Shift+v exec $HOME/.local/bin/clipboard-pick
+    $mod+Shift+m exec $HOME/.local/bin/scratch-toggle mixer
     
     $mod+s layout stacking
     $mod+w layout tabbed

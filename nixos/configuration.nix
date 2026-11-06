@@ -93,7 +93,7 @@
 
     # Theme
     kmod usbutils v4l-utils ffmpeg-headless
-    btop delta cliphist satty awww zathura
+    btop delta cliphist satty awww zathura wiremix
     swaynotificationcenter wlogout lutgen fastfetch playerctl swayr
     (catppuccin-gtk.override { accents = [ "lavender" ]; variant = "mocha"; })
     (catppuccin-papirus-folders.override { flavor = "mocha"; accent = "lavender"; })

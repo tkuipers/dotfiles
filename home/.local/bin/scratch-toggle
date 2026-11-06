@@ -1,7 +1,8 @@
 #!/bin/bash
-# Show or hide a scratchpad window, starting it the first time. $1 is term or notes.
+# Show or hide a scratchpad window, starting it the first time. $1 is term, notes or mixer.
 case $1 in
   term) app_id=scratchterm command=(alacritty --class scratchterm) ;;
+  mixer) app_id=scratchmixer command=(alacritty --class scratchmixer -e wiremix) ;;
   notes)
     app_id=scratchnotes
     mkdir -p "$HOME/notes"
@@ -16,6 +17,8 @@ case $1 in
 esac
 
 if swaymsg -t get_tree | jq -e --arg id "$app_id" '.. | objects | select(.app_id? == $id)' >/dev/null; then
+  # The mixer closes instead of hiding: open, it keeps capturing to draw its meters
+  [ "$1" = mixer ] && exec swaymsg "[app_id=\"$app_id\"] kill"
   swaymsg "[app_id=\"$app_id\"] scratchpad show"
 else
   exec "${command[@]}"
