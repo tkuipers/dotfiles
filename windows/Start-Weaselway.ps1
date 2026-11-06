@@ -1,5 +1,5 @@
-# Starts the Weaselway session and both viewers, then maximizes each on its
-# monitor: display 1 on the left, display 2 on the right. Safe to run again:
+# Starts the Weaselway session and both viewers, then fills its monitor with
+# each: display 1 on the left, display 2 on the right. Safe to run again:
 # it only starts what is missing and puts the windows back.
 
 $ErrorActionPreference = "Stop"
@@ -55,10 +55,11 @@ public static class WeaselwayWindows {
         }, IntPtr.Zero);
         return found;
     }
-    public static void Maximize(IntPtr hwnd, int x, int y) {
-        ShowWindow(hwnd, 9);                                   // SW_RESTORE
-        SetWindowPos(hwnd, IntPtr.Zero, x, y, 0, 0, 0x0015);   // no size, z-order or activation
-        ShowWindow(hwnd, 3);                                   // SW_MAXIMIZE
+    // The whole monitor, not maximized: that would stop at the taskbar.
+    public static void Fill(IntPtr hwnd, int x, int y, int width, int height) {
+        ShowWindow(hwnd, 9);                                        // SW_RESTORE
+        System.Threading.Thread.Sleep(300);                         // or the restore undoes the move
+        SetWindowPos(hwnd, IntPtr.Zero, x, y, width, height, 0x0014);  // no z-order or activation
     }
 }
 '@
@@ -92,7 +93,7 @@ foreach ($display in 1, 2) {
     if (-not (Get-ViewerPid $ports[$display])) { Start-Viewer $display }
 }
 
-# First, so the viewers are maximized into the height the taskbar gives up.
+# Keeps the Windows taskbars hidden.
 Start-Process powershell.exe -WindowStyle Hidden -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$PSScriptRoot\Weaselway-Taskbar.ps1`""
 Start-Sleep -Seconds 1
 
@@ -121,7 +122,7 @@ foreach ($display in 1, 2) {
     }
     $screen = $screens[[Math]::Min($display - 1, $screens.Count - 1)]
     try {
-        [WeaselwayWindows]::Maximize($hwnd, $screen.WorkingArea.X, $screen.WorkingArea.Y)
+        [WeaselwayWindows]::Fill($hwnd, $screen.Bounds.X, $screen.Bounds.Y, $screen.Bounds.Width, $screen.Bounds.Height)
         [WeaselwayWindows]::SetAppId($hwnd, "Tkuipers.Weaselway")
     } catch {
         Write-Warning "Could not place the viewer of display ${display}: $_"

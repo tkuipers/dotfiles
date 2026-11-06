@@ -13,5 +13,5 @@ This repository contains my dotfiles.  They are relatively simple and can be ins
 sudo nixos-rebuild boot --flake ~/dotfiles/nixos#nixos
 ```
 
-`windows/` has the launcher. `Start-Weaselway.ps1` starts the session and both viewers, then maximizes one on each monitor.
+`windows/` has the launcher. `Start-Weaselway.ps1` starts the session and both viewers, then fills each monitor with one.
 `Weaselway-Taskbar.ps1` runs alongside and keeps the Windows taskbar hidden while a viewer is up; hold a Windows key with the mouse on the bottom edge, or just hover there with the power menu open, to bring it back.
