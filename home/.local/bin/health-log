@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# Records system health to ~/.local/state/health/DATE.log so a freeze leaves the
+# minutes before it behind: Linux every 5 seconds, Windows every 10. A stream of
+# lines that stops is itself the evidence. Keeps a week. Exits once sway is gone.
+dir=$HOME/.local/state/health
+run=${XDG_RUNTIME_DIR:-/tmp}
+powershell=/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
+mkdir -p "$dir"
+exec 9>"$run/health-log.lock"
+flock -n 9 || exit 0
+find "$dir" -name '*.log' -mtime +7 -delete
+
+write() {
+  local file
+  file=$dir/$(date +%F).log
+  printf '%s %s\n' "$(date +%T)" "$1" >>"$file"
+  sync "$file" 2>/dev/null
+}
+
+# How long a command takes to answer, in ms, or "stuck".
+answer_ms() {
+  local start=$EPOCHREALTIME
+  timeout 3 "$@" >/dev/null 2>&1 || { echo stuck; return; }
+  echo $(((${EPOCHREALTIME/./} - ${start/./}) / 1000))
+}
+
+script=$(cat <<'PS'
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
+while ($true) {
+  $gpu = 0
+  try { $gpu = [int](((Get-Counter '\GPU Engine(*engtype_3D)\Utilization Percentage' -ErrorAction Stop).CounterSamples | Measure-Object CookedValue -Sum).Sum) } catch { $gpu = -1 }
+  $viewers = @(Get-Process sdl-freerdp -ErrorAction SilentlyContinue)
+  $ok = @($viewers | Where-Object Responding).Count
+  $shell = @(Get-Process explorer -ErrorAction SilentlyContinue | Where-Object Responding).Count
+  $os = Get-CimInstance Win32_OperatingSystem
+  $free = [int]($os.FreePhysicalMemory / 1024)
+  # Fails once the Linux side has gone, which is the cue to stop too
+  try { [Console]::Out.WriteLine("gpu3d=$gpu% viewers=$ok/$($viewers.Count) explorer=$shell free=${free}MB") } catch { exit }
+  Start-Sleep -Seconds 10
+}
+PS
+)
+
+(cd /mnt/c && "$powershell" -NoProfile -NonInteractive -EncodedCommand \
+  "$(iconv -f utf-8 -t utf-16le <<<"$script" | base64 -w0)" </dev/null 2>/dev/null 9>&-) |
+  while read -r line; do write "win ${line%$'\r'}"; done &
+windows=$!
+trap 'kill "$windows" 2>/dev/null' EXIT
+
+while [ -S "$SWAYSOCK" ]; do
+  read -r load _ </proc/loadavg
+  memory=$(awk '/MemAvailable/ { print int($2 / 1024) }' /proc/meminfo)
+  busiest=$(ps -eo pcpu=,comm= --sort=-pcpu | head -n 1 | awk '{ print $2 ":" $1 "%" }')
+  write "linux load=$load mem=${memory}MB sway=$(answer_ms swaymsg -t get_version)ms swaync=$(answer_ms swaync-client -c)ms busiest=$busiest"
+  sleep 5
+done

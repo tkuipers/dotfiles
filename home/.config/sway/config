@@ -55,6 +55,7 @@ seat seat0 {
 
 # Media keys from Windows go to the Linux player
 exec $HOME/.local/bin/win-media-keys
+exec $HOME/.local/bin/health-log
 # Clipboard: both ways with Windows, and a history
 exec $HOME/.local/bin/win-to-clipboard
 exec wl-paste --type text --watch $HOME/.local/bin/clipboard-to-win text
