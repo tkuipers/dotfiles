@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Toggles the notification panel. swaync only plays the blur's dissolve once and
+# hides its window at once, so reloading the style restarts the dissolve on open,
+# and on close plays closing.css before hiding. Clicks during that are ignored.
+state=$HOME/.local/state/theme/swaync
+exec 9>"$XDG_RUNTIME_DIR/notification-panel.lock"
+flock -n 9 || exit 0
+
+visible=$(busctl --user call org.erikreider.swaync.cc /org/erikreider/swaync/cc \
+  org.erikreider.swaync.cc GetVisibility)
+
+if [ "$visible" != "b true" ]; then
+  cp "$state/open.css" "$state/style.css"
+  swaync-client -rs >/dev/null
+  swaync-client -op -sw
+  exit
+fi
+
+cat "$state/open.css" "$state/closing.css" >"$state/style.css"
+swaync-client -rs >/dev/null
+sleep 0.34
+swaync-client -cp -sw
+cp "$state/open.css" "$state/style.css"

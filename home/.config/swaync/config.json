@@ -29,11 +29,11 @@
       "text": "Do not disturb"
     },
     "mpris": {
-      "image-size": 64,
-      "image-radius": 8,
       "blacklist": [
         "brave"
-      ]
+      ],
+      "show-album-art": "when-available",
+      "autohide": true
     }
   },
   "scripts": {
@@ -43,5 +43,9 @@
       "exec": "/home/nixos/.local/bin/notification-focus"
     }
   },
-  "script-fail-notify": false
+  "script-fail-notify": false,
+  "notification-icon-size": 28,
+  "notification-body-image-height": 72,
+  "notification-body-image-width": 160,
+  "transition-time": 180
 }

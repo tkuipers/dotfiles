@@ -26,7 +26,8 @@ surface0 base mantle crust""".split()
 RENDERED = {
     ".config/waybar/config": "waybar/config",
     ".config/waybar/style.css": "waybar/style.css",
-    ".config/swaync/style.css": "swaync/style.css",
+    ".config/swaync/style.css": "swaync/open.css",
+    ".config/swaync/closing.css": "swaync/closing.css",
     ".config/wofi/style.css": "wofi/style.css",
     ".config/wlogout/style.css": "wlogout/style.css",
     ".config/alacritty/colors.toml": "alacritty/colors.toml",
@@ -163,6 +164,9 @@ def main():
         for source, out in RENDERED.items()
         if write(STATE / out, swap((REPO / source).read_text()))
     }
+
+    # swaync reads style.css, which notification-panel rebuilds from these two
+    write(STATE / "swaync/style.css", (STATE / "swaync/open.css").read_text())
 
     # Starship has no conditional colours, so each outcome has its own copy.
     # .bashrc picks one per prompt: blue fine, pink failed, yellow cancelled.

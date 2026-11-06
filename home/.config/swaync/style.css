@@ -13,19 +13,55 @@
 
 * {
   font-family: "JetBrainsMono Nerd Font";
-  font-size: 13px;
+  font-size: 12px;
   color: @text;
 }
 
+/* The panel slides in while the blur dissolves up behind it. Sway blurs only the
+   pixels with colour here, and its blur strength can't fade, so each of these 20
+   tiles covers 5% more of the screen. notification-panel reloads this file before
+   opening, which is what restarts the dissolve. */
+@keyframes backdrop-in {
+  0% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/01.png"); }
+  5% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/02.png"); }
+  10% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/03.png"); }
+  15% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/04.png"); }
+  20% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/05.png"); }
+  25% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/06.png"); }
+  30% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/07.png"); }
+  35% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/08.png"); }
+  40% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/09.png"); }
+  45% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/10.png"); }
+  50% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/11.png"); }
+  55% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/12.png"); }
+  60% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/13.png"); }
+  65% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/14.png"); }
+  70% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/15.png"); }
+  75% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/16.png"); }
+  80% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/17.png"); }
+  85% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/18.png"); }
+  90% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/19.png"); }
+  95% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/20.png"); }
+  100% { background-color: alpha(@crust, 0.3); background-image: none; }
+}
+
+@keyframes panel-in {
+  from { opacity: 0; transform: translateX(440px); }
+  to { opacity: 1; transform: none; }
+}
+
 .blank-window {
-  background: alpha(@crust, 0.35);
+  background-color: alpha(@crust, 0.3);
+  background-image: none;
+  animation: backdrop-in 3400ms steps(1, end);
 }
 
 .control-center {
   background: alpha(@base, 0.72);
-  border: 1px solid alpha(@lavender, 0.3);
+  border: 1px solid alpha(@lavender, 0.22);
   border-radius: 16px;
-  padding: 12px;
+  padding: 10px;
+  animation: panel-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .control-center-list,
@@ -34,64 +70,115 @@
   color: @subtext;
 }
 
+.widget-notifications,
+.control-center-list viewport,
 .notification-row,
 .notification-group,
 .notification-background {
   background: transparent;
   outline: none;
   box-shadow: none;
+  padding: 0;
+  margin: 0;
 }
 
 .notification {
-  background: alpha(@base, 0.75);
-  border: 1px solid alpha(@lavender, 0.2);
-  border-radius: 14px;
-  margin: 4px 0;
+  background: alpha(@surface0, 0.45);
+  border: none;
+  border-radius: 10px;
+  margin: 2px 0;
   padding: 0;
   box-shadow: none;
 }
 
 .notification.critical {
-  border-color: @red;
+  background: alpha(@red, 0.16);
+}
+
+.notification-content {
+  padding: 6px 8px;
 }
 
 .notification-default-action,
 .notification-action {
   background: transparent;
   border: none;
-  border-radius: 14px;
+  border-radius: 10px;
+  padding: 0;
+  transition: background 120ms ease;
 }
 
 .notification-default-action:hover,
 .notification-action:hover {
-  background: alpha(@surface1, 0.6);
+  background: alpha(@surface1, 0.55);
+}
+
+.image {
+  margin-right: 8px;
+  border-radius: 6px;
 }
 
 .summary {
   font-weight: bold;
 }
 
-.time,
-.body {
+.notification .time {
+  color: @overlay1;
+  font-size: 10px;
+}
+
+.notification .body {
   color: @subtext;
+  font-size: 11px;
 }
 
 .close-button {
-  background: alpha(@surface1, 0.8);
-  border-radius: 16px;
-  margin: 6px;
+  background: transparent;
+  border-radius: 12px;
+  min-width: 18px;
+  min-height: 18px;
+  margin: 4px;
+  padding: 0;
+  opacity: 0.6;
 }
 
 .close-button:hover {
-  background: @red;
+  background: alpha(@red, 0.85);
+  opacity: 1;
+}
+
+.notification-group-headers {
+  margin: 4px 2px 2px;
+}
+
+.notification-group-header {
+  color: @subtext;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.notification-group-icon {
+  -gtk-icon-size: 16px;
+}
+
+.notification-group-buttons button {
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  min-height: 20px;
+  padding: 0 6px;
+}
+
+.notification-group-buttons button:hover {
+  background: alpha(@surface1, 0.7);
 }
 
 .widget-title {
-  margin: 2px 4px 8px;
+  margin: 0 2px 6px;
 }
 
 .widget-title > label {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
   color: @mauve;
 }
@@ -99,8 +186,10 @@
 .widget-title > button {
   background: alpha(@surface0, 0.8);
   border: none;
-  border-radius: 16px;
-  padding: 3px 14px;
+  border-radius: 12px;
+  min-height: 20px;
+  padding: 0 12px;
+  font-size: 11px;
 }
 
 .widget-title > button:hover {
@@ -109,16 +198,18 @@
 }
 
 .widget-dnd {
-  background: alpha(@surface0, 0.5);
-  border-radius: 14px;
-  margin: 0 0 8px;
-  padding: 8px 12px;
+  margin: 0 2px 6px;
+  padding: 0;
+  font-size: 11px;
+  color: @subtext;
 }
 
 .widget-dnd switch {
   background: @surface1;
   border: none;
-  border-radius: 16px;
+  border-radius: 12px;
+  min-width: 30px;
+  min-height: 14px;
 }
 
 .widget-dnd switch:checked {
@@ -127,24 +218,58 @@
 
 .widget-dnd switch slider {
   background: @text;
-  border-radius: 16px;
+  border-radius: 12px;
+  min-width: 14px;
+  min-height: 14px;
 }
 
+/* The player: art, song details and controls, with no spare room around them */
 .widget-mpris {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
+  padding: 0;
 }
 
 .widget-mpris .widget-mpris-player {
-  background: alpha(@surface0, 0.5);
-  border-radius: 14px;
+  background: alpha(@surface0, 0.45);
+  border-radius: 10px;
+  box-shadow: none;
   margin: 0;
-  padding: 10px;
+  padding: 0;
+}
+
+.widget-mpris .widget-mpris-player .mpris-background {
+  opacity: 0;
+}
+
+.widget-mpris .widget-mpris-player .mpris-overlay {
+  background: transparent;
+  padding: 6px 8px;
+}
+
+.widget-mpris .widget-mpris-player .mpris-overlay .widget-mpris-album-art {
+  -gtk-icon-size: 48px;
+  border-radius: 6px;
+  box-shadow: none;
+  margin-right: 8px;
+}
+
+.widget-mpris .widget-mpris-player .mpris-overlay .widget-mpris-title {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.widget-mpris .widget-mpris-player .mpris-overlay .widget-mpris-subtitle {
+  font-size: 11px;
+  color: @subtext;
 }
 
 .widget-mpris button {
   background: transparent;
   border: none;
-  border-radius: 16px;
+  border-radius: 12px;
+  min-width: 22px;
+  min-height: 22px;
+  padding: 0;
 }
 
 .widget-mpris button:hover {

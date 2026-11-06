@@ -1,0 +1,40 @@
+/* Added to the style for a moment while the panel closes, because swaync hides
+   its window at once. See notification-panel. */
+@keyframes backdrop-out {
+  0% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/20.png"); }
+  5% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/19.png"); }
+  10% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/18.png"); }
+  15% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/17.png"); }
+  20% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/16.png"); }
+  25% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/15.png"); }
+  30% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/14.png"); }
+  35% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/13.png"); }
+  40% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/12.png"); }
+  45% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/11.png"); }
+  50% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/10.png"); }
+  55% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/09.png"); }
+  60% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/08.png"); }
+  65% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/07.png"); }
+  70% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/06.png"); }
+  75% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/05.png"); }
+  80% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/04.png"); }
+  85% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/03.png"); }
+  90% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/02.png"); }
+  95% { background-color: transparent; background-image: url("/home/nixos/.config/swaync/fade/01.png"); }
+  100% { background-color: transparent; background-image: none; }
+}
+
+@keyframes panel-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateX(440px); }
+}
+
+.blank-window {
+  background-color: transparent;
+  background-image: none;
+  animation: backdrop-out 340ms steps(1, end);
+}
+
+.control-center {
+  animation: panel-out 240ms cubic-bezier(0.55, 0, 0.8, 0.4) forwards;
+}

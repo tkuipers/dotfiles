@@ -125,7 +125,7 @@
         "return-type": "json",
         "exec-if": "which swaync-client",
         "exec": "swaync-client -swb",
-        "on-click": "swaync-client -t -sw",
+        "on-click": "$HOME/.local/bin/notification-panel",
         "on-click-right": "swaync-client -d -sw",
         "escape": true
     },

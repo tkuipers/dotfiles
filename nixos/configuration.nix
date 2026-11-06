@@ -94,7 +94,14 @@
     # Theme
     kmod usbutils v4l-utils ffmpeg-headless
     btop delta cliphist satty awww zathura wiremix
-    swaynotificationcenter wlogout lutgen fastfetch playerctl swayr
+    # The media player puts artist and album on one line, with no setting to split them
+    (swaynotificationcenter.overrideAttrs (old: {
+      postPatch = (old.postPatch or "") + ''
+        substituteInPlace src/controlCenter/widgets/mpris/mpris_player.vala \
+          --replace-fail 'string.joinv (" - ", { artist, album })' 'string.joinv ("\n", { artist, album })'
+      '';
+    }))
+    wlogout lutgen fastfetch playerctl swayr
     (catppuccin-gtk.override { accents = [ "lavender" ]; variant = "mocha"; })
     (catppuccin-papirus-folders.override { flavor = "mocha"; accent = "lavender"; })
     catppuccin-cursors.mochaLavender

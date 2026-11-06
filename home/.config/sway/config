@@ -59,7 +59,7 @@ exec prospect-mail
 # The portals run under the user manager and need to find this session
 exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP SWAYSOCK
 # Notifications
-exec swaync -s $HOME/.local/state/theme/swaync/style.css
+exec env GSK_RENDERER=cairo swaync -s $HOME/.local/state/theme/swaync/style.css
 exec_always $HOME/.local/bin/theme-apply
 # Window switcher behind the clock
 exec swayrd
@@ -110,7 +110,7 @@ layer_effects "wofi" {
     blur enable; blur_ignore_transparent enable; shadows enable; corner_radius 10;
 }
 layer_effects "swaync-control-center" {
-    blur enable; shadows enable; corner_radius 16;
+    blur enable; blur_ignore_transparent enable; shadows enable; corner_radius 16;
 }
 layer_effects "swaync-notification-window" {
     blur enable; blur_ignore_transparent enable; corner_radius 8;
