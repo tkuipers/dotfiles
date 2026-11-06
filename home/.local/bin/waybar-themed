@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Waybar reading the copies theme-apply renders. sway's swaybar_command can't take flags.
+state=$HOME/.local/state/theme/waybar
+exec waybar -c "$state/config" -s "$state/style.css" "$@"

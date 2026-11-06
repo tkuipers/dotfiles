@@ -7,7 +7,6 @@
     "vim@latest",
     "nodejs@20.12.2",
     "go@latest",
-    "zellij@latest",
     "texlivePackages.xetex@latest",
     "postgresql@latest",
     "starship@latest",

@@ -4,4 +4,4 @@
 flag=/mnt/c/Users/tyler.kuipers/Weaselway/power-menu-open
 trap 'command rm -f "$flag"' EXIT
 : > "$flag"
-wlogout -b 4 -T 340 -B 340
+wlogout -b 4 -T 340 -B 340 --css "$HOME/.local/state/theme/wlogout/style.css"

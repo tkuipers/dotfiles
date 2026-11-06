@@ -1,0 +1,215 @@
+#!/usr/bin/env python3
+"""Applies the theme named by `set $theme` in the sway config, and runs on every
+sway reload.
+
+The themed configs in this repo stay written in Mocha. This renders a copy of each
+with Mocha's colours swapped for the chosen theme's, into ~/.local/state/theme, and
+the apps read those copies. So after editing one of them, reload sway to see it.
+A new theme is one more file in ~/.config/sway/themes.
+"""
+import os
+import re
+import shutil
+import subprocess
+from pathlib import Path
+
+HOME = Path.home()
+REPO = Path(__file__).resolve().parents[2]
+SWAY = REPO / ".config/sway"
+STATE = HOME / ".local/state/theme"
+GTK_NAME = "catppuccin-mocha-lavender-standard"
+SLOTS = """rosewater flamingo pink mauve red maroon peach yellow green teal sky sapphire
+blue lavender text subtext1 subtext0 overlay2 overlay1 overlay0 surface2 surface1
+surface0 base mantle crust""".split()
+
+# Source in the repo -> rendered copy under STATE
+RENDERED = {
+    ".config/waybar/config": "waybar/config",
+    ".config/waybar/style.css": "waybar/style.css",
+    ".config/swaync/style.css": "swaync/style.css",
+    ".config/wofi/style.css": "wofi/style.css",
+    ".config/wlogout/style.css": "wlogout/style.css",
+    ".config/alacritty/colors.toml": "alacritty/colors.toml",
+    ".config/eza/theme.yml": "eza/theme.yml",
+    ".config/lazygit/config.yml": "lazygit/config.yml",
+    ".config/fastfetch/config.jsonc": "fastfetch/config.jsonc",
+    ".config/wiremix/wiremix.toml": "wiremix/wiremix.toml",
+    ".config/zathura/colors": "zathura/colors",
+    ".config/teams-for-linux/mocha.css": "teams/theme.css",
+    ".config/cider/mocha.css": "cider/theme.css",
+    ".config/fzf/colors": "fzf/colors",
+}
+
+
+def palette(name):
+    text = (SWAY / "themes" / f"{name}.conf").read_text()
+    colours = dict(re.findall(r"^\s*\$(\w+)\s+#([0-9a-fA-F]{6})\s*$", text, re.M))
+    missing = set(SLOTS) - set(colours)
+    if missing:
+        raise SystemExit(f"{name} is missing {sorted(missing)}")
+    notes = dict(re.findall(r"^#\s*(\w+):\s*(.+?)\s*$", text, re.M))
+    return {slot: colours[slot].lower() for slot in SLOTS}, notes
+
+
+def rgb(colour):
+    return tuple(int(colour[i : i + 2], 16) for i in (0, 2, 4))
+
+
+def recolourer(source, target):
+    hexes = {source[s]: target[s] for s in SLOTS}
+    tuples = {rgb(source[s]): rgb(target[s]) for s in SLOTS}
+    # An 8 digit colour keeps its alpha. A bare one still counts, as in .bashrc.
+    hex_re = re.compile(
+        r"(?<![0-9a-fA-F])(" + "|".join(hexes) + r")(?=(?:[0-9a-fA-F]{2})?(?![0-9a-fA-F]))",
+        re.I,
+    )
+    rgb_re = re.compile(r"(rgba?\(\s*)(\d+)(,\s*)(\d+)(,\s*)(\d+)")
+
+    def swap_rgb(match):
+        new = tuples.get(tuple(int(match[i]) for i in (2, 4, 6)))
+        if not new:
+            return match[0]
+        return f"{match[1]}{new[0]}{match[3]}{new[1]}{match[5]}{new[2]}"
+
+    return lambda text: rgb_re.sub(swap_rgb, hex_re.sub(lambda m: hexes[m[1].lower()], text))
+
+
+def write(path, text):
+    """Writes only a real change, and says if it was one."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if path.exists() and path.read_text() == text:
+        return False
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(text)
+    tmp.replace(path)
+    return True
+
+
+def mix(top, under, amount):
+    return "".join(
+        f"{round(a * amount + b * (1 - amount)):02x}" for a, b in zip(rgb(top), rgb(under))
+    )
+
+
+def claude_theme(name, c):
+    """Claude Code watches its themes folder, so a running session follows along."""
+    h = lambda slot: "#" + c[slot]
+    return (
+        '{\n  "name": "%s",\n  "base": "dark",\n  "overrides": {\n' % name.title()
+        + ",\n".join(
+            f'    "{token}": "{value}"'
+            for token, value in {
+                "claude": h("lavender"),
+                "text": h("text"),
+                "inactive": h("overlay1"),
+                "subtle": h("surface1"),
+                "suggestion": h("blue"),
+                "permission": h("mauve"),
+                "success": h("green"),
+                "error": h("red"),
+                "warning": h("yellow"),
+                "promptBorder": h("surface2"),
+                "planMode": h("teal"),
+                "diffAdded": "#" + mix(c["green"], c["base"], 0.22),
+                "diffRemoved": "#" + mix(c["red"], c["base"], 0.22),
+                "diffAddedWord": "#" + mix(c["green"], c["base"], 0.45),
+                "diffRemovedWord": "#" + mix(c["red"], c["base"], 0.45),
+                "userMessageBackground": h("surface0"),
+            }.items()
+        )
+        + "\n  }\n}\n"
+    )
+
+
+def gtk_theme(name, swap):
+    """GTK looks in the home folder first, so a recoloured copy shadows the Mocha one."""
+    copy = HOME / ".local/share/themes" / GTK_NAME
+    shutil.rmtree(copy, ignore_errors=True)
+    if name == "mocha":
+        return
+    shutil.copytree(Path("/run/current-system/sw/share/themes") / GTK_NAME, copy)
+    for folder, _, files in os.walk(copy):
+        os.chmod(folder, 0o755)
+        for file in files:
+            path = Path(folder) / file
+            os.chmod(path, 0o644)
+            if path.suffix in (".css", ".svg"):
+                path.write_text(swap(path.read_text()))
+
+
+def vscode_theme(label):
+    for app in ("Code", "Cursor"):
+        path = HOME / ".config" / app / "User/settings.json"
+        if path.exists():
+            text = path.read_text()
+            write(path, re.sub(r'("workbench\.colorTheme":\s*)"[^"]*"', rf'\1"{label}"', text))
+
+
+def run(*command):
+    subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def main():
+    config = (SWAY / "config").read_text()
+    name = re.search(r"^set \$theme (\S+)", config, re.M)[1]
+    mocha, _ = palette("mocha")
+    colours, notes = palette(name)
+    swap = recolourer(mocha, colours)
+    marker = STATE / "current"
+    switched = not marker.exists() or marker.read_text().strip() != name
+
+    changed = {
+        out.split("/")[0]
+        for source, out in RENDERED.items()
+        if write(STATE / out, swap((REPO / source).read_text()))
+    }
+
+    # Starship has no conditional colours, so each outcome has its own copy.
+    # .bashrc picks one per prompt: blue fine, pink failed, yellow cancelled.
+    prompt = swap((REPO / ".config/starship.toml").read_text())
+    write(STATE / "starship/fine.toml", prompt)
+    for outcome, slot in (("failed", "pink"), ("cancelled", "yellow")):
+        accent = f'accent = "#{colours[slot]}"'
+        write(STATE / f"starship/{outcome}.toml", re.sub(r"^accent = .*", accent, prompt, flags=re.M))
+
+    write(
+        STATE / "palette.sh",
+        "".join(f"{slot}=#{colours[slot]}\n" for slot in SLOTS),
+    )
+    write(
+        STATE / "nvim/palette.lua",
+        "return {\n" + "".join(f'  {s} = "#{colours[s]}",\n' for s in SLOTS) + "}\n",
+    )
+    write(HOME / ".claude/themes/current.json", claude_theme(name, colours))
+
+    bat = swap((REPO / ".config/bat/mocha.tmTheme").read_text())
+    bat = bat.replace("<string>Catppuccin Mocha</string>", "<string>Current</string>", 1)
+    if write(HOME / ".config/bat/themes/Current.tmTheme", bat):
+        run("bat", "cache", "--build")
+
+    if "waybar" in changed:
+        run("pkill", "-USR2", "waybar")
+    if "swaync" in changed:
+        run("swaync-client", "-rs")
+    # btop only knows themes in its own folder
+    btop = swap((REPO / ".config/btop/themes/catppuccin_mocha.theme").read_text())
+    if write(REPO / ".config/btop/themes/current.theme", btop):
+        run("pkill", "-USR2", "-x", "btop")
+
+    if switched:
+        # Open windows keep their old border otherwise
+        themes = (SWAY / "themes" / f"{name}.conf").read_text()
+        run("swaymsg", "[all] border pixel " + re.search(r"^default_border pixel (\d+)", themes, re.M)[1])
+        gtk_theme(name, swap)
+        vscode_theme(notes["vscode"])
+        marker.write_text(name + "\n")
+        run("pkill", "-USR1", "nvim")
+        subprocess.Popen(
+            [HOME / ".local/bin/wallpaper-cycle", "--now"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+        )
+
+
+main()

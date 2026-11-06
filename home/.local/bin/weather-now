@@ -39,7 +39,8 @@ case $1 in
     ;;
 esac
 
-case $kind in sunny) colour='#f9e2af' ;; cloudy) colour='#89b4fa' ;; snowy) colour='#cdd6f4' ;; esac
+. "$HOME/.local/state/theme/palette.sh"
+case $kind in sunny) colour=$yellow ;; cloudy) colour=$blue ;; snowy) colour=$text ;; esac
 jq -cn --arg text "<span foreground='$colour' font_weight='normal'>$icon</span>" \
   --arg tooltip "$words, $temperature°C" --arg class "$kind" \
   '{text: $text, tooltip: $tooltip, class: $class}'

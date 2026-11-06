@@ -1,31 +1,6 @@
-# Catppuccin Mocha
-set default-fg                "#cdd6f4"
-set default-bg                "#1e1e2e"
-set completion-bg             "#313244"
-set completion-fg             "#cdd6f4"
-set completion-highlight-bg   "#585b70"
-set completion-highlight-fg   "#cdd6f4"
-set completion-group-bg       "#313244"
-set completion-group-fg       "#b4befe"
-set statusbar-fg              "#cdd6f4"
-set statusbar-bg              "#181825"
-set inputbar-fg               "#cdd6f4"
-set inputbar-bg               "#181825"
-set notification-bg           "#313244"
-set notification-fg           "#cdd6f4"
-set notification-error-bg     "#313244"
-set notification-error-fg     "#f38ba8"
-set notification-warning-bg   "#313244"
-set notification-warning-fg   "#f9e2af"
-set index-fg                  "#cdd6f4"
-set index-bg                  "#1e1e2e"
-set index-active-fg           "#1e1e2e"
-set index-active-bg           "#b4befe"
-set recolor-lightcolor        "#1e1e2e"
-set recolor-darkcolor         "#cdd6f4"
+include /home/nixos/.local/state/theme/zathura/colors
 set highlight-color           "rgba(249,226,175,0.35)"
 set highlight-active-color    "rgba(245,194,231,0.45)"
-set highlight-fg              "#1e1e2e"
 
 # Copy selections to the normal clipboard, so they reach Windows too
 set selection-clipboard clipboard

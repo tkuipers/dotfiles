@@ -2,7 +2,6 @@
 
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 
-mkdir -p $HOME/.config/zellij/layouts
 mkdir -p $HOME/.config/nvim
 mkdir -p $HOME/.config/waybar
 mkdir -p $HOME/.config/sway
@@ -28,10 +27,6 @@ ln -fs $SCRIPT_DIR/../home/.config/starship.toml $HOME/.config/starship.toml
 ln -fs $SCRIPT_DIR/../home/.wezterm.lua $HOME/.wezterm.lua
 #link bashrc
 ln -fs $SCRIPT_DIR/../home/.bashrc $HOME/.bashrc
-#link zellij
-ln -fs $SCRIPT_DIR/../home/.config/zellij/config.kdl $HOME/.config/zellij/config.kdl
-#link layouts for zellij
-ln -fs $SCRIPT_DIR/../home/.config/zellij/layouts/terminal.kdl $HOME/.config/zellij/layouts/terminal.kdl
 #link vimrc
 #ln -fs $SCRIPT_DIR/../home/.vimrc $HOME/.vimrc
 #vim +'PlugInstall --sync' +qa
@@ -62,7 +57,10 @@ ln -fs $SCRIPT_DIR/../home/.local/bin/start-sway $HOME/.local/bin/start-sway
 ln -fs $SCRIPT_DIR/../home/.local/bin/clipboard-to-win $HOME/.local/bin/clipboard-to-win
 ln -fs $SCRIPT_DIR/../home/.local/bin/win-to-clipboard $HOME/.local/bin/win-to-clipboard
 ln -fs $SCRIPT_DIR/../home/.local/bin/wallpaper-cycle $HOME/.local/bin/wallpaper-cycle
+ln -fs $SCRIPT_DIR/../home/.local/bin/theme-apply $HOME/.local/bin/theme-apply
+ln -fs $SCRIPT_DIR/../home/.local/bin/waybar-themed $HOME/.local/bin/waybar-themed
 ln -fs $SCRIPT_DIR/../home/.config/systemd/user/win-to-clipboard.service $HOME/.config/systemd/user/win-to-clipboard.service
+ln -sfn $SCRIPT_DIR/../home/.config/systemd/user/swaync.service.d $HOME/.config/systemd/user/swaync.service.d
 #link mise
 ln -fs $SCRIPT_DIR/../home/.config/mise/config.toml $HOME/.config/mise/config.toml
 #download wallpapers
@@ -83,4 +81,7 @@ done
 #link teams theme
 mkdir -p $HOME/.config/teams-for-linux
 ln -fs $SCRIPT_DIR/../home/.config/teams-for-linux/config.json $HOME/.config/teams-for-linux/config.json
-ln -fs $SCRIPT_DIR/../home/.config/teams-for-linux/mocha.css $HOME/.config/teams-for-linux/mocha.css
+
+#link the theme toggle, then render the chosen theme
+ln -sfn $SCRIPT_DIR/../home/.config/sway/themes $HOME/.config/sway/themes
+$SCRIPT_DIR/../home/.local/bin/theme-apply

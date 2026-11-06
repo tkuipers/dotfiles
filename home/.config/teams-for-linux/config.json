@@ -1,6 +1,6 @@
 {
   "appearance": {
-    "cssLocation": "/home/nixos/.config/teams-for-linux/mocha.css",
+    "cssLocation": "/home/nixos/.local/state/theme/teams/theme.css",
     "followSystemTheme": true
   }
 }

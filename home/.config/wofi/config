@@ -1,4 +1,5 @@
 show=drun
+style=/home/nixos/.local/state/theme/wofi/style.css
 prompt=...
 hide_scroll=true
 allow_images=true

@@ -5,6 +5,6 @@
 [delta]
 	navigate = true
 	line-numbers = true
-	syntax-theme = Catppuccin Mocha
+	syntax-theme = Current
 [merge]
 	conflictStyle = zdiff3

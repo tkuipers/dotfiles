@@ -46,12 +46,19 @@ require("lazy").setup({
 })
 
 -- A colored background would paint over the terminal's transparency.
-require("catppuccin").setup({
-  flavour = "mocha",
-  transparent_background = true,
-  float = { transparent = true },
-})
-vim.cmd.colorscheme "catppuccin-mocha"
+-- Colours come from theme-apply, which signals running copies to follow.
+local function apply_theme()
+  local palette = vim.fn.expand("~/.local/state/theme/nvim/palette.lua")
+  require("catppuccin").setup({
+    flavour = "mocha",
+    transparent_background = true,
+    float = { transparent = true },
+    color_overrides = { mocha = vim.uv.fs_stat(palette) and dofile(palette) or {} },
+  })
+  vim.cmd.colorscheme "catppuccin-mocha"
+end
+apply_theme()
+vim.api.nvim_create_autocmd("Signal", { pattern = "SIGUSR1", callback = apply_theme })
 
 -- Configure lualine
 require('lualine').setup {

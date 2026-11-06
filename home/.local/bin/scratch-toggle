@@ -2,7 +2,7 @@
 # Show or hide a scratchpad window, starting it the first time. $1 is term, notes or mixer.
 case $1 in
   term) app_id=scratchterm command=(alacritty --class scratchterm) ;;
-  mixer) app_id=scratchmixer command=(alacritty --class scratchmixer -e wiremix) ;;
+  mixer) app_id=scratchmixer command=(alacritty --class scratchmixer -e wiremix -c "$HOME/.local/state/theme/wiremix/wiremix.toml") ;;
   notes)
     app_id=scratchnotes
     mkdir -p "$HOME/notes"

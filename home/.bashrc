@@ -11,26 +11,13 @@ fi
 source <(kubectl completion bash)
 alias k=kubectl
 complete -o default -F __start_kubectl k
-# Start zellij and close terminal when it exits
-if [ -z "$SSH_CONNECTION" ] && [ -z "$ZELLIJ" ]; then
-    cd ~
-    exec zellij
-fi
-
 # The folder pill shows how the last command went: blue fine, pink failed, yellow
-# cancelled. Starship has no conditional colours, so each has its own copy.
-prompt_themes=$HOME/.cache/starship
-mkdir -p "$prompt_themes"
-for theme in failed:f5c2e7 cancelled:f9e2af; do
-  if [ "$HOME/.config/starship.toml" -nt "$prompt_themes/${theme%:*}.toml" ]; then
-    command sed "s/^accent = .*/accent = \"#${theme#*:}\"/" "$HOME/.config/starship.toml" >"$prompt_themes/${theme%:*}.toml"
-  fi
-done
+# cancelled. theme-apply writes a starship config for each.
 prompt_colour() {
   case $STARSHIP_CMD_STATUS in
-    0) export STARSHIP_CONFIG=$HOME/.config/starship.toml ;;
-    130) export STARSHIP_CONFIG=$prompt_themes/cancelled.toml ;;
-    *) export STARSHIP_CONFIG=$prompt_themes/failed.toml ;;
+    0) export STARSHIP_CONFIG=$HOME/.local/state/theme/starship/fine.toml ;;
+    130) export STARSHIP_CONFIG=$HOME/.local/state/theme/starship/cancelled.toml ;;
+    *) export STARSHIP_CONFIG=$HOME/.local/state/theme/starship/failed.toml ;;
   esac
 }
 starship_precmd_user_func=prompt_colour
@@ -98,9 +85,15 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
 export PATH="$PATH:$HOME/.local/bin"
-export EZA_CONFIG_DIR="$HOME/.config/eza"
-export BAT_THEME="Catppuccin Mocha"
-export FZF_DEFAULT_OPTS="--color=bg+:#313244,bg:-1,spinner:#f5e0dc,hl:#f38ba8,fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc,marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8,selected-bg:#45475a"
+theme_state=$HOME/.local/state/theme
+export EZA_CONFIG_DIR="$theme_state/eza"
+export LG_CONFIG_FILE="$theme_state/lazygit/config.yml"
+export BAT_THEME=Current
+export FZF_DEFAULT_OPTS_FILE="$theme_state/fzf/colors"
+# Fuzzy Ctrl+R only. Blank commands switch off its other two keys.
+if [[ $- == *i* ]]; then
+  FZF_CTRL_T_COMMAND="" FZF_ALT_C_COMMAND="" eval "$(fzf --bash)"
+fi
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 alias sdkman='source "$HOME/.sdkman/bin/sdkman-init.sh"'
@@ -137,7 +130,7 @@ eval "$(~/.local/bin/mise activate bash)"
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 export PATH=$PATH:$HOME/.maestro/bin
 
-# A hello on the first pane of each new terminal, when there is room for it.
-if [[ $- == *i* ]] && [ "$ZELLIJ_PANE_ID" = 0 ] && [ "$(tput cols)" -ge 80 ]; then
-  fastfetch
+# A hello in each new terminal, when there is room for it.
+if [[ $- == *i* ]] && [ "$(tput cols)" -ge 80 ]; then
+  fastfetch -c "$theme_state/fastfetch/config.jsonc"
 fi

@@ -2,7 +2,8 @@
 # Turns animated wallpapers off or on, from the power menu. Off swaps any that is
 # playing for a static one at once and keeps wallpaper-cycle to static ones.
 flag=$HOME/.cache/wallpapers-static
-static=$HOME/Pictures/Wallpapers-Mocha
+theme=$(cat "$HOME/.local/state/theme/current")
+static=$HOME/Pictures/Wallpapers-${theme^}
 
 say() {
   busctl --user call org.freedesktop.Notifications /org/freedesktop/Notifications \

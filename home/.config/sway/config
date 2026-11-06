@@ -4,6 +4,10 @@
 #
 # Read `man 5 sway` for a complete reference.
 
+# The look of everything: mocha or aura. Change it, then reload sway (Alt+Shift+c).
+# set $theme mocha
+set $theme aura
+
 set {
     $mod Mod1
     $term alacritty
@@ -22,30 +26,15 @@ set {
     $right l
 }
 
-# Theme: Catppuccin Mocha
-set {
-    $rosewater #F5E0DC
-    $mauve #CBA6F7
-    $red #F38BA8
-    $peach #FAB387
-    $lavender #B4BEFE
-    $text #CDD6F4
-    $subtext #A6ADC8
-    $overlay #6C7086
-    $surface1 #45475A
-    $surface0 #313244
-    $base #1E1E2E
-    $mantle #181825
-    $crust #11111B
-}
+include ~/.config/sway/themes/$theme.conf
 
 # Colors
 # Class			border		background	text		indicator	child_border
 client.focused		$lavender	$base		$text		$rosewater	$lavender
-client.focused_inactive	$overlay	$base		$text		$overlay	$overlay
-client.unfocused	$surface1	$mantle		$subtext	$surface1	$surface1
-client.urgent		$peach		$base		$peach		$overlay	$peach
-client.placeholder	$overlay	$base		$text		$overlay	$overlay
+client.focused_inactive	$overlay0	$base		$text		$overlay0	$overlay0
+client.unfocused	$surface1	$mantle		$subtext0	$surface1	$surface1
+client.urgent		$peach		$base		$peach		$overlay0	$peach
+client.placeholder	$overlay0	$base		$text		$overlay0	$overlay0
 client.background	$base
 
 seat seat0 {
@@ -70,7 +59,8 @@ exec prospect-mail
 # The portals run under the user manager and need to find this session
 exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP SWAYSOCK
 # Notifications
-exec swaync
+exec swaync -s $HOME/.local/state/theme/swaync/style.css
+exec_always $HOME/.local/bin/theme-apply
 # Window switcher behind the clock
 exec swayrd
 # Turn unfocused windows to glass
@@ -88,8 +78,6 @@ default_orientation auto
 
 
 # Aesthetics
-default_border pixel 2
-default_floating_border pixel 2 
 titlebar_border_thickness 2
 title_align center
 
@@ -114,8 +102,6 @@ shadows enable
 shadows_on_csd disable
 shadow_blur_radius 24
 shadow_offset 0 4
-shadow_color #11111BCC
-shadow_inactive_color #11111B66
 
 layer_effects "waybar" {
     blur enable; blur_ignore_transparent enable; shadows enable; corner_radius 8;
@@ -284,7 +270,7 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 bar {
-    swaybar_command waybar
+    swaybar_command /home/nixos/.local/bin/waybar-themed
 }
 
 include /etc/sway/config.d/*

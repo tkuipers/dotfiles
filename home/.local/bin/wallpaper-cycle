@@ -3,25 +3,38 @@
 # static or animated.
 # Exits once sway is gone, so it never outlives the session.
 
-wallpapers="$HOME/Pictures/Wallpapers-Mocha"
-live="$HOME/Pictures/Wallpapers-Mocha-Live"
+# With --now, does one pass and stops, for theme-apply. Each theme has its own folders.
 
 # Half the time an animated one, when there are any and wallpaper-live allows it.
 pick() {
-  local folder=$wallpapers
+  local theme wallpapers live folder
+  theme=$(cat "$HOME/.local/state/theme/current")
+  wallpapers=$HOME/Pictures/Wallpapers-${theme^}
+  live=$wallpapers-Live
+  folder=$wallpapers
   [ -e "$HOME/.cache/wallpapers-static" ] ||
     { ((RANDOM % 2)) && [ -n "$(find "$live" -name '*.gif' 2>/dev/null | head -n 1)" ] && folder=$live; }
   "$HOME/.local/bin/wallpaper-pick" "$folder"
 }
 
+change_all() {
+  local output
+  for output in $(swaymsg -t get_outputs -r | jq -r '.[].name'); do
+    awww img --outputs "$output" --resize crop --transition-type fade \
+      --transition-duration 2 --transition-fps 30 "$(pick)"
+  done
+}
+
+if [ "$1" = --now ]; then
+  change_all
+  exit
+fi
+
 # Let startup finish creating outputs before the first pass
 sleep 5
 until awww query > /dev/null 2>&1; do sleep 1; done
 
-while outputs=$(swaymsg -t get_outputs -r | jq -r '.[].name'); do
-  for output in $outputs; do
-    awww img --outputs "$output" --resize crop --transition-type fade \
-      --transition-duration 2 --transition-fps 30 "$(pick)"
-  done
+while swaymsg -t get_version > /dev/null; do
+  change_all
   sleep $((900 + RANDOM % 900))
 done
