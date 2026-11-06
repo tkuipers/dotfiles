@@ -66,6 +66,8 @@ alias ssh1p='ssh.exe'
 alias c='claude'
 
 export EDITOR=nvim
+# VS Code stops to ask about WSL otherwise, which never opens from a launcher
+export DONT_PROMPT_WSL_INSTALL=1
 
 # Avoid duplicate Backspace deletion from enhanced keyboard events in Codex.
 export CODEX_TUI_DISABLE_KEYBOARD_ENHANCEMENT=1
