@@ -60,6 +60,7 @@ ln -fs $SCRIPT_DIR/../home/.local/bin/wallpaper-cycle $HOME/.local/bin/wallpaper
 ln -fs $SCRIPT_DIR/../home/.local/bin/theme-apply $HOME/.local/bin/theme-apply
 ln -fs $SCRIPT_DIR/../home/.local/bin/waybar-themed $HOME/.local/bin/waybar-themed
 ln -fs $SCRIPT_DIR/../home/.local/bin/notification-panel $HOME/.local/bin/notification-panel
+ln -fs $SCRIPT_DIR/../home/.local/bin/media-focus $HOME/.local/bin/media-focus
 ln -fs $SCRIPT_DIR/../home/.config/systemd/user/win-to-clipboard.service $HOME/.config/systemd/user/win-to-clipboard.service
 ln -sfn $SCRIPT_DIR/../home/.config/systemd/user/swaync.service.d $HOME/.config/systemd/user/swaync.service.d
 #link mise

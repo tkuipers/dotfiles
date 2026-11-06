@@ -2,7 +2,7 @@
 # Turn windows to glass, the focused one a little less so. SwayFX blurs
 # whatever shows through. Exits with sway, when the subscription ends.
 
-focused=0.92
+focused=0.96
 unfocused=0.835
 
 swaymsg "[tiling] opacity $unfocused; [floating] opacity $unfocused" > /dev/null

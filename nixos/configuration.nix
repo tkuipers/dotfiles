@@ -46,7 +46,8 @@
   environment.systemPackages = with pkgs; [
     swayfx swaybg waybar wofi alacritty wl-clipboard grim slurp xwayland jq libva-utils mesa-demos
     # GPU rasterization draws pages wrong on d3d12: stray triangles on buttons and off colors in text.
-    (brave.override { commandLineArgs = "--ozone-platform=wayland --disable-gpu-rasterization"; })
+    # The other two flags stop video flickering large parts of the page.
+    (brave.override { commandLineArgs = "--ozone-platform=wayland --disable-gpu-rasterization --disable-gpu-memory-buffer-video-frames --disable_post_sub_buffers_for_onscreen_surfaces"; })
     (writeShellScriptBin "custom-weaselway-session" ''
       export XDG_CURRENT_DESKTOP=sway
       # dxgdrm, not card0: from kernel 6.18.54.1 on card0 is WSL's vgem.
@@ -94,11 +95,32 @@
     # Theme
     kmod usbutils v4l-utils ffmpeg-headless
     btop delta cliphist satty awww zathura wiremix
-    # The media player puts artist and album on one line, with no setting to split them
+    # swaync's media player puts artist and album on one line, and clicking it does nothing
     (swaynotificationcenter.overrideAttrs (old: {
       postPatch = (old.postPatch or "") + ''
         substituteInPlace src/controlCenter/widgets/mpris/mpris_player.vala \
           --replace-fail 'string.joinv (" - ", { artist, album })' 'string.joinv ("\n", { artist, album })'
+        substituteInPlace src/controlCenter/widgets/mpris/mpris_player.vala \
+          --replace-fail 'sub_title.set_text (result);' 'if (album == null && artist != null) {
+                result = artist;
+            }
+            sub_title.set_text (result);'
+        substituteInPlace src/controlCenter/widgets/mpris/mpris.vala \
+          --replace-fail 'metadata == null || metadata.size () == 0' '
+            metadata == null || !metadata.contains ("xesam:title")
+            || metadata["xesam:title"].get_string ().length == 0'
+        substituteInPlace src/controlCenter/widgets/mpris/mpris_player.vala \
+          --replace-fail '/* Callbacks */' 'var open_player = new Gtk.GestureClick ();
+            open_player.released.connect (() => {
+                try {
+                    Process.spawn_command_line_async (Environment.get_home_dir ()
+                        + "/.local/bin/media-focus "
+                        + (source.media_player as DBusProxy).get_name ());
+                } catch (SpawnError e) {
+                    warning ("%s", e.message);
+                }
+            });
+            add_controller (open_player);'
       '';
     }))
     wlogout lutgen fastfetch playerctl swayr

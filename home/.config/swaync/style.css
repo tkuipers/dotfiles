@@ -237,6 +237,10 @@
   padding: 0;
 }
 
+.widget-mpris .widget-mpris-player:hover {
+  background: alpha(@surface1, 0.55);
+}
+
 .widget-mpris .widget-mpris-player .mpris-background {
   opacity: 0;
 }

@@ -30,7 +30,7 @@
     },
     "mpris": {
       "blacklist": [
-        "brave"
+        "playerctld"
       ],
       "show-album-art": "when-available",
       "autohide": true
