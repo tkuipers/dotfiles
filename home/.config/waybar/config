@@ -12,12 +12,10 @@
         "custom/agenda"
     ],
     "modules-right": [
+        "custom/recording",
         "custom/media",
         "custom/camera",
-        "idle_inhibitor",
         "custom/weather",
-        "memory",
-        "cpu",
         "battery",
         "custom/notification",
         "custom/power"
@@ -34,6 +32,13 @@
             "6": "󰇮",
             "default": "󰧞"
         }
+    },
+    "custom/recording": {
+        "exec": "$HOME/.local/bin/record-toggle status",
+        "return-type": "json",
+        "interval": "once",
+        "signal": 10,
+        "on-click": "$HOME/.local/bin/record-toggle"
     },
     "memory": {
         "interval": 1,
@@ -83,9 +88,10 @@
         "interval": 300
     },
     "battery": {
+        // A class per step of ten, so the colour fades from green to red
         "states": {
-            "warning": 20,
-            "critical": 10
+            "b100": 100, "b90": 90, "b80": 80, "b70": 70, "b60": 60,
+            "b50": 50, "b40": 40, "b30": 30, "b20": 20, "b10": 10
         },
         "format": "<span foreground='#cba6f7' font_weight='normal'>{icon}</span> {capacity}%",
         "format-icons": [
@@ -111,7 +117,7 @@
     },
     "custom/notification": {
         "tooltip": false,
-        "format": "{icon}",
+        "format": "{icon}{text}",
         "format-icons": {
             "notification": "󰂞",
             "none": "󰂚",
@@ -124,7 +130,8 @@
         },
         "return-type": "json",
         "exec-if": "which swaync-client",
-        "exec": "swaync-client -swb",
+        // The unread count beside the bell, none when there's nothing
+        "exec": "swaync-client -swb | jq --unbuffered -c '.text |= (if . == \"0\" then \"\" else \" \" + . end)'",
         "on-click": "$HOME/.local/bin/notification-panel",
         "on-click-right": "swaync-client -d -sw",
         "escape": true
@@ -144,7 +151,7 @@
         "max-length": 21,
         "align": 0.5,
         "on-click": "$HOME/.local/bin/agenda pick",
-        "on-click-right": "swaymsg '[app_id=\"prospect-mail\"] focus'"
+        "on-click-right": "$HOME/.local/bin/wm focus prospect-mail"
     },
     "custom/media": {
         "format": "<span font_weight='normal'>{icon}</span> {text}",
@@ -156,7 +163,7 @@
         "return-type": "json",
         "exec": "$HOME/.local/bin/media-scroll",
         "escape": true,
-        "tooltip": false,
+        "tooltip": true,
         "on-click": "$HOME/.local/bin/media-scroll toggle",
         "on-click-right": "$HOME/.local/bin/media-scroll focus"
     }

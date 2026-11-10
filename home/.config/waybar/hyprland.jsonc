@@ -1,0 +1,28 @@
+// Modules only Hyprland's bar has. theme-apply includes this in config-hyprland,
+// recoloured to the theme like the rest (written in Mocha).
+{
+    // Each workspace shows the apps open on it, in the theme's colours
+    "hyprland/workspaces": {
+        "all-outputs": true,
+        "format": "{name} {windows}",
+        "format-window-separator": " ",
+        "window-rewrite-default": "<span foreground='#a6adc8'>󰣆</span>",
+        "window-rewrite": {
+            "class<brave-browser|Brave-browser>": "<span foreground='#fab387'>󰖟</span>",
+            "class<firefox>": "<span foreground='#fab387'>󰈹</span>",
+            "class<alacritty|Alacritty|startup-term>": "<span foreground='#a6e3a1'>󰆍</span>",
+            "class<code|Code|code-oss>": "<span foreground='#74c7ec'>󰨞</span>",
+            "class<cursor|Cursor>": "<span foreground='#74c7ec'>󰨞</span>",
+            "class<jetbrains-idea.*>": "<span foreground='#f5c2e7'></span>",
+            "class<neovide|nvim-qt>": "<span foreground='#a6e3a1'></span>",
+            "class<teams-for-linux|teams|microsoft-teams>": "<span foreground='#cba6f7'>󰊻</span>",
+            "class<prospect-mail>": "<span foreground='#89b4fa'>󰇮</span>",
+            "class<[Cc]ider>": "<span foreground='#f5c2e7'>󰝚</span>",
+            "class<thunderbird>": "<span foreground='#89b4fa'>󰇮</span>",
+            "class<org.gnome.Nautilus|thunar|Thunar>": "<span foreground='#f9e2af'>󰉋</span>",
+            "class<mpv|imv>": "<span foreground='#f5c2e7'>󰕧</span>",
+            "class<bruno>": "<span foreground='#fab387'>󰖟</span>",
+            "class<beekeeper-studio>": "<span foreground='#f9e2af'>󰆼</span>"
+        }
+    }
+}

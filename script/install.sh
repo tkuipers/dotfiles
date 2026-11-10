@@ -75,8 +75,13 @@ if [ ! -e "$HOME/.localrc" ]; then
     cp $SCRIPT_DIR/../home/.localrc $HOME/.localrc
 fi
 
+#link the compositor-neutral helpers and the other compositors' configs
+for script in wm theme-set session-switch notification-focus notification-urgent record-toggle keys glass; do
+  ln -fs $SCRIPT_DIR/../home/.local/bin/$script $HOME/.local/bin/$script
+done
+
 #link desktop extras
-for dir in swaync wlogout lazygit fastfetch swayr; do
+for dir in swaync wlogout lazygit fastfetch swayr hypr mango theme weaselway; do
   ln -sfn $SCRIPT_DIR/../home/.config/$dir $HOME/.config/$dir
 done
 

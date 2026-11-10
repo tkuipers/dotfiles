@@ -1,0 +1,25 @@
+#!/bin/bash
+# Restart the Weaselway session in another compositor, this once:
+#   session-switch sway|hyprland|mango, or session-switch alone for a picker.
+#   session-switch restart restarts in the compositor running now (log out).
+# The next start after that goes back to the default in
+# ~/.config/weaselway/session; only editing that file changes the default.
+# Restarting closes every app in the session; the viewers stay up and show the
+# new session once it's running.
+name=$1
+[ "$name" = restart ] && name=$("$HOME/.local/bin/wm" name)
+if [ -z "$name" ]; then
+  name=$(printf '%s\n' sway hyprland mango |
+    wofi --dmenu --prompt session --style "$HOME/.local/state/theme/wofi/style.css") || exit 0
+fi
+case $name in
+  sway | hyprland | mango) ;;
+  *) echo "usage: session-switch [sway|hyprland|mango|restart]" >&2; exit 1 ;;
+esac
+# Read once by the session when it starts, then deleted
+printf '%s\n' "$name" > "$XDG_RUNTIME_DIR/weaselway-session-next"
+# The waybar config for it, before the new session starts waybar
+WEASELWAY_WM=$name "$HOME/.local/bin/theme-apply"
+# Outside the session, so stopping it doesn't stop this
+exec systemd-run --user --quiet --collect --unit "session-switch-$$" \
+  bash -lc 'ww-start-session stop; sleep 2; ww-start-session'

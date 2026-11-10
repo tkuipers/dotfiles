@@ -1,17 +1,36 @@
 #!/usr/bin/env bash
-# Each viewer asks for the size of its window. dxgdrm records that but sway never
-# picks it up, so keep the outputs on it, side by side, whichever monitors these are.
+# Each viewer asks for the size of its window. dxgdrm records that, but sway and
+# mango never pick it up, so keep the outputs on it, side by side, whichever
+# monitors these are. Hyprland follows it by itself and doesn't run this.
+wm=$("$HOME/.local/bin/wm" name)
+
+current() {
+  if [ "$wm" = sway ]; then
+    swaymsg -t get_outputs | jq -r --arg name "$1" \
+      '.[] | select(.name == $name) | "\(.current_mode.width)x\(.current_mode.height) \(.rect.x)"'
+  else
+    wlr-randr --json | jq -r --arg name "$1" \
+      '.[] | select(.name == $name) | (.modes[] | select(.current) | "\(.width)x\(.height)") + " \(.position.x)"'
+  fi
+}
+
+apply() {
+  if [ "$wm" = sway ]; then
+    swaymsg -- output "$1" mode --custom "$2@60Hz" pos "$3" 0 > /dev/null
+  else
+    wlr-randr --output "$1" --custom-mode "$2@60Hz" --pos "$3,0"
+  fi
+}
+
 while sleep 2; do
-  outputs=$(swaymsg -t get_outputs) || exit
+  [ -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ] || exit
   x=0
   for n in 1 2; do
     connector=$(echo /sys/class/drm/card*-Virtual-$n)
     [ "$(cat "$connector/status")" = connected ] || continue
     read -r mode < "$connector/modes"
     [ -n "$mode" ] || continue
-    current=$(jq -r --arg name "Virtual-$n" \
-      '.[] | select(.name == $name) | "\(.current_mode.width)x\(.current_mode.height) \(.rect.x)"' <<< "$outputs")
-    [ "$current" = "$mode $x" ] || swaymsg -- output "Virtual-$n" mode --custom "$mode@60Hz" pos "$x" 0 > /dev/null
+    [ "$(current "Virtual-$n")" = "$mode $x" ] || apply "Virtual-$n" "$mode" "$x"
     x=$((x + ${mode%x*}))
   done
 done

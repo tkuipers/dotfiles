@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Preview the weather on the glass: glass frost|snowy|rainy|cloudy|sunny (or
+# snow, rain, cloud, sun), or glass auto to follow the weather again.
+# glass sunny 70 previews the sun with that much cloud cover (0 to 100). Any
+# weather takes key=value settings too, in place of the live ones:
+#   precip (mm/h)  snow (cm/h)  wind (km/h)  winddir (degrees it blows from)
+#   humidity (%)  temp (°C)  cover (%)  code (WMO: 95 storm, 45 fog)
+# e.g. glass rain precip=8 wind=40 code=95, glass frost temp=-30
+override=$HOME/.local/state/theme/hypr/glass
+case $1 in
+  snow) set -- snowy "${@:2}" ;;
+  rain) set -- rainy "${@:2}" ;;
+  cloud | clouds) set -- cloudy "${@:2}" ;;
+  sun) set -- sunny "${@:2}" ;;
+esac
+case $1 in
+  frost | snowy | rainy | cloudy | sunny) printf '%s\n' "$*" > "$override" ;;
+  auto) rm -f "$override" ;;
+  *) echo "usage: glass frost|snowy|rainy|cloudy|sunny [cloud %] [key=value...]|auto" >&2; exit 1 ;;
+esac
+exec "$HOME/.local/bin/wm" reload

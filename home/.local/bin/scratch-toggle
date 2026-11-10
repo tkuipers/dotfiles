@@ -16,10 +16,15 @@ case $1 in
   *) exit 2 ;;
 esac
 
-if swaymsg -t get_tree | jq -e --arg id "$app_id" '.. | objects | select(.app_id? == $id)' >/dev/null; then
+if "$HOME/.local/bin/wm" has "$app_id"; then
   # The mixer closes instead of hiding: open, it keeps capturing to draw its meters
-  [ "$1" = mixer ] && exec swaymsg "[app_id=\"$app_id\"] kill"
-  swaymsg "[app_id=\"$app_id\"] scratchpad show"
+  [ "$1" = mixer ] && exec "$HOME/.local/bin/wm" close "$app_id"
+  "$HOME/.local/bin/wm" scratch "$app_id"
+elif [ "$("$HOME/.local/bin/wm" name)" = hyprland ]; then
+  # Hyprland opens it on its hidden special workspace, so show it once it's there
+  setsid "${command[@]}" >/dev/null 2>&1 &
+  for _ in $(seq 50); do "$HOME/.local/bin/wm" has "$app_id" && break; sleep 0.1; done
+  "$HOME/.local/bin/wm" scratch "$app_id"
 else
   exec "${command[@]}"
 fi

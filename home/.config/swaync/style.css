@@ -91,6 +91,17 @@
   box-shadow: none;
 }
 
+/* Pop-ups wear the window border's gradient: a 1px rim of lavender, mauve and
+   sapphire around the glass */
+.floating-notifications .notification {
+  border: 1px solid transparent;
+  background-color: transparent;
+  background-image: linear-gradient(alpha(@base, 0.82), alpha(@base, 0.82)),
+    linear-gradient(135deg, @lavender, @mauve, @sapphire);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
 .notification.critical {
   background: alpha(@red, 0.16);
 }

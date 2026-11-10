@@ -1,0 +1,4 @@
+hyprland
+# The compositor every Weaselway session starts with: sway, hyprland or mango.
+# Only this file changes it. `session-switch NAME` (Alt+Shift+w) tries one for the
+# next start only, and a compositor that crashes on start falls back to sway.

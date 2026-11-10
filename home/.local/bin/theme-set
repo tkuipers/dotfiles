@@ -1,0 +1,13 @@
+#!/bin/bash
+# Switch the theme everywhere: theme-set aura, or theme-set alone for a picker.
+# The choice lives in ~/.config/theme/current, tracked in the dotfiles.
+themes=$HOME/.config/sway/themes
+name=$1
+if [ -z "$name" ]; then
+  name=$(for t in "$themes"/*.conf; do basename "$t" .conf; done |
+    wofi --dmenu --prompt theme --style "$HOME/.local/state/theme/wofi/style.css") || exit 0
+fi
+[ -f "$themes/$name.conf" ] || { echo "no theme $name in $themes" >&2; exit 1; }
+printf '%s\n' "$name" > "$HOME/.config/theme/current"
+"$HOME/.local/bin/theme-apply"
+"$HOME/.local/bin/wm" reload

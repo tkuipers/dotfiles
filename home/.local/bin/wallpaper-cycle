@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Give each sway output a wallpaper that suits the weather every 15-30 minutes,
+# Give each output a wallpaper that suits the weather every 15-30 minutes,
 # static or animated.
-# Exits once sway is gone, so it never outlives the session.
+# Exits once the compositor is gone, so it never outlives the session.
 
 # With --now, does one pass and stops, for theme-apply. Each theme has its own folders.
 
@@ -19,9 +19,9 @@ pick() {
 
 change_all() {
   local output
-  for output in $(swaymsg -t get_outputs -r | jq -r '.[].name'); do
+  for output in $(awww query | sed -n 's/^: \([^:]*\):.*/\1/p'); do
     awww img --outputs "$output" --resize crop --transition-type fade \
-      --transition-duration 2 --transition-fps 30 "$(pick)"
+      --transition-duration 2 --transition-fps 60 "$(pick)"
   done
 }
 
@@ -34,7 +34,7 @@ fi
 sleep 5
 until awww query > /dev/null 2>&1; do sleep 1; done
 
-while swaymsg -t get_version > /dev/null; do
+while [ -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]; do
   change_all
   sleep $((900 + RANDOM % 900))
 done

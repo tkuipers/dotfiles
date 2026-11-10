@@ -1,0 +1,11 @@
+#!/bin/bash
+# swaync runs this when a notification arrives. Marking the app's window urgent
+# makes its workspace button blink in waybar until the window gets focus. sway
+# ignores it for the window that already has focus; only sway can be told.
+case "${SWAYNC_APP_NAME,,} ${SWAYNC_DESKTOP_ENTRY,,}" in
+  *teams*) app_id=teams-for-linux ;;
+  *prospect*) app_id=prospect-mail ;;
+  *brave*) app_id=brave-browser ;;
+  *) exit 0 ;;
+esac
+"$HOME/.local/bin/wm" urgent "$app_id"

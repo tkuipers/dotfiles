@@ -1,0 +1,85 @@
+#!/bin/bash
+# One front for the compositor, so scripts don't care which one is running.
+# It asks which compositor is running, so no state file can be stale.
+#
+#   wm name                which compositor: sway, hyprland or mango
+#   wm focus APP_ID        focus a window of that app
+#   wm focus-pid PID       focus the window of that process
+#   wm urgent APP_ID       mark the app's windows urgent (sway only; others ignore it)
+#   wm has APP_ID          succeed if a window of that app is open
+#   wm close APP_ID        close the app's windows
+#   wm scratch APP_ID      show or hide that app's scratchpad window
+#   wm reload              reload the compositor's config
+name() {
+  # Nix's wrapper renames Hyprland's process to .Hyprland-wrapp
+  if pgrep -u "$USER" -x '\.?Hyprland(-wrapp)?' > /dev/null; then echo hyprland
+  elif pgrep -u "$USER" -x mango > /dev/null; then echo mango
+  else echo sway
+  fi
+}
+
+# Hyprland's socket lives in a folder named by the instance; scripts started by
+# D-Bus or systemd don't inherit the variable that names it.
+hypr() {
+  if [ -z "$HYPRLAND_INSTANCE_SIGNATURE" ]; then
+    HYPRLAND_INSTANCE_SIGNATURE=$(command ls -t "$XDG_RUNTIME_DIR/hypr" 2>/dev/null | head -1)
+    export HYPRLAND_INSTANCE_SIGNATURE
+  fi
+  hyprctl -q dispatch "$1"
+}
+
+wm=$(name)
+case $1 in
+  name) echo "$wm" ;;
+  focus)
+    case $wm in
+      sway) swaymsg -q "[app_id=\"(?i)^$2\$\"] focus" ;;
+      hyprland) hypr "hl.dsp.focus({ window = \"class:(?i)^($2)\$\" })" ;;
+      mango) wlrctl toplevel focus "app_id:$2" ;;
+    esac
+    ;;
+  focus-pid)
+    case $wm in
+      sway) swaymsg -q "[pid=$2] focus" ;;
+      hyprland) hypr "hl.dsp.focus({ window = \"pid:$2\" })" ;;
+      # Neither mango nor wlrctl can match a window by pid.
+      mango) exit 1 ;;
+    esac
+    ;;
+  urgent)
+    [ "$wm" = sway ] && swaymsg -q "[app_id=\"$2\"] urgent enable"
+    ;;
+  has)
+    case $wm in
+      sway) swaymsg -t get_tree | jq -e --arg id "$2" '.. | objects | select(.app_id? == $id)' > /dev/null ;;
+      *) wlrctl toplevel find "app_id:$2" ;;
+    esac
+    ;;
+  close)
+    case $wm in
+      sway) swaymsg -q "[app_id=\"$2\"] kill" ;;
+      hyprland) hypr "hl.dsp.window.close({ window = \"class:^($2)\$\" })" ;;
+      mango) wlrctl toplevel close "app_id:$2" ;;
+    esac
+    ;;
+  scratch)
+    # Show or hide a scratchpad window that is already open. The configs send
+    # windows with these app ids to the scratchpad when they open.
+    case $wm in
+      sway) swaymsg -q "[app_id=\"$2\"] scratchpad show" ;;
+      hyprland) hypr "hl.dsp.workspace.toggle_special(\"$2\")" ;;
+      mango) mmsg -d "toggle_named_scratchpad,$2,none,true" ;;
+    esac
+    ;;
+  reload)
+    case $wm in
+      sway) swaymsg -q reload ;;
+      hyprland) HYPRLAND_INSTANCE_SIGNATURE=${HYPRLAND_INSTANCE_SIGNATURE:-$(command ls -t "$XDG_RUNTIME_DIR/hypr" | head -1)} hyprctl -q reload ;;
+      mango) mmsg -d reload_config ;;
+    esac
+    ;;
+  *)
+    sed -n '2,13p' "$0" >&2
+    exit 1
+    ;;
+esac

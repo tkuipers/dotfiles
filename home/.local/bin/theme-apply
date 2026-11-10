@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
-"""Applies the theme named by `set $theme` in the sway config, and runs on every
-sway reload.
+"""Applies the theme named in ~/.config/theme/current. theme-set switches it; the
+compositor runs this on every config reload too (sway, Hyprland or Mango).
 
 The themed configs in this repo stay written in Mocha. This renders a copy of each
 with Mocha's colours swapped for the chosen theme's, into ~/.local/state/theme, and
 the apps read those copies. So after editing one of them, reload sway to see it.
 A new theme is one more file in ~/.config/sway/themes.
+
+Each compositor gets its colours from a file rendered here: sway includes
+sway/theme.conf, Hyprland loads hypr/theme.lua, Mango sources mango/theme.conf.
+Waybar gets a config per compositor, differing only in the workspaces module.
 """
 import os
 import re
@@ -26,6 +30,7 @@ surface0 base mantle crust""".split()
 RENDERED = {
     ".config/waybar/config": "waybar/config",
     ".config/waybar/style.css": "waybar/style.css",
+    ".config/waybar/hyprland.jsonc": "waybar/hyprland.jsonc",
     ".config/swaync/style.css": "swaync/open.css",
     ".config/swaync/closing.css": "swaync/closing.css",
     ".config/wofi/style.css": "wofi/style.css",
@@ -147,12 +152,82 @@ def vscode_theme(label):
 
 
 def run(*command):
-    subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    """Runs a helper; one that isn't installed is skipped."""
+    try:
+        subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except FileNotFoundError:
+        pass
+
+
+def theme_name():
+    chosen = HOME / ".config/theme/current"
+    if chosen.exists():
+        return chosen.read_text().strip()
+    return re.search(r"^set \$theme (\S+)", (SWAY / "config").read_text(), re.M)[1]
+
+
+def compositor():
+    """The running compositor, or the one session-switch is about to start."""
+    name = os.environ.get("WEASELWAY_WM") or subprocess.run(
+        [str(HOME / ".local/bin/wm"), "name"], capture_output=True, text=True).stdout.strip()
+    return name if name in ("hyprland", "mango") else "sway"
+
+
+
+
+DEFAULT_CURSOR = "catppuccin-mocha-lavender-cursors"
+
+
+def cursor_theme(cursor):
+    """The theme's cursor everywhere: apps that ask for "default" (Electron,
+    XWayland), GTK, and the running compositor."""
+    icons = HOME / ".local/share/icons/default/index.theme"
+    if not write(icons, f"[Icon Theme]\nName=Default\nInherits={cursor}\n"):
+        return
+    run("dconf", "write", "/org/gnome/desktop/interface/cursor-theme", f"'{cursor}'")
+    wm = compositor()
+    if wm == "hyprland":
+        run("hyprctl", "setcursor", cursor, "24")
+    elif wm == "sway":
+        run("swaymsg", f"seat * xcursor_theme {cursor} 24")
+
+
+def compositor_themes(name, c, cursor):
+    """The window borders, shadows and background for each compositor."""
+    sway = (SWAY / "themes" / f"{name}.conf").read_text()
+    write(STATE / "sway/theme.conf", sway)
+    shadow = re.search(r"^shadow_color #([0-9a-fA-F]{8})", sway, re.M)
+    shadow = shadow[1].lower() if shadow else c["crust"] + "cc"
+    write(
+        STATE / "hypr/theme.lua",
+        "-- Rendered by theme-apply. Colours as hex without '#'.\nreturn {\n"
+        + "".join(f'  {s} = "{c[s]}",\n' for s in SLOTS)
+        + f'  shadow = "{shadow}",\n'
+        + f'  cursor = "{cursor}",\n'
+        + "}\n",
+    )
+    write(
+        STATE / "mango/theme.conf",
+        "# Rendered by theme-apply.\n"
+        + "".join(
+            f"{key}=0x{c[slot]}ff\n"
+            for key, slot in (
+                ("rootcolor", "base"),
+                ("bordercolor", "surface1"),
+                ("focuscolor", "lavender"),
+                ("maximizescreencolor", "green"),
+                ("urgentcolor", "peach"),
+                ("scratchpadcolor", "mauve"),
+                ("globalcolor", "pink"),
+                ("overlaycolor", "teal"),
+            )
+        )
+        + f"shadowscolor=0x{shadow}\n",
+    )
 
 
 def main():
-    config = (SWAY / "config").read_text()
-    name = re.search(r"^set \$theme (\S+)", config, re.M)[1]
+    name = theme_name()
     mocha, _ = palette("mocha")
     colours, notes = palette(name)
     swap = recolourer(mocha, colours)
@@ -164,6 +239,19 @@ def main():
         for source, out in RENDERED.items()
         if write(STATE / out, swap((REPO / source).read_text()))
     }
+
+    waybar = (STATE / "waybar/config").read_text()
+    # Hyprland's bar takes its own workspaces module from hyprland.jsonc;
+    # waybar's include only adds the modules the config itself doesn't define.
+    hypr = waybar.replace('"sway/workspaces"', '"hyprland/workspaces"', 1)
+    hypr = hypr.replace("{", '{\n    "include": ["' + str(STATE / "waybar/hyprland.jsonc") + '"],', 1)
+    mango = waybar.replace('"sway/workspaces"', '"ext/workspaces"')
+    for wm, text in (("hyprland", hypr), ("mango", mango)):
+        if write(STATE / f"waybar/config-{wm}", text):
+            changed.add("waybar")
+    cursor = notes.get("cursor", DEFAULT_CURSOR)
+    compositor_themes(name, colours, cursor)
+    cursor_theme(cursor)
 
     # swaync reads style.css, which notification-panel rebuilds from these two
     write(STATE / "swaync/style.css", (STATE / "swaync/open.css").read_text())
@@ -203,7 +291,8 @@ def main():
     if switched:
         # Open windows keep their old border otherwise
         themes = (SWAY / "themes" / f"{name}.conf").read_text()
-        run("swaymsg", "[all] border pixel " + re.search(r"^default_border pixel (\d+)", themes, re.M)[1])
+        if compositor() == "sway":
+            run("swaymsg", "[all] border pixel " + re.search(r"^default_border pixel (\d+)", themes, re.M)[1])
         gtk_theme(name, swap)
         vscode_theme(notes["vscode"])
         marker.write_text(name + "\n")

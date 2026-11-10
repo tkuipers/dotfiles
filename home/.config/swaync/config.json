@@ -41,6 +41,11 @@
       "app-name": ".*",
       "run-on": "action",
       "exec": "/home/nixos/.local/bin/notification-focus"
+    },
+    "mark-urgent": {
+      "app-name": ".*",
+      "run-on": "receive",
+      "exec": "/home/nixos/.local/bin/notification-urgent"
     }
   },
   "script-fail-notify": false,

@@ -2,17 +2,19 @@
 # The weather in Edmonton, from Open-Meteo. Prints sunny, cloudy or snowy for
 # wallpaper-pick, with --bar the JSON for the waybar pill, or with --card a line
 # for the fastfetch card. Asks at most every
-# 30 minutes. Prints nothing if it has never had an answer.
+# 30 minutes. The cache holds: code, °C, day (1/0), cloud %, precipitation mm/h,
+# snowfall cm/h, wind km/h, wind direction (degrees it blows from), humidity %;
+# hyprland.lua reads it for the weather on the glass. Prints nothing if it has never had an answer.
 cache=${XDG_RUNTIME_DIR:-/tmp}/weather-now
-url='https://api.open-meteo.com/v1/forecast?latitude=53.55&longitude=-113.49&current=weather_code,temperature_2m,is_day'
+url='https://api.open-meteo.com/v1/forecast?latitude=53.55&longitude=-113.49&current=weather_code,temperature_2m,is_day,cloud_cover,precipitation,snowfall,wind_speed_10m,wind_direction_10m,relative_humidity_2m'
 
 # --card never waits on the network: the bar keeps the answer fresh.
 if [ "$1" != --card ] && [ -z "$(find "$cache" -mmin -30 2>/dev/null)" ]; then
   answer=$(curl -fsS --max-time 10 "$url" |
-    jq -r '.current | "\(.weather_code) \(.temperature_2m | round) \(.is_day)"' 2>/dev/null)
+    jq -r '.current | "\(.weather_code) \(.temperature_2m | round) \(.is_day) \(.cloud_cover) \(.precipitation) \(.snowfall) \(.wind_speed_10m) \(.wind_direction_10m) \(.relative_humidity_2m)"' 2>/dev/null)
   [ -n "$answer" ] && echo "$answer" > "$cache"
 fi
-read -r code temperature day 2>/dev/null < "$cache" || exit 0
+read -r code temperature day _ 2>/dev/null < "$cache" || exit 0
 
 # WMO weather codes.
 case $code in
@@ -40,7 +42,17 @@ case $1 in
 esac
 
 . "$HOME/.local/state/theme/palette.sh"
-case $kind in sunny) colour=$yellow ;; cloudy) colour=$blue ;; snowy) colour=$text ;; esac
+# Warm for sun, cool for rain and snow, grey for fog, purple for storms, icy
+# blue when it's -20 or colder whatever the sky is doing
+case $words in
+  Clear | 'Partly cloudy') colour=$yellow ;;
+  Overcast) colour=$blue ;;
+  Fog) colour=$overlay2 ;;
+  Snow) colour=$text ;;
+  Thunderstorm) colour=$mauve ;;
+  *) colour=$sapphire ;;
+esac
+(( temperature <= -20 )) && colour=$sky
 jq -cn --arg text "<span foreground='$colour' font_weight='normal'>$icon</span>" \
   --arg tooltip "$words, $temperature°C" --arg class "$kind" \
   '{text: $text, tooltip: $tooltip, class: $class}'

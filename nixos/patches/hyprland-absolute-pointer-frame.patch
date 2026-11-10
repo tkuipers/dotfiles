@@ -1,0 +1,15 @@
+--- a/src/managers/input/InputManager.cpp	2026-11-10 14:55:22.847805645 -0600
++++ b/src/managers/input/InputManager.cpp	2026-11-10 14:55:22.868438580 -0600
+@@ -165,6 +165,12 @@
+ 
+     m_lastInputTouch  = false;
+     m_lastInputTablet = false;
++
++    // Close the motion's frame, as onMouseMoved does: clients on wl_seat v5+
++    // (winit, so Alacritty) hold pointer events until wl_pointer.frame, so
++    // without it an absolute pointer's drag reaches them only at the next button
++    // or scroll event.
++    g_pSeatManager->sendPointerFrame();
+ }
+ 
+ void CInputManager::simulateMouseMovement() {

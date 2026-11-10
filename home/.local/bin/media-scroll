@@ -32,17 +32,36 @@ if [ "$1" = focus ]; then
   player=$(instance)
   # Electron apps like Cider call themselves chromium.instance<pid>.
   case "$player" in
-    *.instance*) swaymsg "[pid=${player##*instance}] focus" ;;
-    *) swaymsg "[app_id=\"(?i)${player%%.*}\"] focus" ;;
+    *.instance*) "$HOME/.local/bin/wm" focus-pid "${player##*instance}" ;;
+    *) "$HOME/.local/bin/wm" focus "${player%%.*}" ;;
   esac
   exit
 fi
 
+# How far through the track, in steps of 5%, for the line under the pill
+progress() {
+  local player position length
+  player=$(instance)
+  [ -n "$player" ] || return
+  read -r position length < <(playerctl -p "$player" metadata --format '{{ position }} {{ mpris:length }}' 2> /dev/null)
+  [[ $position =~ ^[0-9]+$ && $length =~ ^[0-9]+$ ]] && (( length > 0 )) || return
+  echo $(( (position * 20 / length) * 5 ))
+}
+
+# The hover text: the whole title, the artist and album, and the time
+details() {
+  local player
+  player=$(instance)
+  [ -n "$player" ] && playerctl -p "$player" metadata --format \
+    $'{{ title }}\n{{ artist }}{{ album != "" ? " — " : "" }}{{ album }}\n{{ duration(position) }} / {{ duration(mpris:length) }}' 2> /dev/null
+}
+
 # One line of JSON for waybar: the text, and the state that picks the icon.
 show() {
-  local text=${1//\\/\\\\}
-  text=${text//\"/\\\"}
-  printf '{"text":"%s","alt":"%s","class":"%s"}\n' "$text" "$state" "$state"
+  local percent
+  percent=$(progress)
+  jq -cn --arg text "$1" --arg state "$state" --arg tooltip "$(details)" --arg step "${percent:+p$percent}" \
+    '{text: $text, alt: $state, tooltip: $tooltip, class: ([$state, $step] | map(select(. != "")))}'
 }
 
 while :; do

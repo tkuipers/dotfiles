@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Alt+Shift+r: pick a region and record it to ~/Videos; again to stop.
+#   record-toggle status   the bar's red dot while recording
+dir=$HOME/Videos
+signal() { pkill -RTMIN+10 -f 'waybar -c' 2> /dev/null; }
+
+if [ "$1" = status ]; then
+  if pgrep -u "$USER" -x wf-recorder > /dev/null; then
+    printf '{"text":"●","tooltip":"Recording: click to stop","class":"recording"}\n'
+  else
+    printf '{"text":"","class":"idle"}\n'
+  fi
+  exit
+fi
+
+if pgrep -u "$USER" -x wf-recorder > /dev/null; then
+  pkill -INT -u "$USER" -x wf-recorder
+  # Let it finish writing before the dot goes
+  for _ in $(seq 20); do pgrep -u "$USER" -x wf-recorder > /dev/null || break; sleep 0.1; done
+  signal
+  exit
+fi
+
+region=$(slurp) || exit 0
+mkdir -p "$dir"
+file=$dir/recording-$(date +%Y%m%d-%H%M%S).mp4
+setsid wf-recorder -g "$region" -f "$file" > /dev/null 2>&1 &
+sleep 0.3
+signal

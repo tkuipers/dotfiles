@@ -99,9 +99,9 @@ if [ "$1" = pick ]; then
   link=$(sed -n "${n}p" <<<"$list" | cut -f4)
   if [ -n "$link" ]; then
     teams-for-linux "$link" &
-    swaymsg '[app_id="teams-for-linux"] focus'
+    "$HOME/.local/bin/wm" focus teams-for-linux
   else
-    swaymsg '[app_id="prospect-mail"] focus'
+    "$HOME/.local/bin/wm" focus prospect-mail
   fi
   exit
 fi

@@ -34,12 +34,31 @@ window#waybar {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* The focused workspace keeps the ordinary pill, tinted with the accent, and a
+   gradient line (the window border's colours) along its bottom that draws in
+   from the left when you switch. Nothing animates while it rests. */
 #workspaces button.focused,
 #workspaces button.active {
-    background: linear-gradient(90deg, #89b4fa 0%, #b4befe 100%);
-    color: #1e1e2e;
+    background-color: rgba(180, 190, 254, 0.16);
+    background-image: linear-gradient(90deg, #b4befe, #cba6f7, #74c7ec);
+    background-repeat: no-repeat;
+    background-position: 50% 100%;
+    background-size: 70% 2px;
+    color: #b4befe;
     font-weight: bold;
-    box-shadow: 0 2px 8px rgba(137, 180, 250, 0.4);
+    box-shadow: 0 0 8px rgba(203, 166, 247, 0.18);
+    animation: workspace-in 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes workspace-in {
+    from {
+        background-size: 0% 2px;
+        background-color: rgba(180, 190, 254, 0.04);
+    }
+    to {
+        background-size: 70% 2px;
+        background-color: rgba(180, 190, 254, 0.16);
+    }
 }
 
 #workspaces button.urgent {
@@ -59,6 +78,7 @@ window#waybar {
 #battery,
 #cpu,
 #memory,
+#custom-recording,
 #temperature,
 #custom-weather,
 #pulseaudio,
@@ -72,6 +92,19 @@ window#waybar {
     margin: 3px 2px;
     background: rgba(49, 50, 68, 0.6);
     border-radius: 16px;
+    transition: box-shadow 0.4s ease, background-color 0.6s ease, color 0.6s ease;
+}
+
+/* A faint glow under whatever the pointer is on */
+#clock:hover,
+#battery:hover,
+#custom-weather:hover,
+#custom-camera:hover,
+#custom-agenda:hover,
+#custom-media:hover,
+#custom-notification:hover,
+#custom-recording:hover {
+    box-shadow: 0 0 8px rgba(180, 190, 254, 0.22);
 }
 
 /* The clock and the next meeting make one split pill */
@@ -88,12 +121,18 @@ window#waybar {
     color: #cba6f7;
 }
 
-#battery.warning {
-    background: rgba(250, 179, 135, 0.3);
-    color: #fab387;
-}
+/* Green when full, through yellow and peach, to red when nearly empty */
+#battery.b100 { color: #a6e3a1; background: rgba(166, 227, 161, 0.2); }
+#battery.b90 { color: #a6e3a1; background: rgba(166, 227, 161, 0.2); }
+#battery.b80 { color: #b9e4a3; background: rgba(185, 228, 163, 0.2); }
+#battery.b70 { color: #cce4a6; background: rgba(204, 228, 166, 0.2); }
+#battery.b60 { color: #e0e3a9; background: rgba(224, 227, 169, 0.2); }
+#battery.b50 { color: #f9e2af; background: rgba(249, 226, 175, 0.2); }
+#battery.b40 { color: #f9cfa0; background: rgba(249, 207, 160, 0.22); }
+#battery.b30 { color: #fab387; background: rgba(250, 179, 135, 0.25); }
+#battery.b20 { color: #f6a097; background: rgba(246, 160, 151, 0.28); }
 
-#battery.critical {
+#battery.b10 {
     background: rgba(243, 139, 168, 0.3);
     color: #f38ba8;
     animation: critical-blink 1s ease infinite alternate;
@@ -107,10 +146,23 @@ window#waybar {
 
 #cpu {
     background: rgba(203, 166, 247, 0.2);
+    color: #cba6f7;
 }
 
 #memory {
     background: rgba(148, 226, 213, 0.2);
+    color: #94e2d5;
+}
+
+/* Recording: a red dot that breathes */
+#custom-recording.recording {
+    color: #f38ba8;
+    background: rgba(243, 139, 168, 0.2);
+    animation: recording-pulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes recording-pulse {
+    to { color: rgba(243, 139, 168, 0.4); }
 }
 
 #temperature {
@@ -169,9 +221,36 @@ tooltip label {
     border-radius: 0 16px 16px 0;
 }
 
+/* A thin line along the bottom shows how far through the track it is */
 #custom-media {
-    background: rgba(245, 194, 231, 0.2);
+    background-image: linear-gradient(rgba(245, 194, 231, 0.2), rgba(245, 194, 231, 0.2)),
+        linear-gradient(90deg, #f5c2e7, #cba6f7);
+    background-repeat: no-repeat;
+    background-position: 0 0, 0 100%;
+    background-size: 100% 100%, 0% 2px;
 }
+
+#custom-media.p0 { background-size: 100% 100%, 0% 2px; }
+#custom-media.p5 { background-size: 100% 100%, 5% 2px; }
+#custom-media.p10 { background-size: 100% 100%, 10% 2px; }
+#custom-media.p15 { background-size: 100% 100%, 15% 2px; }
+#custom-media.p20 { background-size: 100% 100%, 20% 2px; }
+#custom-media.p25 { background-size: 100% 100%, 25% 2px; }
+#custom-media.p30 { background-size: 100% 100%, 30% 2px; }
+#custom-media.p35 { background-size: 100% 100%, 35% 2px; }
+#custom-media.p40 { background-size: 100% 100%, 40% 2px; }
+#custom-media.p45 { background-size: 100% 100%, 45% 2px; }
+#custom-media.p50 { background-size: 100% 100%, 50% 2px; }
+#custom-media.p55 { background-size: 100% 100%, 55% 2px; }
+#custom-media.p60 { background-size: 100% 100%, 60% 2px; }
+#custom-media.p65 { background-size: 100% 100%, 65% 2px; }
+#custom-media.p70 { background-size: 100% 100%, 70% 2px; }
+#custom-media.p75 { background-size: 100% 100%, 75% 2px; }
+#custom-media.p80 { background-size: 100% 100%, 80% 2px; }
+#custom-media.p85 { background-size: 100% 100%, 85% 2px; }
+#custom-media.p90 { background-size: 100% 100%, 90% 2px; }
+#custom-media.p95 { background-size: 100% 100%, 95% 2px; }
+#custom-media.p100 { background-size: 100% 100%, 100% 2px; }
 
 #custom-media.paused {
     background: rgba(108, 112, 134, 0.2);
@@ -192,7 +271,15 @@ tooltip label {
     color: #b4befe;
 }
 
+/* Unread: the bell glows in and out, with the count beside it */
 #custom-notification.notification {
     background: rgba(243, 139, 168, 0.3);
     color: #f38ba8;
+    font-weight: bold;
+    animation: bell-pulse 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes bell-pulse {
+    from { box-shadow: 0 0 0 rgba(243, 139, 168, 0); }
+    to { box-shadow: 0 0 10px rgba(243, 139, 168, 0.55); }
 }

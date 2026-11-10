@@ -47,10 +47,10 @@ PS
 windows=$!
 trap 'kill "$windows" 2>/dev/null' EXIT
 
-while [ -S "$SWAYSOCK" ]; do
+while [ -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]; do
   read -r load _ </proc/loadavg
   memory=$(awk '/MemAvailable/ { print int($2 / 1024) }' /proc/meminfo)
   busiest=$(ps -eo pcpu=,comm= --sort=-pcpu | head -n 1 | awk '{ print $2 ":" $1 "%" }')
-  write "linux load=$load mem=${memory}MB sway=$(answer_ms swaymsg -t get_version)ms swaync=$(answer_ms swaync-client -c)ms busiest=$busiest"
+  write "linux load=$load mem=${memory}MB compositor=$(answer_ms wlr-randr)ms swaync=$(answer_ms swaync-client -c)ms busiest=$busiest"
   sleep 5
 done

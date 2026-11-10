@@ -4,9 +4,8 @@
 #
 # Read `man 5 sway` for a complete reference.
 
-# The look of everything: mocha or aura. Change it, then reload sway (Alt+Shift+c).
-# set $theme mocha
-set $theme aura
+# The look of everything (mocha or aura) is in ~/.config/theme/current, shared by
+# every compositor. Alt+Shift+t picks one; theme-apply renders it for sway too.
 
 set {
     $mod Mod1
@@ -26,7 +25,7 @@ set {
     $right l
 }
 
-include ~/.config/sway/themes/$theme.conf
+include ~/.local/state/theme/sway/theme.conf
 
 # Colors
 # Class			border		background	text		indicator	child_border
@@ -193,6 +192,8 @@ bindsym {
     $mod+Shift+q kill
     $mod+d exec $launcher
     $mod+Shift+c reload
+    $mod+Shift+t exec $HOME/.local/bin/theme-set
+    $mod+Shift+w exec $HOME/.local/bin/session-switch
     $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
     $mod+Shift+s exec $HOME/.local/bin/screenshot
     $mod+$left focus left

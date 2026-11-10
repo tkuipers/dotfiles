@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Alt+/: every key Hyprland has, with the description hyprland.lua gives it,
+# asked of the running Hyprland so the list is never out of date.
+if [ -z "$HYPRLAND_INSTANCE_SIGNATURE" ]; then
+  HYPRLAND_INSTANCE_SIGNATURE=$(command ls -t "$XDG_RUNTIME_DIR/hypr" 2>/dev/null | head -1)
+  export HYPRLAND_INSTANCE_SIGNATURE
+fi
+hyprctl -j binds | jq -r '
+  def mods: [
+    (if (.modmask / 64 | floor) % 2 == 1 then "Super" else empty end),
+    (if (.modmask / 4 | floor) % 2 == 1 then "Ctrl" else empty end),
+    (if (.modmask / 8 | floor) % 2 == 1 then "Alt" else empty end),
+    (if .modmask % 2 == 1 then "Shift" else empty end)
+  ];
+  def keyname: {"mouse:272": "drag", "mouse:273": "right-drag", "mouse_down": "scroll down",
+    "mouse_up": "scroll up", "grave": "`", "slash": "/", "minus": "-", "MINUS": "-",
+    "period": ".", "comma": ",", "greater": ">", "less": "<"}[.key] // .key;
+  .[]
+  | select(.description != "")
+  # The ten workspace keys read better as one line each
+  | select((.description | test("^(send the window to )?workspace [2-9]$|^(send the window to )?workspace 10$")) | not)
+  | .description |= sub("workspace 1$"; "workspace 1…10 (keys 1…0)")
+  | ((mods + [keyname]) | join("+")) as $keys
+  | "\($keys)\t\(.description)"' |
+  column -t -s $'\t' |
+  wofi --dmenu --prompt keys --width 620 --height 600 \
+    --style "$HOME/.local/state/theme/wofi/style.css" > /dev/null

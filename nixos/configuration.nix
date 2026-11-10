@@ -1,5 +1,5 @@
 # The weaselway NixOS-WSL system. Edit it and run `sudo nixos-rebuild switch`.
-{ pkgs, dxgdrm, ... }:
+{ config, pkgs, dxgdrm, ... }:
 
 {
   nixpkgs.hostPlatform = "x86_64-linux";
@@ -46,16 +46,44 @@
   environment.systemPackages = with pkgs; [
     swayfx swaybg waybar wofi alacritty wl-clipboard grim slurp xwayland jq libva-utils mesa-demos
     # GPU rasterization draws pages wrong on d3d12: stray triangles on buttons and off colors in text.
-    # The other two flags stop video flickering large parts of the page.
-    (brave.override { commandLineArgs = "--ozone-platform=wayland --disable-gpu-rasterization --disable-gpu-memory-buffer-video-frames --disable_post_sub_buffers_for_onscreen_surfaces"; })
+    # Video flickering large parts of the page was fixed by weaselway v1.6.0's fence fixes in Mesa and
+    # dxgdrm; before that, --disable-gpu-memory-buffer-video-frames and
+    # --disable_post_sub_buffers_for_onscreen_surfaces worked around it.
+    (brave.override { commandLineArgs = "--ozone-platform=wayland --disable-gpu-rasterization"; })
+    # The compositor is sway unless ~/.config/weaselway/session names another (hyprland
+    # or mango). `session-switch` picks one for the next start only. If anything but
+    # sway quits within a minute of starting, the session carries on in sway.
     (writeShellScriptBin "custom-weaselway-session" ''
-      export XDG_CURRENT_DESKTOP=sway
       # dxgdrm, not card0: from kernel 6.18.54.1 on card0 is WSL's vgem.
-      export WLR_DRM_DEVICES=/dev/dri/by-path/platform-dxgdrm-card
+      card=/dev/dri/by-path/platform-dxgdrm-card
+      export WLR_DRM_DEVICES=$card AQ_DRM_DEVICES=$card
+      next=$XDG_RUNTIME_DIR/weaselway-session-next
+      if [ -f "$next" ]; then
+        session=$(cat "$next")
+        rm -f "$next"
+      else
+        session=$(${gnugrep}/bin/grep -m1 -oE '^[a-z]+' "$HOME/.config/weaselway/session" 2>/dev/null)
+      fi
       # The login session hands down CAP_WAKE_ALARM. Portals can't inspect a process
       # holding a capability they lack, so they would refuse every app in the session.
-      exec ${util-linux}/bin/setpriv --inh-caps=-wake_alarm --ambient-caps=-wake_alarm sway "$@"
+      run=(${util-linux}/bin/setpriv --inh-caps=-wake_alarm --ambient-caps=-wake_alarm)
+      case $session in
+        # Not the /run/wrappers one: its capabilities make glibc ignore LD_LIBRARY_PATH,
+        # so Mesa's GBM can't find the d3d12 driver in /run/opengl-driver/lib.
+        hyprland) compositor=${config.programs.hyprland.package}/bin/Hyprland desktop=Hyprland ;;
+        mango) compositor=mango desktop=mango:wlroots ;;
+      esac
+      if [ -n "$compositor" ]; then
+        started=$SECONDS
+        XDG_CURRENT_DESKTOP=$desktop "''${run[@]}" "$compositor" "$@"
+        status=$?
+        if [ "$status" -eq 0 ] || [ $((SECONDS - started)) -ge 60 ]; then exit "$status"; fi
+        echo "$compositor quit with $status after $((SECONDS - started))s; starting sway" >&2
+      fi
+      export XDG_CURRENT_DESKTOP=sway
+      exec "''${run[@]}" sway "$@"
     '')
+    wlrctl wlr-randr
 
     # Shell
     starship eza neovim ripgrep fd fzf bat tmux htop lazygit taskwarrior3
@@ -126,7 +154,10 @@
     wlogout lutgen fastfetch playerctl swayr
     (catppuccin-gtk.override { accents = [ "lavender" ]; variant = "mocha"; })
     (catppuccin-papirus-folders.override { flavor = "mocha"; accent = "lavender"; })
-    catppuccin-cursors.mochaLavender
+    # One per theme; theme-apply picks it from the theme's "# cursor:" line
+    phinger-cursors
+    # Alt+Shift+r records a region (record-toggle)
+    wf-recorder
 
     # Applications
     # Teams hands its player paths inside app.asar, which only Electron can read,
@@ -179,6 +210,38 @@
         wrapProgram $out/bin/cider-2 --prefix LD_LIBRARY_PATH : ${libpulseaudio}/lib
       '';
     }))
+  ];
+
+  # Waybar's Hyprland workspaces send Hyprland's old text dispatchers, which a Lua
+  # config refuses, so clicking a workspace did nothing. These are the Lua forms.
+  # It also shows each app's icon once per workspace, however many windows of it
+  # are open there.
+  nixpkgs.overlays = [
+    (final: prev: {
+      waybar = prev.waybar.overrideAttrs (old: {
+        postPatch = (old.postPatch or "") + ''
+          substituteInPlace src/modules/hyprland/workspace.cpp \
+            --replace-fail '"dispatch focusworkspaceoncurrentmonitor " + std::to_string(id())' \
+              '"dispatch hl.dsp.focus({ workspace = " + std::to_string(id()) + " })"' \
+            --replace-fail '"dispatch workspace " + std::to_string(id())' \
+              '"dispatch hl.dsp.focus({ workspace = " + std::to_string(id()) + " })"' \
+            --replace-fail '"dispatch focusworkspaceoncurrentmonitor name:" + name()' \
+              '"dispatch hl.dsp.focus({ workspace = \"name:" + name() + "\" })"' \
+            --replace-fail '"dispatch workspace name:" + name()' \
+              '"dispatch hl.dsp.focus({ workspace = \"name:" + name() + "\" })"' \
+            --replace-fail '"dispatch togglespecialworkspace " + name()' \
+              '"dispatch hl.dsp.workspace.toggle_special(\"" + name() + "\")"' \
+            --replace-fail '"dispatch togglespecialworkspace"' \
+              '"dispatch hl.dsp.workspace.toggle_special()"' \
+            --replace-fail 'bool isNotFirst = false;' \
+              'bool isNotFirst = false; std::vector<std::string> seenRewrites;' \
+            --replace-fail 'windows.append(windowSeparator);' \
+              'if (std::ranges::find(seenRewrites, window_repr.repr_rewrite) == seenRewrites.end()) windows.append(windowSeparator);' \
+            --replace-fail 'windows.append(window_repr.repr_rewrite);' \
+              'if (std::ranges::find(seenRewrites, window_repr.repr_rewrite) == seenRewrites.end()) { windows.append(window_repr.repr_rewrite); seenRewrites.push_back(window_repr.repr_rewrite); }'
+        '';
+      });
+    })
   ];
 
   # Separate from the Windows app, so it needs its own sign-in. Commit signing
@@ -279,6 +342,22 @@
     };
   };
 
+  # Alternatives to sway, picked with `session-switch`. Their modules bring their
+  # portals for screen sharing.
+  programs.hyprland.enable = true;
+  # Screen shaders also get focused_output, previous_output and focus_time, so the
+  # weather glass can follow focus between screens without being recompiled.
+  programs.hyprland.package = pkgs.hyprland.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [
+      ./patches/hyprland-focus-uniforms.patch
+      # Weaselway's pointer is absolute (it follows the Windows cursor), and
+      # Hyprland didn't end absolute motion with wl_pointer.frame, so Alacritty
+      # only saw a drag on release
+      ./patches/hyprland-absolute-pointer-frame.patch
+    ];
+  });
+  programs.mangowc.enable = true;
+
   environment.sessionVariables.IDEA_HOME = "/home/nixos/idea/current";
 
   environment.unixODBCDrivers = with pkgs.unixODBCDrivers; [ msodbcsql18 ];
@@ -301,7 +380,7 @@
   programs.nix-ld = {
     enable = true;
     libraries = with pkgs; [
-      stdenv.cc.cc zlib zstd openssl curl icu libxml2 libyaml libffi readline ncurses
+      stdenv.cc.cc zlib zstd openssl curl icu libxml2 libyaml libffi readline ncurses sqlite
       glib nss nspr alsa-lib freetype fontconfig expat dbus
       libx11 libxext libxrender libxtst libxi libxcursor libxrandr libxcomposite libxdamage libxfixes
       libxcb libxkbcommon libdrm libgbm wayland gtk3 pango cairo atk at-spi2-atk at-spi2-core cups

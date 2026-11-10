@@ -1,0 +1,79 @@
+diff -ru a/src/desktop/state/FocusState.cpp b/src/desktop/state/FocusState.cpp
+--- a/src/desktop/state/FocusState.cpp	2026-11-10 13:42:41.512827808 -0600
++++ b/src/desktop/state/FocusState.cpp	2026-11-10 13:42:41.542880492 -0600
+@@ -286,6 +286,10 @@
+     g_pEventManager->postEvent(SHyprIPCEvent{.event = "focusedmon", .data = pMonitor->m_name + "," + WORKSPACE_NAME});
+     g_pEventManager->postEvent(SHyprIPCEvent{.event = "focusedmonv2", .data = pMonitor->m_name + "," + WORKSPACE_ID});
+ 
++    const auto PREVIOUS = m_focusMonitor.lock();
++    m_previousMonitorId = PREVIOUS ? PREVIOUS->m_id : pMonitor->m_id;
++    m_monitorFocusedAt  = std::chrono::steady_clock::now();
++
+     Event::bus()->m_events.monitor.focused.emit(pMonitor);
+     m_focusMonitor = pMonitor;
+ }
+diff -ru a/src/desktop/state/FocusState.hpp b/src/desktop/state/FocusState.hpp
+--- a/src/desktop/state/FocusState.hpp	2026-11-10 13:42:41.491800617 -0600
++++ b/src/desktop/state/FocusState.hpp	2026-11-10 13:42:41.542750587 -0600
+@@ -1,5 +1,7 @@
+ #pragma once
+ 
++#include <chrono>
++
+ #include "../DesktopTypes.hpp"
+ #include "../../helpers/signal/Signal.hpp"
+ 
+@@ -49,6 +51,10 @@
+         PHLWINDOW              window();
+         PHLMONITOR             monitor();
+ 
++        // For screen shaders: the monitor focused before this one, and when focus moved
++        int                                   m_previousMonitorId = -1;
++        std::chrono::steady_clock::time_point m_monitorFocusedAt  = std::chrono::steady_clock::now();
++
+       private:
+         WP<CWLSurfaceResource> m_focusSurface;
+         PHLWINDOWREF           m_focusWindow;
+diff -ru a/src/render/OpenGL.cpp b/src/render/OpenGL.cpp
+--- a/src/render/OpenGL.cpp	2026-11-10 13:42:41.463500893 -0600
++++ b/src/render/OpenGL.cpp	2026-11-10 13:42:41.543303420 -0600
+@@ -1230,6 +1230,13 @@
+         shader->setUniformFloat(SHADER_TIME, 0.f);
+ 
+     shader->setUniformInt(SHADER_WL_OUTPUT, m_renderData.pMonitor->m_id);
++    {
++        const auto FOCUS    = Desktop::focusState();
++        const auto FOCUSMON = FOCUS->monitor();
++        shader->setUniformInt(SHADER_FOCUSED_OUTPUT, FOCUSMON ? FOCUSMON->m_id : -1);
++        shader->setUniformInt(SHADER_PREVIOUS_OUTPUT, FOCUS->m_previousMonitorId);
++        shader->setUniformFloat(SHADER_FOCUS_TIME, std::chrono::duration<float>(std::chrono::steady_clock::now() - FOCUS->m_monitorFocusedAt).count());
++    }
+     shader->setUniformFloat2(SHADER_FULL_SIZE, m_renderData.pMonitor->m_pixelSize.x, m_renderData.pMonitor->m_pixelSize.y);
+     shader->setUniformFloat(SHADER_POINTER_INACTIVE_TIMEOUT, *PCURSORTIMEOUT);
+     shader->setUniformInt(SHADER_POINTER_HIDDEN, g_pHyprRenderer->m_cursorHiddenByCondition);
+diff -ru a/src/render/Shader.cpp b/src/render/Shader.cpp
+--- a/src/render/Shader.cpp	2026-11-10 13:42:41.443930645 -0600
++++ b/src/render/Shader.cpp	2026-11-10 13:42:41.541283252 -0600
+@@ -150,6 +150,9 @@
+     m_uniformLocations[SHADER_BLURRED_BG]          = getUniform("blurredBG");
+     m_uniformLocations[SHADER_UV_SIZE]             = getUniform("uvSize");
+     m_uniformLocations[SHADER_UV_OFFSET]           = getUniform("uvOffset");
++    m_uniformLocations[SHADER_FOCUSED_OUTPUT]      = getUniform("focused_output");
++    m_uniformLocations[SHADER_PREVIOUS_OUTPUT]     = getUniform("previous_output");
++    m_uniformLocations[SHADER_FOCUS_TIME]          = getUniform("focus_time");
+     m_uniformLocations[SHADER_ALPHA]               = getUniform("alpha");
+     m_uniformLocations[SHADER_POS_ATTRIB]          = getAttrib("pos");
+     m_uniformLocations[SHADER_TEX_ATTRIB]          = getAttrib("texcoord");
+diff -ru a/src/render/Shader.hpp b/src/render/Shader.hpp
+--- a/src/render/Shader.hpp	2026-11-10 13:42:41.426419222 -0600
++++ b/src/render/Shader.hpp	2026-11-10 13:42:41.541078944 -0600
+@@ -82,6 +82,9 @@
+     SHADER_BLURRED_BG,
+     SHADER_UV_SIZE,
+     SHADER_UV_OFFSET,
++    SHADER_FOCUSED_OUTPUT,
++    SHADER_PREVIOUS_OUTPUT,
++    SHADER_FOCUS_TIME,
+ 
+     SHADER_LAST,
+ };

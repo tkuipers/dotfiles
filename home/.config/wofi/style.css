@@ -28,8 +28,13 @@
 
 #window {
 	border-radius: 10px;
-	border: 1px solid rgba(180, 190, 254, 0.3);
-	background-color: rgba(30, 30, 46, 0.7);
+	/* The window border's gradient as a 1px rim */
+	border: 1px solid transparent;
+	background-color: transparent;
+	background-image: linear-gradient(rgba(30, 30, 46, 0.7), rgba(30, 30, 46, 0.7)),
+		linear-gradient(135deg, #b4befe, #cba6f7, #74c7ec);
+	background-origin: border-box;
+	background-clip: padding-box, border-box;
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
@@ -76,8 +81,8 @@
 }
 
 #entry:selected {
-	background: linear-gradient(90deg, rgba(137, 180, 250, 0.3) 0%, rgba(180, 190, 254, 0.3) 100%);
-	box-shadow: 0 2px 8px rgba(137, 180, 250, 0.2);
+	background: linear-gradient(90deg, rgba(180, 190, 254, 0.3), rgba(203, 166, 247, 0.3), rgba(116, 199, 236, 0.3));
+	box-shadow: 0 2px 8px rgba(203, 166, 247, 0.2);
 }
 
 #text:selected {

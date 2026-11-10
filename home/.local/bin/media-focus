@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # swaync runs this when the media player in the panel is clicked, with the player's
 # MPRIS name, like org.mpris.MediaPlayer2.chromium.instance442121. Players can't
-# raise themselves here, but the name ends in the process id, so sway can.
+# raise themselves here, but the name ends in the process id, so the compositor can.
 pid=${1##*.instance}
 [[ $pid =~ ^[0-9]+$ ]] || exit 0
 "$HOME/.local/bin/notification-panel"
-swaymsg "[pid=$pid] focus"
+"$HOME/.local/bin/wm" focus-pid "$pid"
