@@ -2,5 +2,11 @@
   "appearance": {
     "cssLocation": "/home/nixos/.local/state/theme/teams/theme.css",
     "followSystemTheme": true
+  },
+  "performance": {
+    "disableGpu": false,
+    "electronCLIFlags": [
+      "disable-gpu-rasterization"
+    ]
   }
 }
