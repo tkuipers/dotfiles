@@ -1,5 +1,5 @@
 # The weaselway NixOS-WSL system. Edit it and run `sudo nixos-rebuild switch`.
-{ config, pkgs, dxgdrm, ... }:
+{ config, pkgs, dxgdrm, unstable, ... }:
 
 {
   nixpkgs.hostPlatform = "x86_64-linux";
@@ -180,7 +180,8 @@
       postBuild = "wrapProgram $out/bin/teams-for-linux --prefix PATH : ${player}/bin";
     })
     vscode code-cursor bruno beekeeper-studio firefox thunderbird
-    zotero anki-bin
+    # From unstable: the library was last opened by Zotero 10, which the pinned 9.x refuses.
+    unstable.zotero anki-bin
     # Outlook in an Electron wrapper. Not in nixpkgs, so this wraps the release AppImage.
     (let
       pname = "prospect-mail";
@@ -345,6 +346,11 @@
   # Alternatives to sway, picked with `session-switch`. Their modules bring their
   # portals for screen sharing.
   programs.hyprland.enable = true;
+
+  # Index the icon themes. Without the caches GTK scans Papirus's thousands of
+  # icons (and breeze and hicolor behind it) on every launch, so wofi took
+  # ~400 ms after appearing before it would take keys.
+  gtk.iconCache.enable = true;
   # Screen shaders also get focused_output, previous_output and focus_time, so the
   # weather glass can follow focus between screens without being recompiled.
   programs.hyprland.package = pkgs.hyprland.overrideAttrs (old: {
