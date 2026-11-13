@@ -16,15 +16,32 @@ case $1 in
   *) exit 2 ;;
 esac
 
+wm_name=$("$HOME/.local/bin/wm" name)
+if [ "$wm_name" = hyprland ] && [ -z "$HYPRLAND_INSTANCE_SIGNATURE" ]; then
+  HYPRLAND_INSTANCE_SIGNATURE=$(command ls -t "$XDG_RUNTIME_DIR/hypr" 2>/dev/null | head -1)
+  export HYPRLAND_INSTANCE_SIGNATURE
+fi
+# Hyprland: is the window on its special workspace yet, and is that workspace showing?
+on_special() { hyprctl clients -j | jq -e --arg w "special:$app_id" 'any(.[]; .workspace.name == $w)' >/dev/null; }
+showing() { hyprctl monitors -j | jq -e --arg w "special:$app_id" 'any(.[]; .specialWorkspace.name == $w)' >/dev/null; }
+
 if "$HOME/.local/bin/wm" has "$app_id"; then
-  # The mixer closes instead of hiding: open, it keeps capturing to draw its meters
-  [ "$1" = mixer ] && exec "$HOME/.local/bin/wm" close "$app_id"
+  # The mixer closes instead of hiding: open, it keeps capturing to draw its meters.
+  # A hidden one (left over from a missed show) is shown, not closed.
+  if [ "$1" = mixer ] && [ "$wm_name" != hyprland ]; then
+    exec "$HOME/.local/bin/wm" close "$app_id"
+  elif [ "$1" = mixer ] && showing; then
+    # Hide the special workspace too, or it stays up empty and dims the screen
+    "$HOME/.local/bin/wm" close "$app_id"
+    exec "$HOME/.local/bin/wm" scratch "$app_id"
+  fi
   "$HOME/.local/bin/wm" scratch "$app_id"
-elif [ "$("$HOME/.local/bin/wm" name)" = hyprland ]; then
-  # Hyprland opens it on its hidden special workspace, so show it once it's there
+elif [ "$wm_name" = hyprland ]; then
+  # Hyprland opens it on its hidden special workspace, so show it once it's there.
+  # wlrctl sees the window before Hyprland has moved it, so ask Hyprland.
   setsid "${command[@]}" >/dev/null 2>&1 &
-  for _ in $(seq 50); do "$HOME/.local/bin/wm" has "$app_id" && break; sleep 0.1; done
-  "$HOME/.local/bin/wm" scratch "$app_id"
+  for _ in $(seq 50); do on_special && break; sleep 0.1; done
+  showing || "$HOME/.local/bin/wm" scratch "$app_id"
 else
   exec "${command[@]}"
 fi
