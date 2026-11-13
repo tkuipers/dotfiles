@@ -45,6 +45,8 @@
   fonts.packages = with pkgs; [ nerd-fonts.iosevka nerd-fonts.jetbrains-mono font-awesome ];
   environment.systemPackages = with pkgs; [
     swayfx swaybg waybar wofi alacritty wl-clipboard grim slurp xwayland jq libva-utils mesa-demos
+    # Floating pill tabs for Hyprland groups (~/.config/quickshell/grouptabs)
+    quickshell
     # GPU rasterization draws pages wrong on d3d12: stray triangles on buttons and off colors in text.
     # Video flickering large parts of the page was fixed by weaselway v1.6.0's fence fixes in Mesa and
     # dxgdrm; before that, --disable-gpu-memory-buffer-video-frames and
@@ -93,7 +95,7 @@
     git-lfs gh gcc gnumake pkg-config openssl python3 uv flutter android-tools
     nodejs go rustup maven jetbrains.idea claude-code
 
-    cmake ninja meson clang pipx dotnetCorePackages.sdk_8_0 codex
+    cmake ninja meson clang pipx dotnetCorePackages.sdk_8_0 unstable.codex
 
     # Command line clients and utilities
     imagemagick pandoc poppler-utils sqlite mariadb.client dnsutils nmap whois samba
