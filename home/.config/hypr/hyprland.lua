@@ -205,13 +205,50 @@ local assign = {
     ["brave-browser|Brave-browser"] = 1,
     ["code|Code|code-oss|cursor|Cursor|neovide|nvim-qt"] = 3,
     ["teams-for-linux|teams|microsoft-teams|microsoft teams"] = 4,
-    ["[Cc]ider"] = 5,
+    -- Music has its own named workspace, reached with Alt+m, last on the bar
+    ["[Cc]ider"] = "name:music",
     -- Mail joins Teams as a tab (see tabs-4 below)
     ["prospect-mail"] = 4,
 }
 for class, ws in pairs(assign) do
     hl.window_rule({ name = "assign-" .. ws .. "-" .. class, match = { class = "^(" .. class .. ")$" }, workspace = tostring(ws) .. " silent" })
 end
+-- The music workspace is Cider's alone: a window sent there goes back to the
+-- workspace it came from, and one opened there goes to the workspace you were on
+-- before, taking you with it. Cider can still be moved off.
+-- (hl.dsp.window.move ignores window = and moves the focused window, so focus first.)
+local function isCider(w) return w.class and w.class:lower() == "cider" end
+local homeWs = {}
+local function guardMusic(w, opened)
+    if isCider(w) then return end
+    hl.timer(function()
+        local cur = hl.get_window("address:" .. w.address)
+        if not cur or not cur.workspace then return end
+        if cur.workspace.name ~= "music" then homeWs[cur.address] = cur.workspace.name return end
+        local back = hl.get_active_window()
+        -- Where it came from; if unknown, the workspace you're looking at
+        local origin = homeWs[cur.address]
+        local aw = hl.get_active_workspace()
+        if not origin and aw and aw.name ~= "music" then origin = aw.name end
+        hl.dispatch(hl.dsp.focus({ window = "address:" .. cur.address }))
+        -- Never move anything but the offender
+        local now = hl.get_active_window()
+        if not now or now.address ~= cur.address then return end
+        if opened then
+            hl.dispatch(hl.dsp.window.move({ workspace = "previous", follow = true }))
+        else
+            hl.dispatch(hl.dsp.window.move({ workspace = origin or "previous", follow = false }))
+            if back and back.address ~= cur.address then hl.dispatch(hl.dsp.focus({ window = "address:" .. back.address })) end
+        end
+    end, { timeout = 50, type = "oneshot" })
+end
+hl.on("window.open", function(w) guardMusic(w, true) end)
+hl.on("window.move_to_workspace", function(w) guardMusic(w, false) end)
+hl.on("window.destroy", function(w) homeWs[w.address] = nil end)
+for _, w in ipairs(hl.get_windows()) do
+    if w.workspace and w.workspace.name ~= "music" then homeWs[w.address] = w.workspace.name end
+end
+
 -- Teams and mail share workspace 4 as tabs, each one full size (Alt+Tab flips).
 -- The rule makes each open as a group; the hook below folds the second into the
 -- first, since rules can't join a group on a workspace you aren't looking at.
@@ -298,6 +335,7 @@ bind("SHIFT + W", exec(bin .. "session-switch"), { description = "switch composi
 bind("SHIFT + E", exec("wlogout"), { description = "log out / power" })
 bind("SHIFT + S", exec(bin .. "screenshot"), { description = "screenshot a region" })
 bind("SHIFT + V", exec(bin .. "clipboard-pick"), { description = "clipboard history" })
+bind("M", hl.dsp.focus({ workspace = "name:music" }), { description = "music workspace" })
 bind("SHIFT + M", exec(bin .. "scratch-toggle mixer"), { description = "audio mixer" })
 bind("SPACE", exec(bin .. "scratch-tap"), { description = "scratch terminal (tap) / notes (hold)" })
 

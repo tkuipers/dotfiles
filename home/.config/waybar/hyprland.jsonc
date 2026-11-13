@@ -4,7 +4,13 @@
     // Each workspace shows the apps open on it, in the theme's colours
     "hyprland/workspaces": {
         "all-outputs": true,
-        "format": "{name} {windows}",
+        // Numbered workspaces show their number; the music one shows only Cider's note
+        "format": "{icon}{windows}",
+        "format-icons": {
+            "1": "1 ", "2": "2 ", "3": "3 ", "4": "4 ", "5": "5 ",
+            "6": "6 ", "7": "7 ", "8": "8 ", "9": "9 ", "10": "10 ",
+            "music": ""
+        },
         "format-window-separator": " ",
         "window-rewrite-default": "<span foreground='#a6adc8'>󰣆</span>",
         "window-rewrite": {
