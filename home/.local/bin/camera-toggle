@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Streams the webcam and its mic from Windows into the virtual camera and mic here.
 # USB forwarding can't keep up with 720p, so the webcam itself stays on Windows.
-# At the office, without the Logitech, the Poly headset is forwarded for sound.
+# At the office, without the Logitech, the Poly headset's mic is streamed instead.
+# Windows holds the headset, so it can't be forwarded over USB.
 usbipd='/mnt/c/Program Files/usbipd-win/usbipd.exe'
 powershell=/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
 logitech=046d:0825
@@ -26,15 +27,20 @@ stream() {
   ffmpeg "${receive[@]}" -use_wallclock_as_timestamps 1 -f mjpeg -i 'tcp://0.0.0.0:5600?listen' \
     -pix_fmt yuv420p -fps_mode passthrough -f v4l2 /dev/video10 &
   sleep 1
-  local camera='Integrated Webcam'
+  local camera='Integrated Webcam' mic=
   if plugged_in "$logitech"; then
     camera='Logi C270 HD WebCam'
+    mic='Microphone (Logi C270 HD WebCam)'
+  elif plugged_in "$headset"; then
+    mic='Headset Microphone (Poly Blackwire 3310 Series)'
+  fi
+  if [ -n "$mic" ]; then
     ffmpeg "${receive[@]}" -f s16le -ar 48000 -ac 1 -i 'tcp://0.0.0.0:5602?listen' -f s16le - |
       pw-cat --playback --raw -P '{ node.name=webcam-mic-feed node.autoconnect=false }' \
         --rate 48000 --channels 1 --format s16 --latency 20ms - &
     sleep 1
     "$windows_ffmpeg" -hide_banner -loglevel error -f dshow -audio_buffer_size 20 \
-      -i 'audio=Microphone (Logi C270 HD WebCam)' -ac 1 -ar 48000 -f s16le -flush_packets 1 tcp://127.0.0.1:5602 &
+      -i "audio=$mic" -ac 1 -ar 48000 -f s16le -flush_packets 1 tcp://127.0.0.1:5602 &
     until pw-link webcam-mic-feed:output_MONO weaselway_camera_mic:input_MONO 2> /dev/null; do sleep 0.5; done
   fi
   "$windows_ffmpeg" -hide_banner -loglevel error -f dshow -rtbufsize 8M -vcodec mjpeg -video_size 1280x720 -framerate 30 \
@@ -59,15 +65,10 @@ esac
 cd /mnt/c || exit 1
 if systemctl --user is-active --quiet webcam; then
   systemctl --user stop webcam
-  "$usbipd" detach --hardware-id "$headset" 2> /dev/null
 else
   # Other WSL distros share /dev, and their udev can take the device for their own group.
   [ -w /dev/video10 ] || sudo chgrp video /dev/video10
   systemd-run --user --collect --unit=webcam --setenv=PATH="$PATH" "$0" stream
-  if ! plugged_in "$logitech" && plugged_in "$headset"; then
-    sudo modprobe vhci_hcd
-    "$usbipd" attach --wsl --hardware-id "$headset"
-  fi
 fi
 sleep 2
 pkill -RTMIN+9 waybar
