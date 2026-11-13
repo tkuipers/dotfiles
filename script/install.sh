@@ -81,7 +81,7 @@ for script in wm theme-set session-switch notification-focus notification-urgent
 done
 
 #link desktop extras
-for dir in swaync wlogout lazygit fastfetch swayr hypr mango theme weaselway; do
+for dir in swaync wlogout lazygit fastfetch swayr hypr mango theme weaselway quickshell; do
   ln -sfn $SCRIPT_DIR/../home/.config/$dir $HOME/.config/$dir
 done
 

@@ -45,6 +45,8 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("prospect-mail")
     hl.exec_cmd("env GSK_RENDERER=cairo swaync -s " .. home .. "/.local/state/theme/swaync/style.css")
     hl.exec_cmd(bin .. "waybar-themed")
+    -- Pill tabs over group bars; software Qt Quick because d3d12 garbles GPU text colours
+    hl.exec_cmd("env QT_QUICK_BACKEND=software quickshell -p " .. home .. "/.config/quickshell/grouptabs")
     hl.exec_cmd("awww-daemon")
     hl.exec_cmd(bin .. "wallpaper-cycle")
 end)
@@ -109,17 +111,23 @@ hl.config({
             border_active = { colors = { rgb(theme.peach), rgb(theme.mauve) }, angle = 45 },
             border_inactive = rgba(theme.surface1, "aa"),
         },
+        -- Kept only to reserve the strip above a group: it draws nothing, and
+        -- quickshell's grouptabs overlay puts floating pill tabs there instead.
+        -- height must match stripHeight in quickshell/grouptabs/shell.qml.
         groupbar = {
             font_family = "JetBrainsMono Nerd Font Propo",
-            gradients = true,
-            rounding = 6,
-            gradient_rounding = 6,
-            height = 16,
+            gradients = false,
+            render_titles = true, -- without titles the strip collapses; they're transparent
+            text_color = rgba(theme.text, "00"),
+            text_color_inactive = rgba(theme.text, "00"),
+            text_color_locked_active = rgba(theme.text, "00"),
+            text_color_locked_inactive = rgba(theme.text, "00"),
+            height = 22,
+            indicator_height = 0,
             font_size = 11,
-            blur = true,
-            col = { active = rgba(theme.mauve, "cc"), inactive = rgba(theme.surface0, "aa") },
-            text_color = rgb(theme.crust),
-            text_color_inactive = rgb(theme.text),
+            blur = false,
+            col = { active = rgba(theme.mauve, "00"), inactive = rgba(theme.surface0, "00"),
+                locked_active = rgba(theme.mauve, "00"), locked_inactive = rgba(theme.surface0, "00") },
         },
     },
     -- Alt+n cycles to this niri-style layout: an endless strip of columns
@@ -184,6 +192,8 @@ hl.layer_rule({ name = "pop-wofi", match = { namespace = "^(wofi|logout_dialog)$
 -- Notifications slide in from the right (the panel has its own animation)
 hl.layer_rule({ name = "slide-swaync", match = { namespace = "^swaync-notification-window$" }, animation = "slide right" })
 -- Wallpaper changes fade rather than slide
+-- Group tab pills (quickshell grouptabs) are frosted glass like the bar
+hl.layer_rule({ name = "blur-grouptabs", match = { namespace = "^grouptabs$" }, blur = true, ignore_alpha = 0.3 })
 hl.layer_rule({ name = "fade-wallpaper", match = { namespace = "^awww" }, animation = "fade" })
 
 ---- Workspaces and apps ----
@@ -196,12 +206,34 @@ local assign = {
     ["code|Code|code-oss|cursor|Cursor|neovide|nvim-qt"] = 3,
     ["teams-for-linux|teams|microsoft-teams|microsoft teams"] = 4,
     ["[Cc]ider"] = 5,
-    -- Mail sits beside Teams
+    -- Mail joins Teams as a tab (see tabs-4 below)
     ["prospect-mail"] = 4,
 }
 for class, ws in pairs(assign) do
     hl.window_rule({ name = "assign-" .. ws .. "-" .. class, match = { class = "^(" .. class .. ")$" }, workspace = tostring(ws) .. " silent" })
 end
+-- Teams and mail share workspace 4 as tabs, each one full size (Alt+Tab flips).
+-- The rule makes each open as a group; the hook below folds the second into the
+-- first, since rules can't join a group on a workspace you aren't looking at.
+local tabs4 = { ["teams-for-linux"] = true, teams = true, ["microsoft-teams"] = true, ["microsoft teams"] = true, ["prospect-mail"] = true }
+hl.window_rule({ name = "tabs-4", match = { class = "^(teams-for-linux|teams|microsoft-teams|microsoft teams|prospect-mail)$" }, group = "set" })
+local function xOf(w) return type(w.at) == "table" and (w.at.x or w.at[1]) or 0 end
+hl.on("window.open", function(w)
+    if not tabs4[w.class] then return end
+    hl.timer(function()
+        local new = hl.get_window("address:" .. w.address)
+        if not new or new.floating then return end
+        local host
+        for _, o in ipairs(hl.get_workspace_windows("4")) do
+            if o.address ~= new.address and tabs4[o.class] and not o.floating then host = o break end
+        end
+        if not host or (new.group and host.group and new.group.size > 1) then return end
+        local back = hl.get_active_window()
+        hl.dispatch(hl.dsp.focus({ window = "address:" .. new.address }))
+        hl.dispatch(hl.dsp.window.move({ into_group = xOf(host) < xOf(new) and "l" or "r" }))
+        if back and back.address ~= new.address then hl.dispatch(hl.dsp.focus({ window = "address:" .. back.address })) end
+    end, { timeout = 300, type = "oneshot" })
+end)
 
 -- Scratchpads: each app gets a hidden special workspace, shown and hidden by wm scratch
 local scratch = {
