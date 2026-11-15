@@ -73,7 +73,10 @@ done < "$SCRIPT_DIR/wallpapers.txt"
 
 # wallpaper-cycle looks in a folder per theme; until a theme has its own, it uses these
 for theme in Aura Mocha; do
-  [ -e "$HOME/Pictures/Wallpapers-$theme" ] || ln -s Wallpapers "$HOME/Pictures/Wallpapers-$theme"
+  # (a real folder: wallpaper-pick's find does not follow a symlinked one)
+  folder=$HOME/Pictures/Wallpapers-$theme
+  [ -L "$folder" ] && rm "$folder"
+  [ -e "$folder" ] || { mkdir "$folder" && ln "$HOME"/Pictures/Wallpapers/* "$folder"/; }
 done
 
 if [ ! -e "$HOME/.localrc" ]; then
