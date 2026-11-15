@@ -43,6 +43,8 @@ in
         patches = (o.patches or [ ]) ++ [
           "${otterwayInput}/guest/nixos/patches/aquamarine/0001-drm-use-virtual-GPUs-cursor-plane.patch"
         ];
+        # Two jobs: more run Otterway's 4 GB Linux builder out of memory.
+        preBuild = (o.preBuild or "") + "\nNIX_BUILD_CORES=2\n";
       });
       # Built from source (the patches above and in common.nix keep it out of every
       # binary cache).  On Otterway's 4 GB Linux builder more jobs run out of memory.
