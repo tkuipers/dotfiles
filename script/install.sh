@@ -71,6 +71,11 @@ while read -r url; do
     [ -e "$file" ] || curl -fsSL -o "$file" "$url"
 done < "$SCRIPT_DIR/wallpapers.txt"
 
+# wallpaper-cycle looks in a folder per theme; until a theme has its own, it uses these
+for theme in Aura Mocha; do
+  [ -e "$HOME/Pictures/Wallpapers-$theme" ] || ln -s Wallpapers "$HOME/Pictures/Wallpapers-$theme"
+done
+
 if [ ! -e "$HOME/.localrc" ]; then
     cp $SCRIPT_DIR/../home/.localrc $HOME/.localrc
 fi
@@ -82,6 +87,16 @@ done
 
 #link desktop extras
 for dir in swaync wlogout lazygit fastfetch swayr hypr mango theme weaselway quickshell; do
+  ln -sfn $SCRIPT_DIR/../home/.config/$dir $HOME/.config/$dir
+done
+
+#link every script, including those not named above
+for script in $SCRIPT_DIR/../home/.local/bin/*; do
+  ln -fs "$script" "$HOME/.local/bin/${script##*/}"
+done
+
+#link the remaining configs
+for dir in bat btop cider fzf wallpaper wiremix zathura mimeapps.list; do
   ln -sfn $SCRIPT_DIR/../home/.config/$dir $HOME/.config/$dir
 done
 
