@@ -15,16 +15,24 @@ local function rgba(hex, alpha) return "rgba(" .. hex .. (alpha or "ff") .. ")" 
 
 local mod = "ALT"
 local term = "alacritty"
+-- Which machine this is: "otterway" (a VM on a Mac; nixos/otterway.nix's session sets
+-- DESKTOP_HOST) or Weaselway on WSL.
+local otterway = os.getenv("DESKTOP_HOST") == "otterway"
 
 ---- Monitors ----
--- The left monitor is the first viewer, the right one the second. Weaselway's
--- Hyprland follows each viewer's window size by itself.
-hl.monitor({ output = "Virtual-1", mode = "preferred", position = "0x0", scale = 1 })
-hl.monitor({ output = "Virtual-2", mode = "preferred", position = "auto-right", scale = 1 })
-hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
+if not otterway then
+    -- The left monitor is the first viewer, the right one the second. Weaselway's
+    -- Hyprland follows each viewer's window size by itself.
+    hl.monitor({ output = "Virtual-1", mode = "preferred", position = "0x0", scale = 1 })
+    hl.monitor({ output = "Virtual-2", mode = "preferred", position = "auto-right", scale = 1 })
+    hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
 
-hl.device({ name = "weaselway-pointer", output = "Virtual-1" })
-hl.device({ name = "weaselway-pointer-2", output = "Virtual-2" })
+    hl.device({ name = "weaselway-pointer", output = "Virtual-1" })
+    hl.device({ name = "weaselway-pointer-2", output = "Virtual-2" })
+end
+-- On Otterway the Mac decides: each display window's size, scale and position reach
+-- Hyprland from Otterway's agent (wlr-output-management), and its one pointer already
+-- spans every display, so there are no monitor or pointer rules here.
 
 hl.env("XCURSOR_THEME", theme.cursor or "phinger-cursors-dark")
 hl.env("XCURSOR_SIZE", "24")
@@ -33,11 +41,15 @@ hl.env("XCURSOR_SIZE", "24")
 hl.on("hyprland.start", function()
     hl.exec_cmd("hyprctl setcursor " .. (theme.cursor or "phinger-cursors-dark") .. " 24")
     hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE")
-    hl.exec_cmd(bin .. "win-media-keys")
-    hl.exec_cmd(bin .. "health-log")
-    hl.exec_cmd(bin .. "win-to-clipboard")
-    hl.exec_cmd("wl-paste --type text --watch " .. bin .. "clipboard-to-win text")
-    hl.exec_cmd("wl-paste --type image/png --watch " .. bin .. "clipboard-to-win image")
+    if not otterway then
+        -- Windows bridges (media keys, health with PowerShell, the clipboard). On
+        -- Otterway the Mac's clipboard is the guest's already (Otterway's clipd).
+        hl.exec_cmd(bin .. "win-media-keys")
+        hl.exec_cmd(bin .. "health-log")
+        hl.exec_cmd(bin .. "win-to-clipboard")
+        hl.exec_cmd("wl-paste --type text --watch " .. bin .. "clipboard-to-win text")
+        hl.exec_cmd("wl-paste --type image/png --watch " .. bin .. "clipboard-to-win image")
+    end
     hl.exec_cmd("wl-paste --type text --watch cliphist store")
     hl.exec_cmd("wl-paste --type image/png --watch cliphist store")
     hl.exec_cmd(term .. " --class startup-term")
@@ -153,8 +165,9 @@ hl.config({
         float_switch_override_focus = 0,
     },
     -- Weaselway's virtual displays don't show a hardware cursor plane reliably, so
-    -- Hyprland draws the pointer itself
-    cursor = { hide_on_key_press = true, zoom_rigid = false, no_hardware_cursors = 1 },
+    -- Hyprland draws the pointer itself.  On Otterway the hardware cursor is what makes
+    -- the guest's pointer the Mac's own, without lag.
+    cursor = { hide_on_key_press = true, zoom_rigid = false, no_hardware_cursors = otterway and 0 or 1 },
     binds = { workspace_back_and_forth = true, allow_workspace_cycles = true },
 })
 
