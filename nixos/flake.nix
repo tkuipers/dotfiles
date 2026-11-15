@@ -39,6 +39,12 @@
       nixosConfigurations.otterway = otterway.lib.mkGuest [
         { _module.args = { unstable = unstableFor "aarch64-linux"; otterwayInput = otterway; }; }
         ./otterway.nix
+        ./apps.nix
+      ];
+      # The desktop without the applications, dev tools and services (a smaller disk).
+      nixosConfigurations.otterway-desktop = otterway.lib.mkGuest [
+        { _module.args = { otterwayInput = otterway; }; }
+        ./otterway.nix
       ];
     };
 }

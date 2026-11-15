@@ -1,11 +1,12 @@
-# The Otterway system: the same desktop as Weaselway (common.nix), in a VM on a Mac
+# The Otterway system: the same desktop as Weaselway (desktop.nix), in a VM on a Mac
 # (aarch64-linux, libkrun).  Otterway's NixOS module brings the kernel, Mesa (Venus/Zink),
 # otter-agent, PipeWire on virtio-snd, the shared folders, the network and the boot
 # hand-off; this file adds what Weaselway's module and NixOS-WSL did on WSL: the user and
 # the session.
 #
 # Apply it in the guest:
-#   sudo nixos-rebuild switch --flake ~/dotfiles/nixos#otterway
+#   sudo nixos-rebuild switch --flake ~/dotfiles/nixos#otterway           (desktop + apps)
+#   sudo nixos-rebuild switch --flake ~/dotfiles/nixos#otterway-desktop   (desktop only)
 # The next VM start boots it.  Home files: ./script/install.sh, as on WSL.
 { config, lib, pkgs, otterwayInput, ... }:
 
@@ -25,7 +26,7 @@ let
   '';
 in
 {
-  imports = [ ./common.nix ];
+  imports = [ ./desktop.nix ];  # the flake adds ./apps.nix for nixos#otterway
 
   otterway.enable = true;
 
