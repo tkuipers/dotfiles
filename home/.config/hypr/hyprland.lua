@@ -13,11 +13,13 @@ end
 local function rgb(hex) return "rgb(" .. hex .. ")" end
 local function rgba(hex, alpha) return "rgba(" .. hex .. (alpha or "ff") .. ")" end
 
-local mod = "ALT"
-local term = "alacritty"
 -- Which machine this is: "otterway" (a VM on a Mac; nixos/otterway.nix's session sets
 -- DESKTOP_HOST) or Weaselway on WSL.
 local otterway = os.getenv("DESKTOP_HOST") == "otterway"
+-- The modifier: Alt on Windows; on the Mac, Command (Otterway sends it as Super), where
+-- Option-letter is how macOS keyboards type accents and symbols.
+local mod = otterway and "SUPER" or "ALT"
+local term = "alacritty"
 
 ---- Monitors ----
 if not otterway then
