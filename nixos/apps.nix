@@ -22,7 +22,7 @@ in
     (brave.override { commandLineArgs = "--ozone-platform=wayland --disable-gpu-rasterization"; })
 
     # Development
-    git-lfs gh gcc gnumake pkg-config openssl python3 uv flutter android-tools
+    git-lfs gh gcc gnumake pkg-config openssl uv flutter android-tools
     nodejs go rustup maven jetbrains.idea claude-code
 
     cmake ninja meson clang pipx dotnetCorePackages.sdk_8_0 unstable.codex

@@ -1,6 +1,12 @@
-#/usr/bin/env bash
+#!/usr/bin/env bash
 
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+
+# backup existing configs if they exist
+[ -d "$HOME/.config/waybar" ] && [ ! -L "$HOME/.config/waybar" ] && mv "$HOME/.config/waybar" "$HOME/.config/waybar.backup"
+[ -d "$HOME/.config/sway" ] && [ ! -L "$HOME/.config/sway" ] && mv "$HOME/.config/sway" "$HOME/.config/sway.backup"
+[ -d "$HOME/.config/wofi" ] && [ ! -L "$HOME/.config/wofi" ] && mv "$HOME/.config/wofi" "$HOME/.config/wofi.backup"
+[ -d "$HOME/.config/polybar" ] && [ ! -L "$HOME/.config/polybar" ] && mv "$HOME/.config/polybar" "$HOME/.config/polybar.backup"
 
 mkdir -p $HOME/.config/nvim
 mkdir -p $HOME/.config/waybar
@@ -14,12 +20,6 @@ mkdir -p $HOME/.config/eza
 mkdir -p $HOME/.config/git
 mkdir -p $HOME/.config/systemd/user
 mkdir -p $HOME/.local/bin
-
-# backup existing configs if they exist
-[ -d "$HOME/.config/waybar" ] && [ ! -L "$HOME/.config/waybar" ] && mv "$HOME/.config/waybar" "$HOME/.config/waybar.backup"
-[ -d "$HOME/.config/sway" ] && [ ! -L "$HOME/.config/sway" ] && mv "$HOME/.config/sway" "$HOME/.config/sway.backup"
-[ -d "$HOME/.config/wofi" ] && [ ! -L "$HOME/.config/wofi" ] && mv "$HOME/.config/wofi" "$HOME/.config/wofi.backup"
-[ -d "$HOME/.config/polybar" ] && [ ! -L "$HOME/.config/polybar" ] && mv "$HOME/.config/polybar" "$HOME/.config/polybar.backup"
 
 #link starship
 ln -fs $SCRIPT_DIR/../home/.config/starship.toml $HOME/.config/starship.toml

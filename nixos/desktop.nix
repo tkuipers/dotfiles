@@ -23,6 +23,8 @@
     # Shell
     starship eza neovim ripgrep fd fzf bat tmux htop lazygit taskwarrior3
     lsof file tree ncdu unzip zip wget curl
+    # theme-apply
+    python3
 
     # Theme
     kmod usbutils v4l-utils ffmpeg-headless
