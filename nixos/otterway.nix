@@ -52,6 +52,10 @@ in
       hyprland = prev.hyprland.overrideAttrs (o: {
         preBuild = (o.preBuild or "") + "\nNIX_BUILD_CORES=2\n";
       });
+      # Rebuilt against that Hyprland; same limit.
+      xdg-desktop-portal-hyprland = prev.xdg-desktop-portal-hyprland.overrideAttrs (o: {
+        preBuild = (o.preBuild or "") + "\nNIX_BUILD_CORES=2\n";
+      });
     })
   ];
 
