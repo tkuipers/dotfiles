@@ -376,7 +376,7 @@ void main() {
     if (water.x > 0.0) {
         float cover = smoothstep(0.0, 0.18, water.x);
         vec3 seen = texture(tex, st + vec2(0.0, -water.y * FALL)).rgb;
-        seen *= 1.0 - 0.3 * cover * (1.0 - smoothstep(0.1, 0.55, water.x));
+        seen *= 1.0 - 0.05 * cover * (1.0 - smoothstep(0.1, 0.55, water.x));
         seen += 0.0175 + 0.03 * smoothstep(0.55, 1.0, water.x);
         col = mix(col, seen, cover);
     }
