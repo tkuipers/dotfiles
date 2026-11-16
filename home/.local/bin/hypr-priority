@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Runs Hyprland at nice -11, like weaselwayd, so busy builds can't starve the
+# compositor. Reset-on-fork keeps apps it launches at normal priority.
+pid=$(pgrep -x .Hyprland-wrapp | head -1)
+[ -n "$pid" ] || pid=$(pgrep -x Hyprland | head -1)
+[ -n "$pid" ] || exit 1
+for task in /proc/"$pid"/task/*; do
+  tid=${task##*/}
+  sudo -n chrt -o -R -p 0 "$tid" && sudo -n renice -n -11 -p "$tid" >/dev/null
+done
