@@ -1,0 +1,326 @@
+diff --git a/src/config/values/ConfigValues.cpp b/src/config/values/ConfigValues.cpp
+index 23cad96..3a99632 100644
+--- a/src/config/values/ConfigValues.cpp
++++ b/src/config/values/ConfigValues.cpp
+@@ -228,6 +228,9 @@ std::vector<SP<IValue>> Values::getConfigValues() {
+                   {.min = 0, .max = 1, .refresh = Supplementary::REFRESH_WINDOW_STATES}),
+         MS<Float>("decoration:dim_around", "how much the dimaround window rule should dim by.", 0.4, {.min = 0, .max = 1, .refresh = Supplementary::REFRESH_WINDOW_STATES}),
+         MS<String>("decoration:screen_shader", "a path to a custom shader to be applied at the end of rendering.", STRVAL_EMPTY, {.refresh = Supplementary::REFRESH_SCREEN_SHADER}),
++        MS<Int>("decoration:screen_shader_fps",
++                "with damage tracking on, how often an animated screen shader (time or focus_time) is re-run over an otherwise unchanged screen", 30,
++                {.min = 1, .max = 240}),
+         MS<Bool>("decoration:border_part_of_window", "whether the border should be treated as a part of the window.", true),
+ 
+         /*
+diff --git a/src/helpers/Monitor.cpp b/src/helpers/Monitor.cpp
+index 5d1a7ef..78d1b16 100644
+--- a/src/helpers/Monitor.cpp
++++ b/src/helpers/Monitor.cpp
+@@ -2658,7 +2658,7 @@ void CMonitorState::applyCustomModeWithSwapchain(const SP<Aquamarine::SOutputMod
+ }
+ 
+ bool CMonitor::needsACopyFB() {
+-    return !m_mirrors.empty() || Screenshare::mgr()->outputNeedsCopyFB(m_self.lock());
++    return !m_mirrors.empty() || Screenshare::mgr()->outputNeedsCopyFB(m_self.lock()) || (g_pHyprRenderer && g_pHyprRenderer->shaderTicksActive(m_self.lock()));
+ }
+ 
+ bool CMonitor::needsUnmodifiedCopy() {
+diff --git a/src/helpers/MonitorResources.cpp b/src/helpers/MonitorResources.cpp
+index bf59f96..7b8cd16 100644
+--- a/src/helpers/MonitorResources.cpp
++++ b/src/helpers/MonitorResources.cpp
+@@ -76,7 +76,7 @@ bool CMonitorResources::hasMirrorFB() const {
+ }
+ 
+ bool CMonitorResources::shouldKeepMirrorFB() const {
+-    return !m_monitor->m_mirrors.empty() || Screenshare::mgr()->isOutputBeingSSd(m_monitor.lock());
++    return !m_monitor->m_mirrors.empty() || Screenshare::mgr()->isOutputBeingSSd(m_monitor.lock()) || (g_pHyprRenderer && g_pHyprRenderer->shaderTicksActive(m_monitor.lock()));
+ }
+ 
+ void CMonitorResources::releaseMirrorFB() {
+diff --git a/src/render/OpenGL.cpp b/src/render/OpenGL.cpp
+index cdb32fa..88137ad 100644
+--- a/src/render/OpenGL.cpp
++++ b/src/render/OpenGL.cpp
+@@ -775,6 +775,13 @@ void CHyprOpenGLImpl::begin(PHLMONITOR pMonitor, const CRegion& damage_, SP<IFra
+     g_pHyprRenderer->pushMonitorTransformEnabled(false);
+ }
+ 
++static std::string ticksBoxGL(const CRegion& r) {
++    if (r.empty())
++        return "empty";
++    const auto b = r.copy().getExtents();
++    return std::format("{}x{}+{}+{}/{}", (int)b.w, (int)b.h, (int)b.x, (int)b.y, r.getRects().size());
++}
++
+ void CHyprOpenGLImpl::end() {
+     static auto PZOOMDISABLEAA = CConfigValue<Config::INTEGER>("cursor:zoom_disable_aa");
+     static auto PFPINVALIDATE  = CConfigValue<Config::INTEGER>("debug:invalidate_fp16");
+@@ -801,22 +808,42 @@ void CHyprOpenGLImpl::end() {
+         if UNLIKELY (g_pHyprRenderer->m_renderData.mouseZoomFactor != 1.F && g_pHyprRenderer->m_renderData.mouseZoomUseMouse && *PZOOMDISABLEAA)
+             g_pHyprRenderer->m_renderData.useNearestNeighbor = true;
+ 
++        g_pHyprRenderer->ticksTrace(std::format(" end mon={} final={} dmg={} fake={} mode={} mirrorFrame={}", PMONITOR->m_name, ticksBoxGL(g_pHyprRenderer->m_renderData.finalDamage),
++                                                ticksBoxGL(g_pHyprRenderer->m_renderData.damage), m_fakeFrame, (int)g_pHyprRenderer->m_renderMode, g_pHyprRenderer->m_shaderMirrorFrame));
+         // copy the damaged areas into the mirror buffer
+         // we can't use the offloadFB for mirroring / ss, as it contains artifacts from blurring
+         if UNLIKELY (g_pHyprRenderer->m_renderData.pMonitor->needsACopyFB() && !m_fakeFrame) {
+-            if (saveBufferForMirror(monbox))
++            // m_applyFinalShader is already on here, so the copy would come out shaded. The
++            // animated shader re-runs over this copy every frame, so it must stay unshaded.
++            const bool shadeMirror = m_applyFinalShader;
++            if (g_pHyprRenderer->shaderTicksActive(PMONITOR.lock()))
++                m_applyFinalShader = false;
++            const bool saved   = saveBufferForMirror(monbox);
++            m_applyFinalShader = shadeMirror;
++            if (saved)
+                 g_pHyprRenderer->m_renderData.pMonitor->resources()->markMirrorFBUpdated();
+             else
+                 g_pHyprRenderer->m_renderData.pMonitor->resources()->invalidateMirrorFB();
+         }
+ 
+-        const auto TEX = g_pHyprRenderer->m_renderData.currentFB->getTexture();
++        auto       TEX = g_pHyprRenderer->m_renderData.currentFB->getTexture();
++
++        // Animated screen shader with damage tracking: only the damaged part of the scene was
++        // drawn, and saved into the mirror FB above. Shade the whole screen from there.
++        if (!m_fakeFrame && g_pHyprRenderer->m_renderMode == RENDER_MODE_NORMAL && g_pHyprRenderer->m_shaderMirrorFrame && PMONITOR->resources()->hasMirrorFB()) {
++            TEX                                   = PMONITOR->resources()->getMirrorTexture();
++            g_pHyprRenderer->m_renderData.damage  = CRegion{0, 0, PMONITOR->m_transformedSize.x, PMONITOR->m_transformedSize.y};
++        }
++
+         g_pHyprRenderer->bindFB(g_pHyprRenderer->m_renderData.outFB);
+         blend(false);
+ 
+         const bool NEEDS_CM          = g_pHyprRenderer->m_renderData.pMonitor->m_imageDescription->value() != g_pHyprRenderer->m_renderData.mainFB->imageDescription()->value();
+         const bool HAS_FINAL_SHADER  = m_finalScreenShader->program() >= 1 || g_pHyprRenderer->m_crashingInProgress;
+         const bool PRIMITIVE_BLOCKED = NEEDS_CM || HAS_FINAL_SHADER;
++        g_pHyprRenderer->ticksTrace(std::format(" blit mon={} fromMirror={} needsCM={} shader={} texDesc={} monDesc={} mainDesc={}", PMONITOR->m_name,
++                                                TEX != g_pHyprRenderer->m_renderData.currentFB->getTexture(), NEEDS_CM, HAS_FINAL_SHADER, TEX->m_imageDescription->id(),
++                                                PMONITOR->m_imageDescription->id(), g_pHyprRenderer->m_renderData.mainFB->imageDescription()->id()));
+ 
+         if LIKELY (!PRIMITIVE_BLOCKED || g_pHyprRenderer->m_renderMode != RENDER_MODE_NORMAL)
+             renderTexturePrimitive(TEX, monbox);
+@@ -917,6 +944,7 @@ void CHyprOpenGLImpl::applyScreenShader(const std::string& path) {
+     static auto PDT = CConfigValue<Config::INTEGER>("debug:damage_tracking");
+ 
+     m_finalScreenShader->destroy();
++    g_pHyprRenderer->setScreenShaderAnimated(false);
+ 
+     if (path.empty() || path == STRVAL_EMPTY)
+         return;
+@@ -954,6 +982,10 @@ void CHyprOpenGLImpl::applyScreenShader(const std::string& path) {
+     if (m_finalScreenShader->getUniformLocation(SHADER_TIME) != -1)
+         m_finalScreenShader->setInitialTime(g_pHyprRenderer->m_globalTimer.getSeconds());
+ 
++    // With damage tracking on, time-driven shaders are re-run at decoration:screen_shader_fps
++    g_pHyprRenderer->setScreenShaderAnimated(m_finalScreenShader->getUniformLocation(SHADER_TIME) != -1 ||
++                                             m_finalScreenShader->getUniformLocation(SHADER_FOCUS_TIME) != -1);
++
+     static auto uniformRequireNoDamage = [this](eShaderUniform uniform, const std::string& name) {
+         if (*PDT == 0)
+             return;
+@@ -967,9 +999,7 @@ void CHyprOpenGLImpl::applyScreenShader(const std::string& path) {
+                                                         name));
+     };
+ 
+-    // Allow glitch shader to use time uniform whighout damage tracking
+-    if (!g_pHyprRenderer->m_crashingInProgress)
+-        uniformRequireNoDamage(SHADER_TIME, "time");
++    // time (and focus_time) work with damage tracking: see decoration:screen_shader_fps
+ 
+     uniformRequireNoDamage(SHADER_POINTER, "pointer_position");
+     uniformRequireNoDamage(SHADER_POINTER_PRESSED_POSITIONS, "pointer_pressed_positions");
+@@ -1224,12 +1254,15 @@ WP<CShader> CHyprOpenGLImpl::renderToOutputInternal() {
+ 
+     shader = useShader(shader);
+ 
+-    if (*PDT == 0 || g_pHyprRenderer->m_crashingInProgress)
++    if (*PDT == 0 || g_pHyprRenderer->m_crashingInProgress || g_pHyprRenderer->shaderTicksActive(m_renderData.pMonitor.lock()))
+         shader->setUniformFloat(SHADER_TIME, g_pHyprRenderer->m_globalTimer.getSeconds() - shader->getInitialTime());
+     else
+         shader->setUniformFloat(SHADER_TIME, 0.f);
+ 
+     shader->setUniformInt(SHADER_WL_OUTPUT, m_renderData.pMonitor->m_id);
++    g_pHyprRenderer->ticksTrace(std::format("  shade mon={} realTime={} t={:.4f} dmg={}", m_renderData.pMonitor->m_name,
++                                            (*PDT == 0 || g_pHyprRenderer->m_crashingInProgress || g_pHyprRenderer->shaderTicksActive(m_renderData.pMonitor.lock())),
++                                            g_pHyprRenderer->m_globalTimer.getSeconds() - shader->getInitialTime(), ticksBoxGL(m_renderData.damage)));
+     {
+         const auto FOCUS    = Desktop::focusState();
+         const auto FOCUSMON = FOCUS->monitor();
+diff --git a/src/render/Renderer.cpp b/src/render/Renderer.cpp
+index ad2a769..543352a 100644
+--- a/src/render/Renderer.cpp
++++ b/src/render/Renderer.cpp
+@@ -2,6 +2,7 @@
+ #include "../Compositor.hpp"
+ #include "../helpers/math/Math.hpp"
+ #include <algorithm>
++#include <unistd.h>
+ #include <aquamarine/output/Output.hpp>
+ #include <cmath>
+ #include <filesystem>
+@@ -209,6 +210,84 @@ IHyprRenderer::IHyprRenderer() {
+         nullptr);
+ 
+     g_pEventLoopManager->addTimer(m_renderUnfocusedTimer);
++
++    // Re-runs an animated screen shader at decoration:screen_shader_fps when nothing else
++    // would cause a frame. Frames with real damage still happen as usual.
++    m_shaderTickTimer = makeShared<CEventLoopTimer>(
++        std::nullopt,
++        [this](SP<CEventLoopTimer> self, void* data) {
++            static auto PFPS = CConfigValue<Config::INTEGER>("decoration:screen_shader_fps");
++
++            bool any = false;
++            for (auto const& m : g_pCompositor->m_monitors) {
++                if (!shaderTicksActive(m))
++                    continue;
++                any = true;
++                g_pCompositor->scheduleFrameForMonitor(m, Aquamarine::IOutput::AQ_SCHEDULE_ANIMATION);
++                ticksTrace(std::format("tick mon={}", m->m_name));
++            }
++
++            // Not ticking (damage tracking off, say) but the shader is animated: check back
++            // now and then in case that changes
++            if (any)
++                m_shaderTickTimer->updateTimeout(std::chrono::microseconds(1000000 / std::max<Config::INTEGER>(1, *PFPS)));
++            else if (m_screenShaderAnimated)
++                m_shaderTickTimer->updateTimeout(std::chrono::milliseconds(500));
++        },
++        nullptr);
++
++    g_pEventLoopManager->addTimer(m_shaderTickTimer);
++}
++
++void IHyprRenderer::setScreenShaderAnimated(bool animated) {
++    m_screenShaderAnimated = animated;
++    for (auto const& m : g_pCompositor->m_monitors) {
++        if (!m->m_enabled)
++            continue;
++        m->resources()->invalidateMirrorFB(); // the next frame refills it completely
++        damageMonitor(m);
++    }
++    if (animated && m_shaderTickTimer)
++        m_shaderTickTimer->updateTimeout(std::chrono::milliseconds(1));
++}
++
++void IHyprRenderer::ticksTrace(const std::string& line) {
++    static FILE* f       = nullptr;
++    static auto  checked = std::chrono::steady_clock::time_point{};
++    static bool  on      = false;
++    const auto   now     = std::chrono::steady_clock::now();
++    if (now - checked > std::chrono::seconds(1)) {
++        checked = now;
++        on      = access("/tmp/hypr-ticks-trace", F_OK) == 0;
++        if (on && !f)
++            f = fopen("/tmp/hypr-ticks.log", "a");
++        else if (!on && f) {
++            fclose(f);
++            f = nullptr;
++        }
++    }
++    if (!on || !f)
++        return;
++    fprintf(f, "%.4f %s\n", m_globalTimer.getSeconds(), line.c_str());
++    fflush(f);
++}
++
++static std::string ticksBox(const CRegion& r) {
++    if (r.empty())
++        return "empty";
++    const auto b = r.copy().getExtents();
++    return std::format("{}x{}+{}+{}/{}", (int)b.w, (int)b.h, (int)b.x, (int)b.y, r.getRects().size());
++}
++
++bool IHyprRenderer::shaderTicksActive(PHLMONITOR monitor) {
++    static auto PDAMAGETRACKINGMODE = CConfigValue<Config::INTEGER>("debug:damage_tracking");
++    return m_screenShaderAnimated && *PDAMAGETRACKINGMODE == DAMAGE_TRACKING_FULL && !m_crashingInProgress && monitor && monitor->m_enabled && !monitor->isMirror();
++}
++
++// The mirror FB is saved after the cursor zoom is applied, so it can't stand in for the
++// scene while zoomed; those frames are drawn in full instead.
++bool IHyprRenderer::shaderTicksUseMirror(PHLMONITOR monitor) {
++    return shaderTicksActive(monitor) && monitor->m_cursorZoom->value() == 1.f && monitor->m_zoomAnimProgress->value() == 1;
+ }
+ 
+ IHyprRenderer::~IHyprRenderer() {
+@@ -2086,6 +2165,10 @@ void IHyprRenderer::renderMonitor(PHLMONITOR pMonitor, bool commit) {
+         m_renderData.useNearestNeighbor = false;
+     }
+ 
++    // Decided up front: the shader can be (re)loaded inside beginRender, and a mirror FB
++    // created mid-frame would only hold this frame's damage
++    m_shaderMirrorFrame = shaderTicksUseMirror(pMonitor) && pMonitor->resources()->hasMirrorFB();
++
+     CRegion damage, finalDamage;
+     if (!beginRender(pMonitor, damage, RENDER_MODE_NORMAL)) {
+         Log::logger->log(Log::ERR, "renderer: couldn't beginRender()!");
+@@ -2093,10 +2176,14 @@ void IHyprRenderer::renderMonitor(PHLMONITOR pMonitor, bool commit) {
+     }
+ 
+     // if we have no tracking or full tracking, invalidate the entire monitor
+-    if (*PDAMAGETRACKINGMODE == DAMAGE_TRACKING_NONE || *PDAMAGETRACKINGMODE == DAMAGE_TRACKING_MONITOR || pMonitor->m_forceFullFrames > 0 || damageBlinkCleanup > 0)
++    // (and while zoomed with an animated shader: the mirror FB can't be used then)
++    if (*PDAMAGETRACKINGMODE == DAMAGE_TRACKING_NONE || *PDAMAGETRACKINGMODE == DAMAGE_TRACKING_MONITOR || pMonitor->m_forceFullFrames > 0 || damageBlinkCleanup > 0 ||
++        (shaderTicksActive(pMonitor) && !shaderTicksUseMirror(pMonitor)))
+         damage = {0, 0, sc<int>(pMonitor->m_transformedSize.x) * 10, sc<int>(pMonitor->m_transformedSize.y) * 10};
+ 
+     finalDamage = damage;
++    ticksTrace(std::format("F{} mon={} mirrorFrame={} hasMirror={} active={} useMirror={} copyFB={} damage={}", ++m_ticksFrame, pMonitor->m_name, m_shaderMirrorFrame,
++                           pMonitor->resources()->hasMirrorFB(), shaderTicksActive(pMonitor), shaderTicksUseMirror(pMonitor), pMonitor->needsACopyFB(), ticksBox(damage)));
+ 
+     // update damage in renderdata as we modified it
+     setDamage(damage, finalDamage);
+@@ -2175,9 +2262,14 @@ void IHyprRenderer::renderMonitor(PHLMONITOR pMonitor, bool commit) {
+     Event::bus()->m_events.render.stage.emit(RENDER_LAST_MOMENT);
+ 
+     endRender();
++    m_shaderMirrorFrame = false;
+ 
+     TRACY_GPU_COLLECT;
+ 
++    // A zoomed frame saved a zoomed picture into the mirror FB; refill it once unzoomed
++    if (shaderTicksActive(pMonitor) && !shaderTicksUseMirror(pMonitor))
++        pMonitor->resources()->invalidateMirrorFB();
++
+     if (!pMonitor->needsACopyFB())
+         pMonitor->resources()->markMirrorFBStale(m_renderData.damage);
+ 
+@@ -2200,6 +2292,7 @@ void IHyprRenderer::renderMonitor(PHLMONITOR pMonitor, bool commit) {
+     Event::bus()->m_events.render.stage.emit(RENDER_POST);
+ 
+     pMonitor->m_output->state->addDamage(frameDamage);
++    ticksTrace(std::format(" commit mon={} frameDamage={}", pMonitor->m_name, ticksBox(frameDamage)));
+     auto presentationMode = shouldTear ? Aquamarine::eOutputPresentationMode::AQ_OUTPUT_PRESENTATION_IMMEDIATE : Aquamarine::eOutputPresentationMode::AQ_OUTPUT_PRESENTATION_VSYNC;
+     if (pMonitor->m_output->state->state().presentationMode != presentationMode)
+         pMonitor->m_output->state->setPresentationMode(presentationMode);
+diff --git a/src/render/Renderer.hpp b/src/render/Renderer.hpp
+index b43e7bf..fccc279 100644
+--- a/src/render/Renderer.hpp
++++ b/src/render/Renderer.hpp
+@@ -76,6 +76,14 @@ namespace Render {
+         bool                                shouldRenderWindow(PHLWINDOW, PHLMONITOR);
+         bool                                shouldRenderWindow(PHLWINDOW);
+         bool                                shouldRenderMonitor(PHLMONITOR);
++        // Animated screen shader with damage tracking: the scene is redrawn only where it
++        // changed, kept whole in the monitor's mirror FB, and the shader re-runs over that
++        bool                                shaderTicksActive(PHLMONITOR);
++        bool                                shaderTicksUseMirror(PHLMONITOR);
++        void                                setScreenShaderAnimated(bool animated);
++        // Debug: while /tmp/hypr-ticks-trace exists, one line per event to /tmp/hypr-ticks.log
++        void                                ticksTrace(const std::string& line);
++        uint64_t                            m_ticksFrame = 0;
+         void                                ensureCursorRenderingMode();
+         bool                                shouldRenderCursor();
+         void                                setCursorHidden(bool hide);
+@@ -291,6 +299,9 @@ namespace Render {
+         std::vector<SP<IRenderbuffer>> m_renderbuffers;
+         std::vector<PHLWINDOWREF>      m_renderUnfocused;
+         SP<CEventLoopTimer>            m_renderUnfocusedTimer;
++        SP<CEventLoopTimer>            m_shaderTickTimer;
++        bool                           m_screenShaderAnimated = false;
++        bool                           m_shaderMirrorFrame    = false; // decided before the frame starts
+ 
+         friend class CRenderPass;
+         friend class Render::GL::CHyprOpenGLImpl;

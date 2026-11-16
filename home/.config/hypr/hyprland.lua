@@ -541,6 +541,11 @@ local function defines()
         FOG = (c.code == 45 or c.code == 48) and "1.0" or "0.0",
     }
 end
+-- The patched Hyprland (nixos/patches/hyprland-shader-ticks.patch) keeps damage
+-- tracking on and re-runs an animated shader itself at screen_shader_fps; a stock
+-- one only animates it with damage tracking off. The new option tells them apart.
+local okTicks, ticksFps = pcall(hl.get_config, "decoration.screen_shader_fps")
+local shaderTicks = okTicks and ticksFps ~= nil
 local function loadWeatherShader(force)
     if not weatherShader then
         loadedSource = nil
@@ -562,11 +567,17 @@ local function loadWeatherShader(force)
     if not out then return end
     out:write(source)
     out:close()
-    -- Its animation needs Hyprland to redraw every frame, so damage tracking is
-    -- off while a shader runs: switched before it goes on, and back after it
-    -- comes off, so Hyprland never warns about it. Hyprland only reloads a
-    -- shader whose path changed, hence the blank first.
-    hl.config({ debug = { damage_tracking = 0 } })
+    -- Stock Hyprland: its animation needs a redraw every frame, so damage tracking
+    -- is off while a shader runs: switched before it goes on, and back after it
+    -- comes off, so Hyprland never warns about it. Patched: tracking stays on and
+    -- the shader alone re-runs at 30fps. Hyprland only reloads a shader whose path
+    -- changed, hence the blank first.
+    if shaderTicks then
+        hl.config({ decoration = { screen_shader_fps = 30 } })
+        hl.config({ debug = { damage_tracking = 2 } })
+    else
+        hl.config({ debug = { damage_tracking = 0 } })
+    end
     hl.config({ decoration = { screen_shader = "" } })
     hl.config({ decoration = { screen_shader = path } })
 end

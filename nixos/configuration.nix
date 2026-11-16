@@ -362,6 +362,10 @@
       # Hyprland didn't end absolute motion with wl_pointer.frame, so Alacritty
       # only saw a drag on release
       ./patches/hyprland-absolute-pointer-frame.patch
+      # With damage tracking on, an animated screen shader re-runs alone at
+      # decoration:screen_shader_fps (30) over the mirror FB, instead of Hyprland
+      # redrawing every window, blur included, every frame
+      ./patches/hyprland-shader-ticks.patch
     ];
   });
   programs.mangowc.enable = true;
