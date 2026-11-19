@@ -135,4 +135,4 @@ if [[ $- == *i* ]] && [ "$(tput cols)" -ge 80 ]; then
   fastfetch -c "$theme_state/fastfetch/config.jsonc"
 fi
 
-. "/home/administrator/.local/bin/env"
+. "$HOME/.local/bin/env"
