@@ -92,7 +92,7 @@
     lsof file tree ncdu unzip zip wget curl
 
     # Development
-    git-lfs gh gcc gnumake pkg-config openssl python3 uv flutter android-tools
+    git-lfs gh gcc gnumake pkg-config openssl python3 unstable.uv flutter android-tools
     nodejs go rustup maven jetbrains.idea claude-code
 
     cmake ninja meson clang pipx dotnetCorePackages.sdk_8_0 unstable.codex
@@ -181,7 +181,7 @@
       nativeBuildInputs = [ makeWrapper ];
       postBuild = "wrapProgram $out/bin/teams-for-linux --prefix PATH : ${player}/bin";
     })
-    vscode code-cursor bruno beekeeper-studio firefox thunderbird
+    vscode code-cursor bruno beekeeper-studio firefox thunderbird slack
     # From unstable: the library was last opened by Zotero 10, which the pinned 9.x refuses.
     unstable.zotero anki-bin
     # Outlook in an Electron wrapper. Not in nixpkgs, so this wraps the release AppImage.
@@ -366,6 +366,9 @@
       # decoration:screen_shader_fps (30) over the mirror FB, instead of Hyprland
       # redrawing every window, blur included, every frame
       ./patches/hyprland-shader-ticks.patch
+      # Hyprland honoured a device's output only for tablets and touch, so each
+      # viewer's absolute pointer spanned both screens instead of its own
+      ./patches/hyprland-pointer-output.patch
     ];
   });
   programs.mangowc.enable = true;

@@ -1,0 +1,16 @@
+--- a/src/managers/input/InputManager.cpp	2026-11-17 10:12:35.996306945 -0600
++++ b/src/managers/input/InputManager.cpp	2026-11-17 10:12:36.019500540 -0600
+@@ -1315,6 +1315,13 @@
+             }
+         }
+ 
++        // An absolute mouse (one viewer per monitor) spans the whole layout
++        // unless it is bound to its own output, as tablets already can be.
++        if (HASCONFIG && Config::mgr()->deviceConfigExplicitlySet(devname, "output"))
++            m->m_boundOutput = Config::mgr()->getDeviceString(devname, "output", "input:tablet:output");
++        else
++            m->m_boundOutput = "";
++
+         if (Config::mgr()->deviceConfigExplicitlySet(devname, "scroll_factor"))
+             m->m_scrollFactor = std::clamp(Config::mgr()->getDeviceFloat(devname, "scroll_factor", "input:scroll_factor"), 0.F, 100.F);
+         else
