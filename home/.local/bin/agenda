@@ -90,12 +90,12 @@ emit() {
 if [ "$1" = pick ]; then
   stale && fetch
   list=$(upcoming)
-  choice=$(while IFS=$'\t' read -r start _ subject link; do
-    printf '%s  %s%s\n' "$(date -d "@$start" '+%a %H:%M')" "$subject" "${link:+  (Teams)}"
-  done <<<"$list" | wofi --dmenu --prompt Meetings) || exit 0
-  n=$(while IFS=$'\t' read -r start _ subject link; do
-    printf '%s  %s%s\n' "$(date -d "@$start" '+%a %H:%M')" "$subject" "${link:+  (Teams)}"
-  done <<<"$list" | grep -nxF -- "$choice" | head -n 1 | cut -d: -f1)
+  # One line per meeting: day, start-end, subject
+  lines=$(while IFS=$'\t' read -r start end subject link; do
+    printf '%s-%s  %s%s\n' "$(date -d "@$start" '+%a %H:%M')" "$(date -d "@$end" +%H:%M)" "$subject" "${link:+  (Teams)}"
+  done <<<"$list")
+  choice=$(wofi --dmenu --prompt Meetings <<<"$lines") || exit 0
+  n=$(grep -nxF -- "$choice" <<<"$lines" | head -n 1 | cut -d: -f1)
   link=$(sed -n "${n}p" <<<"$list" | cut -f4)
   if [ -n "$link" ]; then
     teams-for-linux "$link" &
