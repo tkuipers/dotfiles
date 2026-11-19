@@ -8,3 +8,4 @@ x-scheme-handler/unknown=brave-browser.desktop
 x-scheme-handler/bruno=bruno.desktop
 x-scheme-handler/claude-cli=claude-code-url-handler.desktop
 application/pdf=org.pwmt.zathura.desktop
+x-scheme-handler/slack=slack.desktop

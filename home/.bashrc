@@ -134,3 +134,5 @@ export PATH=$PATH:$HOME/.maestro/bin
 if [[ $- == *i* ]] && [ "$(tput cols)" -ge 80 ]; then
   fastfetch -c "$theme_state/fastfetch/config.jsonc"
 fi
+
+. "/home/administrator/.local/bin/env"
