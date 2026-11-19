@@ -4,4 +4,4 @@
 # picture stays blank.
 region=$(slurp) || exit 0
 grim -g "$region" - |
-  GDK_DISABLE=dmabuf satty --filename - --early-exit --copy-command wl-copy --actions-on-enter save-to-clipboard
+  GDK_DISABLE=dmabuf satty --filename - --early-exit --disable-notifications --copy-command wl-copy --actions-on-enter save-to-clipboard
