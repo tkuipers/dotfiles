@@ -88,7 +88,7 @@
     wlrctl wlr-randr
 
     # Shell
-    starship eza neovim ripgrep fd fzf bat tmux htop lazygit taskwarrior3
+    starship eza neovim ripgrep fd fzf bat glow tmux htop lazygit taskwarrior3
     lsof file tree ncdu unzip zip wget curl
 
     # Development

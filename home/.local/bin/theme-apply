@@ -44,6 +44,7 @@ RENDERED = {
     ".config/teams-for-linux/mocha.css": "teams/theme.css",
     ".config/cider/mocha.css": "cider/theme.css",
     ".config/fzf/colors": "fzf/colors",
+    ".config/glow/mocha.json": "glow/current.json",
 }
 
 
@@ -239,6 +240,10 @@ def main():
         for source, out in RENDERED.items()
         if write(STATE / out, swap((REPO / source).read_text()))
     }
+
+    # Absolute path works in fresh shells too, without exported theme variables.
+    write(STATE / "glow/glow.yml",
+          f'style: "{STATE / "glow/current.json"}"\npager: true\nwidth: 100\n')
 
     waybar = (STATE / "waybar/config").read_text()
     # Hyprland's bar takes its own workspaces module from hyprland.jsonc;
