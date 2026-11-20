@@ -1,7 +1,18 @@
 #!/usr/bin/env bash
 # The power menu. While it is open the flag lets the mouse alone bring up the
 # Windows taskbar: see Weaselway-Taskbar.ps1.
+# The live wallpaper button is labelled with its current state, so the layout is
+# rendered fresh each time from ~/.config/wlogout/layout.
 flag=/mnt/c/Users/tyler.kuipers/Weaselway/power-menu-open
+layout=${XDG_RUNTIME_DIR:-/tmp}/wlogout-layout
 trap 'command rm -f "$flag"' EXIT
 : > "$flag"
-wlogout -b 4 -T 340 -B 340 --css "$HOME/.local/state/theme/wlogout/style.css"
+
+if "$HOME/.local/bin/wallpaper-live" status > /dev/null; then
+  state="Live wallpapers: on"
+else
+  state="Live wallpapers: off"
+fi
+sed "s/\"text\": \"Live wallpapers\"/\"text\": \"$state\"/" "$HOME/.config/wlogout/layout" > "$layout"
+
+wlogout -b 4 -T 340 -B 340 -l "$layout" --css "$HOME/.local/state/theme/wlogout/style.css"

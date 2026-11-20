@@ -1,6 +1,10 @@
 #!/bin/bash
-# Turns animated wallpapers off or on, from the power menu. Off swaps any that is
-# playing for a static one at once and keeps wallpaper-cycle to static ones.
+# Animated wallpapers on or off.
+#   wallpaper-live            toggle (the power menu button)
+#   wallpaper-live on|off     set it
+#   wallpaper-live status     print on/off and what each screen shows; exit 0 when on, 1 when off
+# Off swaps any that is playing for a static one at once and keeps
+# wallpaper-cycle to static ones. On takes effect from the next change.
 flag=$HOME/.cache/wallpapers-static
 theme=$(cat "$HOME/.local/state/theme/current")
 static=$HOME/Pictures/Wallpapers-${theme^}
@@ -10,15 +14,39 @@ say() {
     org.freedesktop.Notifications Notify susssasa{sv}i Wallpapers 0 "" "$1" "" 0 0 3000 >/dev/null
 }
 
-if [ -e "$flag" ]; then
+is_on() { [ ! -e "$flag" ]; }
+
+status() {
+  if is_on; then
+    echo "Live wallpapers: on"
+  else
+    echo "Live wallpapers: off (since $(date -r "$flag" '+%F %H:%M'))"
+  fi
+  awww query 2>/dev/null | sed -nE 's/^: ([^:]+):.*image: (.*)$/  \1: \2/p' |
+    while IFS= read -r line; do
+      case $line in *.gif) echo "$line  [live]" ;; *) echo "$line" ;; esac
+    done
+  is_on
+}
+
+turn_on() {
   rm -f "$flag"
   say "Live wallpapers on, from the next change"
-  exit
-fi
+}
 
-touch "$flag"
-say "Live wallpapers off"
-awww query | sed -nE 's/^: ([^:]+):.*\.gif$/\1/p' | while read -r output; do
-  awww img --outputs "$output" --resize crop --transition-type fade \
-    --transition-duration 2 --transition-fps 30 "$("$HOME/.local/bin/wallpaper-pick" "$static")"
-done
+turn_off() {
+  touch "$flag"
+  say "Live wallpapers off"
+  awww query | sed -nE 's/^: ([^:]+):.*\.gif$/\1/p' | while read -r output; do
+    awww img --outputs "$output" --resize crop --transition-type fade \
+      --transition-duration 2 --transition-fps 30 "$("$HOME/.local/bin/wallpaper-pick" "$static")"
+  done
+}
+
+case ${1:-toggle} in
+  status) status ;;
+  on) turn_on ;;
+  off) turn_off ;;
+  toggle) if is_on; then turn_off; else turn_on; fi ;;
+  *) echo "usage: wallpaper-live [toggle|on|off|status]" >&2; exit 2 ;;
+esac
