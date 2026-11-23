@@ -25,8 +25,19 @@ change_all() {
   done
 }
 
+# awww keeps every GIF's decoded frames forever, once per output size, so it
+# reached 64 GB. Keeps the newest 5 GB; dropped ones are decoded again when played.
+prune_cache() {
+  local total=0 size file _
+  while IFS=' ' read -r -d '' _ size file; do
+    ((total += size))
+    if ((total > 5 * 1024 ** 3)); then rm -f -- "$file"; fi
+  done < <(find "$HOME/.cache/awww" -type f -name '*__*' -printf '%T@ %s %p\0' 2>/dev/null | sort -zrn)
+}
+
 if [ "$1" = --now ]; then
   change_all
+  prune_cache
   exit
 fi
 
@@ -36,5 +47,6 @@ until awww query > /dev/null 2>&1; do sleep 1; done
 
 while [ -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]; do
   change_all
+  prune_cache
   sleep $((900 + RANDOM % 900))
 done
