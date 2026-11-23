@@ -82,6 +82,17 @@ function Get-ViewerPid([int]$port) {
     return $null
 }
 
+# Right after Shut down, Linux takes a minute or two to stop. A session started
+# in that time dies with it and the viewers come back to an empty new instance,
+# so wait until systemd is up in an instance that is not going away.
+for ($try = 0; $try -lt 75; $try++) {
+    $state = "$(& wsl.exe -d $distro -- systemctl is-system-running 2>$null)".Trim()
+    if ($state -match '^(running|degraded|starting|initializing|maintenance)$') { break }
+    if ($try -eq 0) { Write-Output "Waiting for Weaselway to finish shutting down ($state)" }
+    Start-Sleep -Seconds 2
+}
+if ($try -eq 75) { Write-Warning "Weaselway still says '$state' after 150 s; starting anyway" }
+
 & wsl.exe -d $distro -- bash -lc "systemctl is-active --quiet weaselway-session || ww-start-session"
 
 function Start-Viewer([int]$display) {

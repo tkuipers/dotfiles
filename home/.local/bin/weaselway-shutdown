@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Shut down from the wlogout menu: close the Windows viewers first so nothing
+# is left showing (or reconnecting to) a dying instance, then power off Linux.
+/mnt/c/WINDOWS/system32/taskkill.exe /F /IM sdl-freerdp.exe > /dev/null 2>&1
+exec systemctl poweroff
