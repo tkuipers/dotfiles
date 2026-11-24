@@ -34,13 +34,21 @@ turn_on() {
   say "Live wallpapers on, from the next change"
 }
 
-turn_off() {
-  touch "$flag"
-  say "Live wallpapers off"
+replace_live() {
   awww query | sed -nE 's/^: ([^:]+):.*\.gif$/\1/p' | while read -r output; do
     awww img --outputs "$output" --resize crop --transition-type fade \
       --transition-duration 2 --transition-fps 30 "$("$HOME/.local/bin/wallpaper-pick" "$static")"
   done
+}
+
+turn_off() {
+  touch "$flag"
+  say "Live wallpapers off"
+  replace_live
+  # A GIF still being decoded (up to a minute) only shows up once its client
+  # exits, so catch that one too unless they were turned back on meanwhile.
+  while pgrep -x '(awww|\.awww-wrapped)' > /dev/null && ! is_on; do sleep 0.5; done
+  is_on || replace_live
 }
 
 case ${1:-toggle} in
