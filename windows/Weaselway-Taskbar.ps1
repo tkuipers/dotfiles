@@ -34,6 +34,7 @@ public static class WeaselwayTaskbar {
     [DllImport("user32.dll")] static extern bool GetCursorPos(out Point point);
     [DllImport("user32.dll")] static extern short GetAsyncKeyState(int key);
     [DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] static extern int GetWindowLong(IntPtr hwnd, int index);
     [DllImport("user32.dll")] static extern IntPtr MonitorFromPoint(Point point, uint flags);
     [DllImport("user32.dll")] static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);
     [DllImport("user32.dll")] static extern bool SetWindowPos(IntPtr hwnd, IntPtr after, int x, int y, int w, int h, uint flags);
@@ -73,15 +74,31 @@ public static class WeaselwayTaskbar {
         return found;
     }
 
+    static bool Topmost(IntPtr hwnd) { return (GetWindowLong(hwnd, -20) & 8) != 0; }   // WS_EX_TOPMOST
+
     // Explorer will not keep a taskbar above a full-screen window, so while one is
     // up the viewer under the mouse goes just below it instead. The other viewer
-    // is left alone.
+    // is left alone. Never below a topmost taskbar: that makes the viewer topmost
+    // too, above every Windows app, and such a taskbar is over the viewer already.
     static void TuckViewer(IntPtr monitor) {
         List<IntPtr> taskbars = Taskbars();
         foreach (IntPtr viewer in Viewers()) {
             if (MonitorFromWindow(viewer, 2) != monitor) continue;
             foreach (IntPtr hwnd in taskbars) {
-                if (MonitorFromWindow(hwnd, 2) == monitor) SetWindowPos(viewer, hwnd, 0, 0, 0, 0, NoMoveSizeActivate);
+                if (MonitorFromWindow(hwnd, 2) == monitor && !Topmost(hwnd)) SetWindowPos(viewer, hwnd, 0, 0, 0, 0, NoMoveSizeActivate);
+            }
+        }
+    }
+
+    // Windows apps must be able to come in front. A viewer that became topmost
+    // anyway goes back among the normal windows, behind the app in use if any.
+    static void DropTopmost() {
+        foreach (IntPtr viewer in Viewers()) {
+            if (!Topmost(viewer)) continue;
+            IntPtr front = GetForegroundWindow();
+            SetWindowPos(viewer, (IntPtr)(-2), 0, 0, 0, 0, NoMoveSizeActivate);   // HWND_NOTOPMOST
+            if (front != IntPtr.Zero && ForegroundClass() != "SDL_app" && !Topmost(front)) {
+                SetWindowPos(viewer, front, 0, 0, 0, 0, NoMoveSizeActivate);
             }
         }
     }
@@ -116,11 +133,15 @@ public static class WeaselwayTaskbar {
         SetProcessDPIAware();
         bool revealed = false;
         IntPtr tucked = IntPtr.Zero;
+        int tuckTicks = 0;
         int windowsTicks = 0;
         int tick = 0;
         bool viewers = true;
         while (true) {
-            if (tick++ % 20 == 0) viewers = Process.GetProcessesByName("sdl-freerdp").Length > 0;
+            if (tick++ % 20 == 0) {
+                viewers = Process.GetProcessesByName("sdl-freerdp").Length > 0;
+                DropTopmost();
+            }
             Point cursor;
             GetCursorPos(out cursor);
             int distance = BottomOf(cursor) - cursor.Y;
@@ -134,8 +155,12 @@ public static class WeaselwayTaskbar {
             Set(revealed || !viewers);
             IntPtr monitor = revealed ? MonitorFromPoint(cursor, 2) : IntPtr.Zero;
             if (monitor != tucked) {
-                if (revealed) TuckViewer(monitor);
                 tucked = monitor;
+                tuckTicks = 10;   // Explorer may take the taskbar's topmost away a moment later
+            }
+            if (revealed && tuckTicks > 0) {
+                TuckViewer(monitor);
+                tuckTicks--;
             }
             Thread.Sleep(100);
         }
