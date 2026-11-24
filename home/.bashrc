@@ -46,6 +46,7 @@ alias untrack="git update-index --assume-unchanged"
 alias track="git update-index --no-assume-unchanged"
 alias ai="gh-copilot suggest"
 alias gsr="git branch -a | grep "
+alias s=". ~/.local/bin/set-sensitive-vars.sh"
 #alias grxc="git restore --staged  modules/configuration/config/config.xml modules/configuration/config/database-config.xml studio/plugins/ij-studio/lib/studio-branding.jar  modules/configuration/config/plugin/registry/IBillingSummaryPlugin.gwp modules/configuration/config/plugin/registry/IBillingSystemPlugin.gwp"
 alias grxc="git restore --staged  modules/configuration/config/config.xml modules/configuration/config/database-config.xml studio/plugins/ij-studio/lib/studio-branding.jar"
 # git reset $(git merge-base origin/feature/PASO $(git branch --show-current))
