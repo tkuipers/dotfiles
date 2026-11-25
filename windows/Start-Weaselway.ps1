@@ -97,7 +97,7 @@ if ($try -eq 75) { Write-Warning "Weaselway still says '$state' after 150 s; sta
 
 function Start-Viewer([int]$display) {
     $arguments = if ($display -eq 1) { "" } else { "--display $display " }
-    & wsl.exe -d $distro -- bash -lc "ww-start-viewer $arguments-decorations -grab-keyboard"
+    & wsl.exe -d $distro -- bash -lc "ww-start-viewer $arguments-decorations -grab-keyboard +auto-reconnect"
 }
 
 foreach ($display in 1, 2) {
