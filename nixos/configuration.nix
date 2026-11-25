@@ -89,7 +89,7 @@
 
     # Shell
     starship eza neovim ripgrep fd fzf bat glow tmux htop lazygit taskwarrior3
-    lsof file tree ncdu unzip zip wget curl
+    lsof file tree ncdu unzip zip wget curl killall
 
     # Development
     git-lfs gh gcc gnumake pkg-config openssl python3 unstable.uv flutter android-tools
@@ -181,7 +181,8 @@
       nativeBuildInputs = [ makeWrapper ];
       postBuild = "wrapProgram $out/bin/teams-for-linux --prefix PATH : ${player}/bin";
     })
-    vscode code-cursor bruno beekeeper-studio firefox thunderbird slack
+    # From unstable: 26.05's vscode 1.144.0 fails to build (its ripgrep moved).
+    unstable.vscode code-cursor bruno beekeeper-studio firefox thunderbird slack
     # From unstable: the library was last opened by Zotero 10, which the pinned 9.x refuses.
     unstable.zotero anki-bin
     # Outlook in an Electron wrapper. Not in nixpkgs, so this wraps the release AppImage.
@@ -261,7 +262,6 @@
 
   # usbipd attaches as root, which starts a root user manager. These would then run
   # there too, fail on the taken ports and retry forever, setting up the GPU each time.
-  systemd.user.services.weaselwayd.unitConfig.ConditionUser = "!root";
   systemd.user.services.weaselwayd-2.unitConfig.ConditionUser = "!root";
   # win-to-clipboard carries the clipboard instead
   systemd.user.services.weaselwayd.serviceConfig.ExecStart = pkgs.lib.mkForce "${pkgs.weaselwayd}/bin/weaselwayd --follow-client --no-clipboard";
@@ -327,6 +327,10 @@
       font-name = "JetBrainsMono Nerd Font 11";
     };
   }];
+
+  # For the Ladybird alpha, newer than the nixpkgs build. Update with `flatpak update`.
+  # flatpak install --user https://flatpak.ladybird.org/ladybird.flatpakref
+  services.flatpak.enable = true;
 
   # Screen sharing. With two monitors, slurp asks which one to share.
   xdg.portal = {
