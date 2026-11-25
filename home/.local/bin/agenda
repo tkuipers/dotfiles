@@ -1,7 +1,8 @@
 #!/bin/bash
 # Outlook calendar for the bar. Windows' Outlook is asked over COM, which starts
 # it hidden for a few seconds, so it is only asked every 15 minutes.
-#   agenda        JSON lines for waybar: the current or next meeting, long names scrolling
+#   agenda        JSON lines for waybar: the current or next meeting, long names
+#                 scrolling; also notifies 2 minutes before each meeting
 #   agenda pick   choose a meeting; one with a Teams link joins, others open mail
 run=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}
 cache=$run/agenda.tsv
@@ -79,6 +80,27 @@ meeting() {
   tip=$(printf '%s' "${tooltip:-Nothing else today}" | jq -Rs .)
 }
 
+# Notifies once for each meeting starting within 2 minutes. Every bar runs its own
+# copy of this script; only the one whose mkdir succeeds sends it. Clicking runs
+# notification-focus, which picks the app by the desktop entry.
+remind() {
+  local now start end name link app key told=$run/agenda-told
+  now=$(date +%s)
+  mkdir -p "$told"
+  while IFS=$'\t' read -r start end name link; do
+    ((start > now && start - now <= 120)) || continue
+    key=$start-$(cksum <<<"$name" | cut -d' ' -f1)
+    mkdir "$told/$key" 2>/dev/null || continue
+    app=prospect-mail
+    [ -n "$link" ] && app=teams-for-linux
+    busctl --user --quiet -- call org.freedesktop.Notifications /org/freedesktop/Notifications \
+      org.freedesktop.Notifications Notify 'susssasa{sv}i' \
+      Meeting 0 "$app" "$name" "Starts at $(date -d "@$start" +%H:%M)" \
+      2 default Open 1 desktop-entry s "$app" -1 || rmdir "$told/$key"
+  done < <(upcoming)
+  find "$told" -mindepth 1 -mtime +1 -delete
+}
+
 # One line of JSON for waybar.
 emit() {
   local text
@@ -107,7 +129,9 @@ if [ "$1" = pick ]; then
 fi
 
 while :; do
-  stale && fetch
+  # Before the fetch too, which can take a minute
+  remind
+  stale && fetch && remind
   meeting
   if [ -z "$when" ]; then
     emit 'No meetings'
@@ -120,7 +144,7 @@ while :; do
   ((room > 13)) && room=13
   emit "$when ${subject:0:room}"
   if ((${#subject} <= room)); then
-    sleep 30
+    sleep 10
     continue
   fi
 
