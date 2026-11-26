@@ -76,7 +76,7 @@ if [ ! -e "$HOME/.localrc" ]; then
 fi
 
 #link the compositor-neutral helpers and the other compositors' configs
-for script in wm theme-set session-switch notification-focus notification-urgent record-toggle keys glass hypr-priority; do
+for script in wm theme-set session-switch notification-focus notification-urgent record-toggle keys glass hypr-priority weaselway-shutdown; do
   ln -fs $SCRIPT_DIR/../home/.local/bin/$script $HOME/.local/bin/$script
 done
 
